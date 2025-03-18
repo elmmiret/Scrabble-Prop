@@ -1,4 +1,4 @@
-package edu.upc.prop.clusterxx;
+package ctrldomini;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;

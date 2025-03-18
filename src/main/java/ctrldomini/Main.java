@@ -1,4 +1,4 @@
-package edu.upc.prop.clusterxx;
+package ctrldomini;
 
 import com.google.gson.Gson;
 
