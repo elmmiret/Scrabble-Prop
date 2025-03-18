@@ -3,11 +3,11 @@ plugins {
     id 'application'
 }
 
-group = 'edu.upc.prop.clusterxx'
-version = '1.0-SNAPSHOT'
+group = 'prop43.1'
+version = '0.0'
 
 ext {
-    javaMainClass = 'edu.upc.prop.clusterxx.Main'
+    javaMainClass = 'ctrldomini.Main'
 }
 
 application {
