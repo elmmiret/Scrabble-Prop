@@ -1,3 +1,4 @@
+package ctrldomini;
 public class Ficha {
     private char letra;
     private int puntuacion;
