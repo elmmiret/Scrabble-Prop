@@ -3,7 +3,9 @@ package gestordeperfil;
 //this class manages the creation, elimination and logs into the database of the profiles
 public class GestorDePerfil {
 
-    public Perfil createPerfil(String name, String pass, String recovery){
+    //vector temporal que almacene los perfiles de la sesion actual para el ranking
+
+    public Perfil createPerfil(String name, String pass, String recovery) {
         return new Perfil(name, pass, recovery);
     }
 
