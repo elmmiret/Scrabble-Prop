@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Dawg {
     private NodoDawg root;
-    private Map<NodoDawg, NodoDawg> nodosMinimizados; //almacena nodos minimizados
+    private final Map<NodoDawg, NodoDawg> nodosMinimizados; //almacena nodos minimizados
     private static final List<String> Digrafos = Arrays.asList("rr", "ny", "ll", "l·l", "ch");
 
     public Dawg(){

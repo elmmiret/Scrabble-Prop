@@ -3,7 +3,7 @@ package algorisme;
 import java.util.*;
 
 public class NodoDawg {
-    private Map<String, NodoDawg> hijos = new HashMap<>();
+    private final Map<String, NodoDawg> hijos = new HashMap<>();
     private boolean esFinal = false;
 
 
