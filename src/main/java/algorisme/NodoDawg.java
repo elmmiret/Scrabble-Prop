@@ -1,9 +1,9 @@
-package ctrldomini.algorisme;
+package algorisme;
 
 import java.util.*;
 
 public class NodoDawg {
-    private Map<Character, NodoDawg> hijos = new HashMap<>();
+    private Map<String, NodoDawg> hijos = new HashMap<>();
     private boolean esFinal = false;
 
 
@@ -12,7 +12,7 @@ public class NodoDawg {
         return esFinal;
     }
 
-    public Map<Character, NodoDawg> getHijos(){
+    public Map<String, NodoDawg> getHijos(){
         return hijos;
     }
 

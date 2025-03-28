@@ -1,10 +1,12 @@
-package ctrldomini.algorisme;
+package algorisme;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Dawg {
     private NodoDawg root;
     private Map<NodoDawg, NodoDawg> nodosMinimizados; //almacena nodos minimizados
+    private static final List<String> Digrafos = Arrays.asList("rr", "ny", "ll", "l·l", "ch");
 
     public Dawg(){
         root = new NodoDawg();
@@ -13,23 +15,24 @@ public class Dawg {
 
     //función para insertar una palabra en el DAWG
     public void insertar(String palabra) {
-        root = insertarImplementacion(root, palabra, 0);
+        List<String> tokens = dividirDigrafos(palabra);
+        root = insertarImplementacion(root, tokens, 0);
     }
 
-    private NodoDawg insertarImplementacion(NodoDawg nodo, String palabra, int indice) {
-        if(indice == palabra.length()) {
+    private NodoDawg insertarImplementacion(NodoDawg nodo, List<String> tokens, int indice) {
+        if(indice == tokens.size()) {
             nodo.setEsFinal(true);
             return minimizar(nodo);
         }
 
-        char ch = palabra.charAt(indice);
-        NodoDawg hijo = nodo.getHijos().get(ch);
+        String token = tokens.get(indice);
+        NodoDawg hijo = nodo.getHijos().get(token);
         if(hijo == null) {
             hijo = new NodoDawg();
-            nodo.getHijos().put(ch, hijo);
+            nodo.getHijos().put(token, hijo);
         }
 
-        nodo.getHijos().put(ch, insertarImplementacion(hijo, palabra, indice + 1));
+        nodo.getHijos().put(token, insertarImplementacion(hijo, tokens, indice + 1));
         return minimizar(nodo);
     }
 
@@ -53,11 +56,12 @@ public class Dawg {
         return null;
     }
 
-    //función para buscar una palabra en el DAWG
+    //función para saber si existe una palabra en el DAWG
     public boolean buscar(String palabra) {
+        List<String> tokens = dividirDigrafos(palabra);
         NodoDawg actual = root;
-        for(char ch : palabra.toCharArray()) {
-            actual = actual.getHijos().get(ch);
+        for(String token : tokens) {
+            actual = actual.getHijos().get(token);
             if(actual == null) {
                 return false;
             }
@@ -65,10 +69,12 @@ public class Dawg {
         return actual.getEsFinal();
     }
 
+    // función para saber si existe el prefijo en el DAWG
     public boolean empiezaCon(String prefijo) {
+        List<String> tokens = dividirDigrafos(prefijo);
         NodoDawg actual = root;
-        for(char ch : prefijo.toCharArray()) {
-            actual = actual.getHijos().get(ch);
+        for(String token : tokens) {
+            actual = actual.getHijos().get(token);
             if(actual == null) {
                 return false;
             }
@@ -76,5 +82,35 @@ public class Dawg {
         return true;
     }
 
+    //función para dividir la palabra insertada en strings, teniendo en cuenta los digrafos
+    private List<String> dividirDigrafos(String palabra) {
+        List<String> res = new ArrayList<>();
+        //se recorre la palabra caracter por caracter
+        for (int i = 0; i < palabra.length(); i++) {
 
+            //si la palabra puede contener un digrafo de dos caracteres
+            if (i < palabra.length() - 1) {
+                String digrafo = palabra.substring(i, i + 2);
+                if (Digrafos.contains(digrafo)) {
+                    res.add(digrafo);
+                    i++;
+                    continue;
+                }
+            }
+
+            //si la palabra puede contener un digrafo de tres caracteres
+            if (i < palabra.length() - 2) {
+                String digrafo = palabra.substring(i, i + 3);
+                if (Digrafos.contains(digrafo)) {
+                    res.add(digrafo);
+                    i += 2;
+                    continue;
+                }
+            }
+
+            res.add(String.valueOf(palabra.charAt(i)));
+
+        }
+        return res;
+    }
 }

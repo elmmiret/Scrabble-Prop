@@ -1,7 +1,7 @@
 package ctrldomini;
 
 import com.google.gson.Gson;
-import ctrldomini.algorisme.*;
+import algorisme.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,7 +9,7 @@ public class Main {
 
       //vector de palabras
       String[] palabras = {
-              "apple", "app", "banana", "ban", "band", "bat", "bar", "bark",
+              "apple", "app", "cocacol·la", "banana", "ban", "band", "bat", "bar", "bark",
               "car", "cat", "carpet", "dog", "door", "dolphin", "elephant",
               "eagle", "fish", "frog", "goat", "giraffe", "horse", "house",
               "ice", "igloo", "jungle", "jump", "kite", "kitten", "lion",
@@ -25,7 +25,7 @@ public class Main {
       }
 
       //buscar algunas palabras
-      System.out.println("Buscar 'apple': " + dawg.buscar("apple")); // true
+      System.out.println("Buscar 'cocacola mal escrito': " + dawg.buscar("cocacol·la")); // true
       System.out.println("Buscar 'app': " + dawg.buscar("app"));     // true
       System.out.println("Buscar 'ban': " + dawg.buscar("ban"));      // true
       System.out.println("Buscar 'bat': " + dawg.buscar("bat"));      // true
