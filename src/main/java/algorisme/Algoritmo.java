@@ -70,7 +70,7 @@ public class Algoritmo {
                     listaAnchors.add(new int[]{fila, columna});
                 }
             }
-        return listaAnchors
+        return listaAnchors;
     }
 
 
