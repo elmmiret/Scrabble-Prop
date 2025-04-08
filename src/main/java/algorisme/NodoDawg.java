@@ -3,36 +3,42 @@ package algorisme;
 import java.util.*;
 
 public class NodoDawg {
-    private final Map<String, NodoDawg> hijos = new HashMap<>();
-    private boolean esFinal = false;
+    private Map<String, NodoDawg> hijos;
+    private boolean esFinal;
 
+    // Funcion constructora
+    public NodoDawg() {
+        hijos = new HashMap<>();
+        esFinal = false;
+    }
 
-    //funciones get y set
+    // GETTERS y SETTERS
+
+    // Indica si este nodo representa el final de una palabra
     public boolean getEsFinal(){
         return esFinal;
     }
 
+    // Devuelve los hijos de este nodo
     public Map<String, NodoDawg> getHijos(){
         return hijos;
     }
 
+    // Marca este nodo como final de palabra
     public void setEsFinal(boolean b) {
         this.esFinal = b;
     }
 
-    // para la minimización, necesitamos comparar nodos
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj == null || getClass() != obj.getClass()) return false;
-        NodoDawg otro = (NodoDawg) obj;
-        return esFinal == otro.getEsFinal() && hijos.equals(otro.getHijos());
-    }
-
-    //genera el codigo binario de cuantas letras tiene la palabra hasta la final
+    // Necesario para comparar nodos al mizimizar el DAWG
     @Override
     public int hashCode() {
-        return hijos.hashCode() + (esFinal ? 1 : 0);
+        return Objects.hash(esFinal, hijos.keySet());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof NodoDawg)) return false;
+        NodoDawg otronodo = (NodoDawg) obj;
+        return this.esFinal == otronodo.esFinal && this.hijos.keySet().equals(otronodo.hijos.keySet());
+    }
 }

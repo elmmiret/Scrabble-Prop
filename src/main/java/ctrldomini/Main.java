@@ -1,13 +1,8 @@
 package ctrldomini;
 
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 import algorisme.*;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -31,9 +26,11 @@ public class Main {
 
       Dawg dawgcatala = new Dawg();
       dawgcatala.insertarDiccionarioCatalan(dawgcatala);
+      //dawgcatala.acabar();
+      //dawgcatala.imprimir(dawgcatala.getRoot(), "");
 
       //buscar algunas palabras
-      System.out.println("Buscar 'cocacola mal escrito': " + dawgcatala.buscar("cocacol·la")); // true
+      /*System.out.println("Buscar 'cocacola mal escrito': " + dawgcatala.buscar("cocacol·la")); // true
       System.out.println("Buscar 'GOLADES': " + dawgcatala.buscar("GOLADES"));     // true
       System.out.println("Buscar 'GOLAFRE': " + dawgcatala.buscar("GOLAFRE"));      // true
       System.out.println("Buscar 'EMBORRASCAR': " + dawgcatala.buscar("EMBORRASCAR"));      // true
@@ -42,7 +39,9 @@ public class Main {
       //verificar prefijos
       System.out.println("Prefijo 'GO': " + dawgcatala.empiezaCon("ba"));   // true
       System.out.println("Prefijo 'EMB': " + dawgcatala.empiezaCon("do"));    // true
-      System.out.println("Prefijo 'xyz': " + dawgcatala.empiezaCon("xyz"));  // false
+      System.out.println("Prefijo 'xyz': " + dawgcatala.empiezaCon("xyz"));  // false*/
+
+
 
       AlfabetoCAT alfcat = new AlfabetoCAT();
       Map<String, AbstractMap.SimpleEntry<Integer, Integer>> mapaLetrasCat = alfcat.getMapaLetras();
@@ -50,14 +49,5 @@ public class Main {
       //Verificar que el alfabeto funciona
       System.out.println("La linea con L·L del alfabeto catalan tiene frequencia y puntuacion de " + alfcat.getFrequenciaLetra("L·L") + " y " + alfcat.getPuntuacionLetra("L·L"));
 
-
-      /*try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
-        String linea;
-        while((linea = entrada.readLine()) != null) {
-          System.out.println(linea); //Procesa cada linea
-        }
-      } catch (IOException e) {
-        System.err.println("Error al leer el archivo: " + e.getMessage());
-      }*/
     }
 }

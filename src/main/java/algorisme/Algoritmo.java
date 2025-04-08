@@ -65,7 +65,7 @@ public class Algoritmo {
         for (int fila = 0; fila < tablero[0].length; ++fila)
             for (int columna = 0; columna < tablero.length; ++columna)
             {
-                if (tablero[fila][columna] == '.' && tieneAdyacentes(tablero, fila, columna)
+                if (tablero[fila][columna] == '.' && tieneAdyacentes(tablero, fila, columna))
                 {
                     listaAnchors.add(new int[]{fila, columna});
                 }
@@ -78,7 +78,7 @@ public class Algoritmo {
     //función que devuelve la mejor palabra que se puede colocar en el tablero
     // a partir de las letras del atril
     //devuelve una lista con la letra o digrafo y su correspondiente posicion x, y
-    public List<SimpleEntry<String, SimpleEntry<Integer, Integer>>> MejorMovimiento(char[][]  tablero, Set<Character> letrasAtril) {
+    /*public List<SimpleEntry<String, SimpleEntry<Integer, Integer>>> MejorMovimiento(char[][]  tablero, Set<Character> letrasAtril) {
 
-    }
+    }*/
 }

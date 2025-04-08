@@ -5,115 +5,116 @@ import java.util.*;
 import java.io.*;
 
 public class Dawg {
-    private NodoDawg root;
-    private final Map<NodoDawg, NodoDawg> nodosMinimizados; //almacena nodos minimizados
-    private static final List<String> Digrafos = Arrays.asList("rr", "ny", "ll", "l·l", "ch");
+    private static Set<String> Digrafos;
+    private NodoDawg root;  // Nodo raíz del DAWG
+    private Map<NodoDawg, NodoDawg> registro;   // Mapa para evitar nodos multiplicados (minimizar)
+    private String[] palabraAnterior;   // Última palabra insertada
 
-
-    public Dawg(){
+    // Funcion constructora
+    public Dawg() {
+        Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
         root = new NodoDawg();
-        nodosMinimizados = new HashMap<>();
+        registro = new HashMap<>();
+        palabraAnterior = new String[0];
     }
 
-    //función para insertar una palabra en el DAWG
+    // Inserta una nueva palabra en el DAWG
     public void insertar(String palabra) {
-        List<String> tokens = dividirDigrafos(palabra);
-        root = insertarImplementacion(root, tokens, 0);
-    }
+        String[] simbolos = dividirPalabra(palabra);
+        int prefijosComunes = 0;
 
-    private NodoDawg insertarImplementacion(NodoDawg nodo, List<String> tokens, int indice) {
-        if(indice == tokens.size()) {
-            nodo.setEsFinal(true);
-            return minimizar(nodo);
+        // Encuentra la logitud del prefijo común con la palabra anterior
+        while(prefijosComunes < simbolos.length && prefijosComunes < palabraAnterior.length && simbolos[prefijosComunes].equals(palabraAnterior[prefijosComunes])) {
+            prefijosComunes++;
         }
 
-        String token = tokens.get(indice);
-        NodoDawg hijo = nodo.getHijos().get(token);
-        if(hijo == null) {
-            hijo = new NodoDawg();
-            nodo.getHijos().put(token, hijo);
+        // Minimiza nodos que ya no serán modificados;
+        minimizar(prefijosComunes);
+
+        // Empieza desde la raíz y avanza hasta el nodo correspondiente al prefijo común
+        NodoDawg nodo = root;
+        for(int i = 0; i < prefijosComunes && nodo != null; i++) {
+            nodo = nodo.getHijos().get(palabraAnterior[i]);
         }
 
-        nodo.getHijos().put(token, insertarImplementacion(hijo, tokens, indice + 1));
-        return minimizar(nodo);
-    }
-
-    //minimiza un nodo fusionando nodos equivalentes
-    private NodoDawg minimizar(NodoDawg nodo) {
-        NodoDawg nodoEquivalente = encuentraNodoEquivalente(nodo);
-        if(nodoEquivalente != null) {
-            return nodoEquivalente;
+        // Agrega nuevos nodos para los simbolos restantes
+        for(int i = prefijosComunes; i < simbolos.length && nodo != null; i++) {
+            NodoDawg siguiente = new NodoDawg();
+            nodo.getHijos().put(simbolos[i], siguiente);
+            nodo = siguiente;
         }
-        nodosMinimizados.put(nodo, nodo);
-        return nodo;
+
+        // Marca el último nodo como final
+        if(nodo != null) nodo.setEsFinal(true);
+        palabraAnterior = simbolos;
     }
 
-    //verifica si un prefijo existente en el DAWG
-    public NodoDawg encuentraNodoEquivalente(NodoDawg nodo) {
-        for(NodoDawg nodoExistente : nodosMinimizados.keySet()) {
-            if(nodoExistente.equals(nodo)){
-                return nodoExistente;
+    // Finaliza la construcción del DAWG minimizando todos los nodos restantes
+    public void acabar() {
+        minimizar(0);
+    }
+
+    // Minimiza los nodos desde el último insertado hasta el índice dado
+    private void minimizar(int hasta) {
+        NodoDawg nodo = root;
+        for(int i = 0; i < palabraAnterior.length - hasta; i++) {
+            String simbolo = palabraAnterior[palabraAnterior.length - 1 - i];
+            NodoDawg hijo = nodo.getHijos().get(simbolo);
+            if(hijo != null) {
+                NodoDawg nodoregistrado = registro.get(hijo);
+                if(nodoregistrado != null) {
+                    // Reutiliza un nodo ya registrado
+                    nodo.getHijos().put(simbolo, nodoregistrado);
+                }
+                else {
+                    // Registra un nuevo nood como canónico
+                    registro.put(hijo, hijo);
+                }
+                nodo = hijo;
             }
         }
-        return null;
     }
 
-    //función para saber si existe una palabra en el DAWG
-    public boolean buscar(String palabra) {
-        List<String> tokens = dividirDigrafos(palabra);
-        NodoDawg actual = root;
-        for(String token : tokens) {
-            actual = actual.getHijos().get(token);
-            if(actual == null) {
-                return false;
-            }
-        }
-        return actual.getEsFinal();
-    }
+    // Divide una palabra en símbolos, reconociendo dígrafos de 2 y 3 letras como unidades
+    private String[] dividirPalabra(String palabra) {
+        List<String> division = new ArrayList<>();
+        for(int i = 0; i < palabra.length(); ) {
+            boolean haydigrafo = false;
 
-    // función para saber si existe el prefijo en el DAWG
-    public boolean empiezaCon(String prefijo) {
-        List<String> tokens = dividirDigrafos(prefijo);
-        NodoDawg actual = root;
-        for(String token : tokens) {
-            actual = actual.getHijos().get(token);
-            if(actual == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //función para dividir la palabra insertada en strings, teniendo en cuenta los digrafos
-    private List<String> dividirDigrafos(String palabra) {
-        List<String> res = new ArrayList<>();
-        //se recorre la palabra caracter por caracter
-        for (int i = 0; i < palabra.length(); i++) {
-
-            //si la palabra puede contener un digrafo de dos caracteres
-            if (i < palabra.length() - 1) {
-                String digrafo = palabra.substring(i, i + 2);
-                if (Digrafos.contains(digrafo)) {
-                    res.add(digrafo);
-                    i++;
-                    continue;
+            // Prioriza digrafos/trigrafos más largos
+            for(int l = 3; l >= 2; l--) {
+                if(i + l <= palabra.length()) {
+                    String sub = palabra.substring(i, i + l);
+                    if(Digrafos.contains(sub)) {
+                        division.add(sub);
+                        i += l;
+                        haydigrafo = true;
+                        break;
+                    }
                 }
             }
 
-            //si la palabra puede contener un digrafo de tres caracteres
-            if (i < palabra.length() - 2) {
-                String digrafo = palabra.substring(i, i + 3);
-                if (Digrafos.contains(digrafo)) {
-                    res.add(digrafo);
-                    i += 2;
-                    continue;
-                }
+            // Si no se encontró digrafo, toma un solo carácter
+            if(!haydigrafo) {
+                division.add(String.valueOf(palabra.charAt(i)));
+                i++;
             }
-
-            res.add(String.valueOf(palabra.charAt(i)));
-
         }
-        return res;
+
+        return division.toArray(new String[0]);
+    }
+
+    // Devuelve el nodo raíz del DAWG
+    public NodoDawg getRoot() {
+        return root;
+    }
+
+    // Imprime todas las palabras representadas en el DAWG (para testear)
+    public void imprimir(NodoDawg nodo, String prefijo) {
+        if(nodo.getEsFinal()) System.out.println(prefijo);
+        for(Map.Entry<String, NodoDawg> hijo : nodo.getHijos().entrySet()) {
+            imprimir(hijo.getValue(), prefijo + hijo.getKey());
+        }
     }
 
     public void insertarDiccionarioCatalan(Dawg dawg) {
@@ -122,6 +123,8 @@ public class Dawg {
             while((linea = entrada.readLine()) != null) {
                 dawg.insertar(linea);
             }
+            dawg.acabar();
+            //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
@@ -131,8 +134,10 @@ public class Dawg {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                System.out.println(linea); //Procesa cada linea
+                dawg.insertar(linea);
             }
+            dawg.acabar();
+            //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
@@ -142,8 +147,10 @@ public class Dawg {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/ingles.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                System.out.println(linea); //Procesa cada linea
+                dawg.insertar(linea);
             }
+            dawg.acabar();
+            //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
