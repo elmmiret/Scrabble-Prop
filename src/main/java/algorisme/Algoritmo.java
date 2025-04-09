@@ -6,6 +6,36 @@ import java.util.AbstractMap.SimpleEntry;
 public class Algoritmo {
 
 
+    /**
+     *
+     *  Funcion que devuelva la mejor palara a colocar
+     *  Va a devolver una lista de (string, pair<x,y>) para cada palabra, para saber sus caracteres o digrafos y su posicion
+     *  @param tablero
+     *
+     *  1. Recorremos la matriz del tablero por filas
+     *
+     *  2. Computar los cross-checks de las casillas directamente arriba y abajo de casillas colocadas, sin tener en cuenta otras filas.
+     *     Esto nos permite, a la hora de hacer movimientos, evitar poner letras que no generan palabras validas (en vertical), si estas tocan con casillas colocadas
+     *
+     *  3. A la que se encuentra una casilla ocupada, vemos si el ancla tiene una casilla ocupada a su izquierda
+     *      3.1 Si la tiene, trataremos de extender el ancla y la parte derecha solamente con esa parte izquierda
+     *      3.2 Si no la tiene, la parte izquerda sera computada con letras del atril para luego extender estas partes hacia el ancla y parte derecha
+     *         (se computa con letras del atril que existen en los cross-checks)
+     *
+     *  4. Generar la lista con la mejor palabra (pair<pair<string,bool>, pair<x,y>>)
+     *                                                (letra, esDeAtril)   (posicion)
+     */
+
+    
+
+    /**
+     *
+     *  Funcion que coloque la palabra en el tablero y modifique la estadisticas del jugador que ha hecho el movimiento
+     *
+     *  1.
+     */
+
+
     private boolean esPalabraValida(char[][] tablero, int fila, int columna, char letra, Set<String> diccionario)
     {
         int filaIni = fila;

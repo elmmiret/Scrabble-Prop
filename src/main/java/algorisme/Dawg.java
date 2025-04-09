@@ -109,12 +109,17 @@ public class Dawg {
         return root;
     }
 
-    // Imprime todas las palabras representadas en el DAWG (para testear)
+    // Imprime todas las palabras representadas en el DAWG (para comprovar que funciona la implementación)
     public void imprimir(NodoDawg nodo, String prefijo) {
         if(nodo.getEsFinal()) System.out.println(prefijo);
         for(Map.Entry<String, NodoDawg> hijo : nodo.getHijos().entrySet()) {
             imprimir(hijo.getValue(), prefijo + hijo.getKey());
         }
+    }
+
+    public boolean existePrefijo(String prefijo) {
+        boolean existe = false;
+        return existe;
     }
 
     public void insertarDiccionarioCatalan(Dawg dawg) {

@@ -26,6 +26,13 @@ public class Main {
 
       Dawg dawgcatala = new Dawg();
       dawgcatala.insertarDiccionarioCatalan(dawgcatala);
+
+      Dawg dawgcastellano = new Dawg();
+      dawgcastellano.insertarDiccionarioCastallano(dawgcastellano);
+
+      Dawg dawgingles = new Dawg();
+      dawgingles.insertarDiccionarioIngles(dawgingles);
+
       //dawgcatala.acabar();
       //dawgcatala.imprimir(dawgcatala.getRoot(), "");
 
@@ -44,7 +51,7 @@ public class Main {
 
 
       AlfabetoCAT alfcat = new AlfabetoCAT();
-      Map<String, AbstractMap.SimpleEntry<Integer, Integer>> mapaLetrasCat = alfcat.getMapaLetras();
+      //Map<String, AbstractMap.SimpleEntry<Integer, Integer>> mapaLetrasCat = alfcat.getMapaLetras();
 
       //Verificar que el alfabeto funciona
       System.out.println("La linea con L·L del alfabeto catalan tiene frequencia y puntuacion de " + alfcat.getFrequenciaLetra("L·L") + " y " + alfcat.getPuntuacionLetra("L·L"));
