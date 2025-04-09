@@ -1,7 +1,9 @@
 package algorisme;
 
+import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+
 
 public class Algoritmo {
 
@@ -26,16 +28,115 @@ public class Algoritmo {
      *                                                (letra, esDeAtril)   (posicion)
      */
 
-    
+    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorMovimiento(Dawg dawg, Tablero tablero, String[] atril) {
+
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
+        int mejorPuntuacion = 0;
+
+        // HORIZONTAL Y VERTICALMENTE (TRANSPUESTO)
+
+        for(int i = 0; i < 2; i++) {
+            // Modificamos los cross-check sets para no computar con letras qhe no generan palabras válidas
+            computarCrossChecks(dawg,tablero,atril);
+
+            // Obtenemos las posiciones de las anclas del tablero
+            List<SimpleEntry<Integer, Integer>> anclas = computarAnclas(tablero);
+
+            // Por cada ancla, obtenemos la mejor palaba
+            for(SimpleEntry<Integer, Integer> ancla : anclas) {
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = computarPalabraAncla(dawg,tablero,ancla,atril);
+                int puntuacionPalabra = computarPuntuacionPalabra(mejorPalabraAncla);
+                if(puntuacionPalabra > mejorPuntuacion) {
+                    mejorPalabra = mejorPalabraAncla;
+                }
+            }
+
+            // Transponemos la matriz del tablero
+            transponerTablero(tablero);
+        }
+
+        return mejorPalabra;
+
+    }
+
+    /**
+     *
+     * @param dawg
+     * @param tablero
+     * @param pos
+     * @param atril
+     * @return
+     */
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> pos, String[] atril) {
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
+
+        //backtracking
+
+        // Si hay casilla a la izquierda del ancla, se computa la parte izquierda y luego la derecha
+        int x = pos.getKey();
+        int y = pos.getValue();
+
+        if(casillaCorrecta(x, y)) {
+
+            // Mirar si la casilla a la izquierda del ancla es vacía o no
+            // Si la casilla esta ocupada
+            if(tablero[x][y].getKey().getKey() != null) {
+
+                // Computar la parte izquierda con las casillas del tablero
+
+            }
+
+            // Si la casilla no esta ocupada
+            else {
+
+                // Computar la parte izquierda con las casillas del atril
+                // Funcion para saber la logitud maxima de la parte izquierda
+                int maxParteIzquierda = tamañoParteIzquierda(tablero, pos);
+
+                // Backtracking de las partes izquierdas posibles con las fichas del atril y tamaño indicado
+
+
+            }
+
+        }
+
+        return mejorPalabraAncla;
+    }
+
+    /**
+     *
+     * @param palabra
+     * @return
+     */
+    private int computarPuntuacionPalabra(List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) {
+
+    }
+
+    /**
+     *
+     * @param tablero
+     */
+    private void transponerTablero(List<List<SimpleEntry<SimpleEntry<String, TipoModificador>, Set>>> tablero) {
+
+    }
+
 
     /**
      *
      *  Funcion que coloque la palabra en el tablero y modifique la estadisticas del jugador que ha hecho el movimiento
+     *                      (en clase PARTTIDA, partida obtiene la palabra y computa)
      *
-     *  1.
      */
 
-
+    /**
+     *
+     * @param tablero
+     * @param fila
+     * @param columna
+     * @param letra
+     * @param diccionario
+     * @return
+     */
     private boolean esPalabraValida(char[][] tablero, int fila, int columna, char letra, Set<String> diccionario)
     {
         int filaIni = fila;
@@ -55,20 +156,12 @@ public class Algoritmo {
         return diccionario.contains(paraula);
     }
 
-    private boolean tieneAdyacentes(char[][] tablero, int fila, int columna)
-    {
-        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-        for (int[] direction : directions)
-        {
-            int dirX = direction[0] + fila;
-            int dirY = direction[1] + columna;
-            if (tablero[dirX][dirY] != '.')
-                return true;
-        }
-        return false;
-    }
-
-    public Map<Integer, Set<Character>> comprobarCrossChecks(char[][] tablero, Set<Character> letrasAtril, Set<String> diccionario)
+    /**
+     *
+     * @param dawg
+     * @return
+     */
+    public Map<Integer, Set<Character>> computarCrossChecks(Dawg dawg/*tablero y atril*/)
     {
         Map<Integer, Set<Character>> crossChecksValidos = new HashMap<>();
         for (int f = 0; f < tablero[0].length; ++f) {
@@ -88,8 +181,12 @@ public class Algoritmo {
         return crossChecksValidos;
     }
 
-
-    public List<int[]> computeAnchors(char[][] tablero)
+    /**
+     *
+     * @param tablero
+     * @return
+     */
+    public List<SimpleEntry<Integer, Integer>> computarAnclas(char[][] tablero)
     {
         List<int[]> listaAnchors = new ArrayList<>() ;
         for (int fila = 0; fila < tablero[0].length; ++fila)
@@ -101,6 +198,48 @@ public class Algoritmo {
                 }
             }
         return listaAnchors;
+    }
+
+    /**
+     *  Función auxiliar para ayuda a computarAnclas
+     * @param tablero
+     * @param fila
+     * @param columna
+     * @return
+     */
+    private boolean tieneAdyacentes(char[][] tablero, int fila, int columna)
+    {
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (int[] direction : directions)
+        {
+            int dirX = direction[0] + fila;
+            int dirY = direction[1] + columna;
+            if (tablero[dirX][dirY] != '.')
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean casillaCorrecta(Integer x, Integer y) {
+        return x >= 0 && x < 15 && y >= 0 && y < 15;
+    }
+
+    private int tamañoParteIzquierda(Tablero tablero, SimpleEntry<Integer, Integer> ancla) {
+        int size = 0;
+        int y = ancla.getValue();
+
+        // Mientras las casillas a la izquierda sean correctas y no esten ocupadas, sumar uno a size
+        for(int x = ancla.getKey() - 1; tablero[x][y].getKey().getKey() != null && casillaCorrecta(x, y); x--) {
+            ++size;
+        }
+
+        return size;
     }
 
 
