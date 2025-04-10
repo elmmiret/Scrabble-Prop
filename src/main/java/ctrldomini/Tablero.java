@@ -3,10 +3,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
 
+//
+
 public class Tablero {
     private List<List<SimpleEntry<Ficha, TipoModificador>>> tablero;
     public static final int FILAS = 15;
     public static final int COLUMNAS = 15;
+
+    // que cada casilla tenga un set de fichas y si se pone una ficha borramos el set entero.
 
     public enum TipoModificador {
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
@@ -15,6 +19,7 @@ public class Tablero {
     // Constructora
     public Tablero() {
         tablero = new ArrayList<>();
+        // montar el tablero aqui directamente
     }
 
     public void montarTablero () {
@@ -32,7 +37,7 @@ public class Tablero {
         return tablero.get(x).get(y).getKey();
     }
 
-    public char getLetra(int x, int y) {
+    public String getLetra(int x, int y) {
         return tablero.get(x).get(y).getKey().getLetra();
     }
 

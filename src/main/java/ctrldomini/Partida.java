@@ -16,6 +16,8 @@ public class Partida {
     private Modo modoPartida;
     private int dificultad; // depende como lo implementemos
 
+    // implementar diccionario de alguna manera para que se comunique desde la calse partida
+
     public enum Modo {
         PvP, PvIA
     }
@@ -27,7 +29,7 @@ public class Partida {
         this.oponente = oponente;
         this.nombre = nombre;
         tablero = new Tablero();
-        bolsa = new queue<Ficha>();
+        bolsa = new Queue<Ficha>();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         dificultad = null;
