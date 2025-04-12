@@ -9,13 +9,12 @@ public class GestorDePerfil {
         return new Perfil(name, pass, recovery);
     }
 
-    private boolean correctCredentials(Perfil perfil, String name, String pass)
+    private boolean incorrectCredentials(Perfil perfil, String name, String pass)
     {
         String perfName = perfil.getUsername();
-        if (!perfName.equals(name)) return false;
+        if (!perfName.equals(name)) return true;
         String perfPass = perfil.getPassword();
-        if (!perfPass.equals(pass)) return false;
-        return true;
+        return !perfPass.equals(pass);
     }
 
     //return true if oldName and the actual name of the profile are the same and the password is correct, meaning that
@@ -23,17 +22,17 @@ public class GestorDePerfil {
     //return false if oldName and the actual name of the profile dont match, if the password is incorrect or the old and
     //new usernames are the same
     public boolean changeUsername(Perfil perfil, String oldName, String newName, String password) {
-        if (!correctCredentials(perfil, oldName, password)) return false;
+        if (incorrectCredentials(perfil, oldName, password)) return false;
         if (oldName.equals(newName)) return false;
         perfil.changeUsername(newName);
         return true;
     }
 
     //return true if the password was changed without any problems
-    //return false if the username and the name dont match, if the oldPassword does not match wit the actual password
+    //return false if the username and the name don't match, if the oldPassword does not match wit the actual password
     //or if the new and old passwords are the same
     public boolean changePassword(Perfil perfil, String name, String oldPassword, String newPassword) {
-        if (!correctCredentials(perfil, name, oldPassword)) return false;
+        if (incorrectCredentials(perfil, name, oldPassword)) return false;
         if (oldPassword.equals(newPassword)) return false;
         perfil.changePassword(newPassword);
         return true;

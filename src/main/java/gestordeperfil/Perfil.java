@@ -27,7 +27,7 @@ public class Perfil {
     }
 
     public void changePassword(String pass){
-        this.username = pass;
+        this.password = pass;
     }
 
     public void increasePlayedGames() {
