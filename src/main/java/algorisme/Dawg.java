@@ -117,9 +117,32 @@ public class Dawg {
         }
     }
 
+    // True o false si existe el prefijo indicado en el Dawg
     public boolean existePrefijo(String prefijo) {
-        boolean existe = false;
-        return existe;
+        String[] simbolos = dividirPalabra(prefijo);
+        NodoDawg nodo = root;
+
+        for(String simbolo : simbolos) {
+            if(!nodo.getHijos().containsKey(simbolo)) {
+                return false;
+            }
+            nodo = nodo.getHijos().get(simbolo);
+        }
+        return true;
+    }
+
+    // True o false si existe la palabra indicada en el Dawg
+    public boolean existePalabra(String palabra) {
+        String[] simbolos = dividirPalabra(palabra);
+        NodoDawg nodo = root;
+
+        for(String simbolo : simbolos) {
+            if(nodo.getHijos().get(simbolo) == null) {
+                return false;
+            }
+            nodo = nodo.getHijos().get(simbolo);
+        }
+        return nodo.getEsFinal();
     }
 
     public void insertarDiccionarioCatalan(Dawg dawg) {
@@ -135,7 +158,7 @@ public class Dawg {
         }
     }
 
-    public void insertarDiccionarioCastallano(Dawg dawg) {
+    public void insertarDiccionarioCastellano(Dawg dawg) {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {

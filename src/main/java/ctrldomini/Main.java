@@ -25,13 +25,7 @@ public class Main {
       }*/
 
       Dawg dawgcatala = new Dawg();
-      dawgcatala.insertarDiccionarioCatalan(dawgcatala);
-
-      Dawg dawgcastellano = new Dawg();
-      dawgcastellano.insertarDiccionarioCastallano(dawgcastellano);
-
-      Dawg dawgingles = new Dawg();
-      dawgingles.insertarDiccionarioIngles(dawgingles);
+      dawgcatala.insertarDiccionarioCastellano(dawgcatala);
 
       //dawgcatala.acabar();
       //dawgcatala.imprimir(dawgcatala.getRoot(), "");
