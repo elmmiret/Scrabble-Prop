@@ -93,10 +93,12 @@ public class Algoritmo {
                 int max_long = tamañoParteIzquierdaTablero(tablero,x,y); //HECHO
 
                 // Funcion que devuelve la parte izquierda ya en el tablero
-                parteIzquierda = computarParteIzquierdaDelTablero(tablero,max_long,x,y); //HECHO
+                // extender por cada parte izquierda posible a la derecha y quedarse con la máxima
+                parteIzquierda = computarMejorPalabraTablero(tablero,max_long,x,y); //HECHO
 
                 // Funcion que devuelve la mejor palabra
-                mejorPalabraAncla = computarParteDerechaTablero(tablero,dawg,parteIzquierda,atril,x,y);
+                // habra que computar todas las partes derechas posibles de la parte izquierda y devolver la mejor (las posiciones de la palabra y devolverla)
+                // mejorPalabraAncla = computarParteDerechaTablero(tablero,dawg,parteIzquierda,atril,x,y, max_long);
 
             }
 
@@ -109,11 +111,12 @@ public class Algoritmo {
                 // Funcion para saber la logitud maxima de la parte izquierda
                 int max_long = tamañoParteIzquierdaAtril(tablero,x,y); //HECHA !!!!!MIRAR SI ESTÁ BIEN
 
+                List<SimpleEntry<String, Boolean>> mejorPalabra = new ArrayList<>();
                 // Backtracking de las partes izquierdas posibles con las fichas del atril y tamaño indicado
-                partesIzquierdas = computarPartesIzquierdasDelAtril(dawg,atril,max_long); //HECHA
+                mejorPalabra = computarMejorPalabraDelAtril(dawg,atril,max_long,tablero); //HECHA
 
-                // Funcion que devuelve la mejor palabra a partir de las partes izquierdas obtenidas anteriormente
-                mejorPalabraAncla = computarParteDerechaAtril(tablero,dawg,partesIzquierdas,atril,x,y);
+                // Añadir funcion para añadir las posiciones a las letras de la palabra
+                mejorPalabraAncla = asignarPosiciones(mejorPalabra,max_long,x,y);
 
             }
 
@@ -187,9 +190,9 @@ public class Algoritmo {
      * @param dawg
      * @return
      */
-    public Map<Integer, Set<Character>> computarCrossChecks(Dawg dawg/*tablero y atril*/)
+    public Map<SimpleEntry<Integer, Integer>, Set<Character>> computarCrossChecks(Dawg dawg/*tablero y atril*/)
     {
-        Map<Integer, Set<Character>> crossChecksValidos = new HashMap<>();
+        Map<SimpleEntry<Integer, Integer>, Set<Character>> crossChecksValidos = new HashMap<>();
         for (int f = 0; f < tablero[0].length; ++f) {
             for (int c = 0; c < tablero.length; ++c) {
                 if (tablero[f][c] == '.') {
@@ -199,7 +202,7 @@ public class Algoritmo {
                             caracteresValidos.add(letra);
                         }
                     }
-                    crossChecksValidos.put(f * tablero[0].length + c, caracteresValidos);
+                    crossChecksValidos.put(new SimpleEntry<>(f, c), caracteresValidos);
 
                 }
             }
@@ -214,13 +217,13 @@ public class Algoritmo {
      */
     public List<SimpleEntry<Integer, Integer>> computarAnclas(char[][] tablero)
     {
-        List<int[]> listaAnchors = new ArrayList<>() ;
+        List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
         for (int fila = 0; fila < tablero[0].length; ++fila)
             for (int columna = 0; columna < tablero.length; ++columna)
             {
                 if (tablero[fila][columna] == '.' && tieneAdyacentes(tablero, fila, columna))
                 {
-                    listaAnchors.add(new int[]{fila, columna});
+                    listaAnchors.add(new SimpleEntry<>(fila, columna));
                 }
             }
         return listaAnchors;
@@ -253,13 +256,13 @@ public class Algoritmo {
      * @param atril
      * @return
      */
-    private List<List<SimpleEntry<String, Boolean>>> computarPartesIzquierdasDelAtril(Dawg dawg, String[] atril, int longitud) {
-        List<List<SimpleEntry<String, Boolean>>> partesIzquierdas = new ArrayList<>();
+    private List<SimpleEntry<String, Boolean>> computarMejorPalabraDelAtril(Dawg dawg, String[] atril, int longitud, Tablero tablero ) {
+        List<SimpleEntry<String, Boolean>> mejorPalabra = new ArrayList<>();
         boolean[] usados = new boolean[atril.length];
 
-        computarPartesIzquierdasDelAtrilAux(dawg.getRoot(),atril,usados,longitud,new ArrayList<>(),partesIzquierdas);
+        computarMejorPalabraDelAtrilAux(dawg,dawg.getRoot(),atril,usados,longitud,new ArrayList<>(), mejorPalabra, tablero);
 
-        return partesIzquierdas;
+        return mejorPalabra;
     }
 
     /**
@@ -269,11 +272,17 @@ public class Algoritmo {
      * @param usados
      * @param restantes
      * @param camino
-     * @param partesIzquierdas
+     * @param mejorPalabra
      */
-    private void computarPartesIzquierdasDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<List<SimpleEntry<String, Boolean>>> partesIzquierdas) {
+
+    // añadir funcion extender derecha para comparar
+    private void computarMejorPalabraDelAtrilAux(Dawg dawg, NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<String, Boolean>> mejorPalabra, Tablero tablero) {
         if(!camino.isEmpty()) {
-            partesIzquierdas.add(new ArrayList<>(camino));
+            // mejorPalabra.add(new ArrayList<>(camino));
+            // crear nueva lista de simple entrys (palabra) asignandole camino para extender esta variable y no camino
+            // extenderemos parte derecha (tablero, usados, palabra (nueva lista), atril, nodo)
+            // comparamos puntuacion mejor palabra con la nueva "mejor" palabra y en caso de ser mayor pues mejorPalabra = nuevaPalabra
+
         }
         if(restantes == 0) return;
 
@@ -285,7 +294,7 @@ public class Algoritmo {
                 if(siguiente != null) {
                     usados[i] = true;
                     camino.add(new SimpleEntry<>(letra, true));
-                    computarPartesIzquierdasDelAtrilAux(siguiente,atril,usados,restantes-1,camino,partesIzquierdas);
+                    computarMejorPalabraDelAtrilAux(siguiente,atril,usados,restantes-1,camino,mejorPalabra, tablero);
                     camino.remove(camino.size() - 1);
                     usados[i] = false;
                 }
@@ -300,7 +309,7 @@ public class Algoritmo {
      * @param y (columna del ancla)
      * @return
      */
-    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaDelTablero(Tablero tablero, int longitud, int x, int y) {
+    private List<SimpleEntry<String, Boolean>> computarMejorPalabraTablero(Tablero tablero, int longitud, int x, int y) {
         List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
 
         // col se coloca en el principio de la parte izquierda y va retrocediendo hasta su última casilla, justo antes del ancla
