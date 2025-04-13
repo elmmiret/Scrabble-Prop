@@ -146,6 +146,22 @@ public class Algoritmo {
      * @param tablero
      */
     private void transponerTablero(List<List<SimpleEntry<SimpleEntry<String, TipoModificador>, Set>>> tablero) {
+        if (tablero.isEmpty()) return
+
+
+        List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> transpuesta = new ArrayList<>();
+        int files = tablero.size();
+        int columnes = tablero.get(0).size();
+        for (int c = 0; c < columnes; ++c) {
+            List<SimpleEntry<SimpleEntry<String, TipoModificador>, Set>> fila = new ArrayList<>();
+            for (int f = 0; f < files; ++f)
+            {
+                fila.add(tablero.get(f).get(c));
+            }
+            transpuesta.add(fila);
+        }
+        tablero.clear();
+        tablero.addAll(transpuesta);
 
     }
 
@@ -257,7 +273,7 @@ public class Algoritmo {
      * @return
      */
     private List<SimpleEntry<String, Boolean>> computarMejorPalabraDelAtril(Dawg dawg, String[] atril, int longitud, Tablero tablero ) {
-        List<SimpleEntry<String, Boolean>> mejorPalabra = new ArrayList<>();
+        List<SimpleEntry<String, Boo1lean>> mejorPalabra = new ArrayList<>();
         boolean[] usados = new boolean[atril.length];
 
         computarMejorPalabraDelAtrilAux(dawg,dawg.getRoot(),atril,usados,longitud,new ArrayList<>(), mejorPalabra, tablero);
