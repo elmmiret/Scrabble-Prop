@@ -3,18 +3,20 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;  // para dar formato a la fecha y hora
 import java.util.Queue;
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Partida {
     private static int idPartida = 0;
-    private Jugador creador;
-    private Jugador oponente;
+    private Perfil creador;
+    private Perfil oponente;
     private String nombre;
     private Tablero tablero;
     private Queue<Ficha> bolsa;
     private List<Turno> rondas; // mirar de como gestionar esto en turno
     private LocalDateTime fechaHoraCreacion;
     private Modo modoPartida;
-    private int dificultad; // depende como lo implementemos
+    private int dificultad; // depende como lo implementemos, 0 es que no se usa este parametro
 
     // implementar diccionario de alguna manera para que se comunique desde la calse partida
 
@@ -23,26 +25,28 @@ public class Partida {
     }
 
     // Constructora PvP
-    public Partida(Jugador creador, Jugador oponente, String nombre, Modo modoPartida) {
+    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida) {
         this.idPartida = ++idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
         this.nombre = nombre;
         tablero = new Tablero();
-        bolsa = new Queue<Ficha>();
+        bolsa = new LinkedList<Ficha>();
+        rondas = new ArrayList<>();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
-        dificultad = null;
+        dificultad = 0;
     }
 
     // Constructora PvIA
-    public Partida(Jugador creador, Jugador oponente, String nombre, Modo modoPartida, int dificultad) {
+    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, int dificultad) {
         this.idPartida = ++idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
         this.nombre = nombre;
         tablero = new Tablero();
-        bolsa = new queue<Ficha>();
+        bolsa = new LinkedList<Ficha>();
+        rondas = new ArrayList<>();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         this.dificultad = dificultad;
@@ -77,11 +81,16 @@ public class Partida {
         return bolsa;
     }
 
-    public Jugador getCreador() {
+    public Perfil getCreador() {
         return creador;
     }
 
-    public Jugador getOponente() {
+    public Perfil getOponente() {
         return oponente;
+    }
+
+    public void nuevoTurno() {
+        //Turno turno = new Turno(this,...); // mirar de concretar
+        //rondas.add(turno);
     }
 }

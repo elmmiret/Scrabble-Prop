@@ -25,7 +25,7 @@ public class Tablero {
     }
 
     public void montarTablero () {
-        TipoModificador m;
+        TipoModificador m = null;
         for (int i = 0; i < FILAS; i++) {
             List<SimpleEntry<Ficha, TipoModificador>> fila = new ArrayList<>();
             for (int j = 0; j < COLUMNAS; j++) {

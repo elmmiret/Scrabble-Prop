@@ -3,8 +3,9 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Turno {
+    private Partida partida;
     private int numero;
-    private Jugador jugador;
+    private Perfil jugador;
     // mapa de ficha (letra y puntuación) y la cantidad que tienes
     private Map<Ficha,Integer> atrilJ1; 
     private Map<Ficha,Integer> atrilJ2;
@@ -18,7 +19,8 @@ public class Turno {
 
 
     // Constructora
-    public Turno(String jugador, TipoJugada tipoJugada) {
+    public Turno(Partida partida, Perfil jugador, TipoJugada tipoJugada) {
+        this.partida = partida;
         this.numero = 0;
         this.jugador = jugador;
         this.atrilJ1 = new HashMap<>();
@@ -32,7 +34,7 @@ public class Turno {
         return numero;
     }
 
-    public Jugador getJugador() {
+    public Perfil getJugador() {
         return jugador;
     }
 
@@ -57,16 +59,16 @@ public class Turno {
     }
 
     public void robarFichas(Map<Ficha,Integer> atril) {
-        while (atril.size() < MAX_FICHAS && !Partida.getBolsa().isEmpty()) {
-            Ficha nuevaFicha = Partida.getBolsa().remove(0);
+        while (atril.size() < MAX_FICHAS && !partida.getBolsa().isEmpty()) {
+            Ficha nuevaFicha = partida.getBolsa().remove();
             atril.put(nuevaFicha, atril.getOrDefault(nuevaFicha, 0) + 1); // si no existe la clave, se añade con valor 1, else se incrementa su valor
         }
     }
 
     public void pasarTurno() {
         ++numero;
-        if (jugador == Partida.getCreador()) jugador = Partida.getOponente();
-        else jugador = Partida.getCreador();
+        if (jugador == partida.getCreador()) jugador = partida.getOponente();
+        else jugador = partida.getCreador();
     }
 
     public void colocarFicha(Ficha f, int x, int y) {
@@ -74,7 +76,7 @@ public class Turno {
     }
 
     public void retirarFicha(int x, int y) {
-        if (Tablero[x][y].empty()) ;// error
+        if (partida.getTablero().getFicha(x, y) == null) ;// error
         else {
             //Tablero[x][y] que sea null
         }
@@ -86,6 +88,7 @@ public class Turno {
     }
 
     public String pedirPista() {
-
+        return null; // no implementado aun
     }
+
 }
