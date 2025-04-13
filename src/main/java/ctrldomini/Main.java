@@ -4,8 +4,6 @@ import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 
 import java.util.Scanner;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Main {
 
@@ -14,7 +12,8 @@ public class Main {
     // INIT
     Scanner scanner = new Scanner(System.in);
     GestorDePerfil gestorDePerfil = new GestorDePerfil();
-    Map<String, Perfil> players = new HashMap<>();
+
+    System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
     while (true)
     {
@@ -38,63 +37,22 @@ public class Main {
             System.out.println("5- Change a username");
             System.out.println("6- Go back");
             chosenOption = scanner.nextInt();
-            String username;
-            String password;
-            String passphrase;
-            String oldusername;
-            String oldpassword;
-            String newusername;
-            String newpassword;
+            boolean operationDone = false;
             switch (chosenOption)
             {
               case 1: //Create new profile
-                scanner.nextLine(); //consume console buffer
-                System.out.print("Username: ");
-                username = scanner.nextLine();
-                System.out.print("Password: ");
-                password = scanner.nextLine();
-                System.out.print("Passphrase: ");
-                passphrase = scanner.nextLine();
-
-                if (players.containsKey(username)) System.out.println("This username is already in use");
-                else
-                {
-                  players.put(username, gestorDePerfil.createPerfil(username, password, passphrase));
-                  System.out.println(players.get(username).getUsername());
-                  System.out.println(players.get(username).getPassword());
-                  System.out.println(players.get(username).getRecoveryPhrase());
-                }
+                if (gestorDePerfil.createPerfil()) System.out.println("\nProfile created successfully\n");
                 break;
-
               case 2: //Erase a profile
+                if (gestorDePerfil.eraseProfile()) System.out.println("\nProfile deleted successfully\n");
                 break;
               case 3: //Change password
-                scanner.nextLine(); //consume console buffer
-                System.out.print("Username: ");
-                username = scanner.nextLine();
-                System.out.print("Old password: ");
-                oldpassword = scanner.nextLine();
-                System.out.print("New password: ");
-                newpassword = scanner.nextLine();
-
-                if (players.containsKey(username))
-                {
-                  if (!gestorDePerfil.changePassword(players.get(username), username, oldpassword, newpassword))
-                    System.out.println("Wrong credentials");
-                  else
-                  {
-                    System.out.println(players.get(username).getUsername());
-                    System.out.println(players.get(username).getPassword());
-                    System.out.println(players.get(username).getRecoveryPhrase());
-                  }
-                }
-                else System.out.println("This user doesn't exist");
+                if (gestorDePerfil.changePassword()) System.out.println("\nPassword changed successfully\n");
                 break;
-
               case 4: //Reestablish password
                 break;
               case 5: //Change username
-                //careful, the map key of the entry has to change as well or create another and delete last
+                  if (gestorDePerfil.changeUsername()) System.out.println("\nUsername changed successfully\n");
                 break;
               case 6: //Go back
                 break;
