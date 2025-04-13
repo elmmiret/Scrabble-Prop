@@ -1,4 +1,5 @@
 package ctrldomini;
+import exceptions.*;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -75,7 +76,7 @@ public class Turno {
         // segun el algoritmo
     }
 
-    public void retirarFicha(int x, int y) {
+    public void retirarFicha(int x, int y) throws CoordenadaFueraDeRangoException{
         if (partida.getTablero().getFicha(x, y) == null) ;// error
         else {
             //Tablero[x][y] que sea null

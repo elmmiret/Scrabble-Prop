@@ -1,10 +1,13 @@
 package ctrldomini;
-import java.util.ArrayList;
+import exceptions.*;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.AbstractMap.SimpleEntry;
 
 public class Tablero {
-    private List<List<SimpleEntry<Ficha, TipoModificador>>> tablero;
+    private List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> tablero;
     public static final int FILAS = 15;
     public static final int COLUMNAS = 15;
 
@@ -43,40 +46,50 @@ public class Tablero {
 
         tablero = new ArrayList<>();
         for (int i = 0; i < FILAS; i++) {
-            List<SimpleEntry<Ficha, TipoModificador>> fila = new ArrayList<>();
+            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>();
             for (int j = 0; j < COLUMNAS; j++) {
-                fila.add(new SimpleEntry<>(null, mapaModificadores[i][j]));
+                SimpleEntry<Ficha, TipoModificador> fichaYModificador = new SimpleEntry<>(null, mapaModificadores[i][j]);
+                Set<String> abecedario = new HashSet<>();
+                fila.add(new SimpleEntry<>(fichaYModificador, abecedario));
             }
             tablero.add(fila);
         }
     } 
 
     // Métodos
-    public Ficha getFicha(int x, int y) {
-        return tablero.get(x).get(y).getKey();
+    public Ficha getFicha(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        return tablero.get(x).get(y).getKey().getKey();
     }
 
-    public String getLetra(int x, int y) {
-        SimpleEntry<Ficha, TipoModificador> casilla = tablero.get(x).get(y);
-        if (casilla.getKey() != null) return casilla.getKey().getLetra();
+    public String getLetra(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+
+        SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
+        if (casilla.getKey().getKey() != null) return casilla.getKey().getKey().getLetra();
         else return null;
     }
 
-    public int getPuntuacion(int x, int y) {
-        return tablero.get(x).get(y).getKey().getPuntuacion();
+    public int getPuntuacion(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        return tablero.get(x).get(y).getKey().getKey().getPuntuacion();
     }
 
-    public TipoModificador getTipoModificador(int x, int y) {
-        return tablero.get(x).get(y).getValue();
+    public TipoModificador getTipoModificador(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        return tablero.get(x).get(y).getKey().getValue();
     }
 
-    public void setFicha(Ficha f, int x, int y) {
+    public void setFicha(Ficha f, int x, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException{
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        if (getFicha(x, y) != null) throw new CasillaOcupadaException(x, y);
         // si ya tiene algo escrito que de error, depende como implementemos el poder ir poniendo sin verifcar o colocar una vez verificada que la palabra existe y cabe
-        tablero.get(x).set(y, new SimpleEntry<>(f, tablero.get(x).get(y).getValue()));
-    }
+
+        SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
+        tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));    }
 
     // imprimir
-    public void imprimirTablero() {
+    public void imprimirTablero() throws CoordenadaFueraDeRangoException{
         // todo el texto tiene que ser de tres espacios para garantizar la representacion de todas las letras, ej: L·L
         String color, texto, ficha;
         TipoModificador m;

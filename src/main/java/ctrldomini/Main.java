@@ -1,7 +1,8 @@
 package ctrldomini;
+import exceptions.*;
 
 public class Main {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
     Perfil j1 = new Perfil("Pollito", "a", "a");
     Perfil j2 = new Perfil("Gian", "b", "b");
     Partida.Modo m = Partida.Modo.PvP;
