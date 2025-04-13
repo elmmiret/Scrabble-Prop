@@ -41,18 +41,82 @@ public class Main {
             switch (chosenOption)
             {
               case 1: //Create new profile
-                if (gestorDePerfil.createPerfil()) System.out.println("\nProfile created successfully\n");
+                while (!operationDone)
+                {
+                  if (gestorDePerfil.createPerfil())
+                  {
+                    System.out.println("\nProfile created successfully\n");
+                    operationDone = true;
+                  }
+                  else
+                  {
+                    System.out.println("Do you want to try again?");
+                    System.out.println("1- Yes");
+                    System.out.println("2- No");
+                    chosenOption = scanner.nextInt();
+                    if (chosenOption == 2) operationDone = true;
+                    scanner.nextLine(); //consume console buffer
+                  }
+                }
                 break;
               case 2: //Erase a profile
-                if (gestorDePerfil.eraseProfile()) System.out.println("\nProfile deleted successfully\n");
+                while (!operationDone)
+                {
+                  if (gestorDePerfil.eraseProfile())
+                  {
+                    operationDone = true;
+                  }
+                  else
+                  {
+                    System.out.println("Do you want to try again?");
+                    System.out.println("1- Yes");
+                    System.out.println("2- No");
+                    chosenOption = scanner.nextInt();
+                    if (chosenOption == 2) operationDone = true;
+                    scanner.nextLine(); //consume console buffer
+                  }
+                }
                 break;
               case 3: //Change password
-                if (gestorDePerfil.changePassword()) System.out.println("\nPassword changed successfully\n");
+                while (!operationDone)
+                {
+                  if (gestorDePerfil.changePassword())
+                  {
+                    System.out.println("\nPassword changed successfully\n");
+                    operationDone = true;
+                  }
+                  else
+                  {
+                    System.out.println("Do you want to try again?");
+                    System.out.println("1- Yes");
+                    System.out.println("2- No");
+                    chosenOption = scanner.nextInt();
+                    if (chosenOption == 2) operationDone = true;
+                    scanner.nextLine(); //consume console buffer
+                  }
+                }
                 break;
+
               case 4: //Reestablish password
                 break;
               case 5: //Change username
-                  if (gestorDePerfil.changeUsername()) System.out.println("\nUsername changed successfully\n");
+                while (!operationDone)
+                {
+                  if (gestorDePerfil.changeUsername())
+                  {
+                    System.out.println("\nUsername changed successfully\n");
+                    operationDone = true;
+                  }
+                  else
+                  {
+                    System.out.println("Do you want to try again?");
+                    System.out.println("1- Yes");
+                    System.out.println("2- No");
+                    chosenOption = scanner.nextInt();
+                    if (chosenOption == 2) operationDone = true;
+                    scanner.nextLine(); //consume console buffer
+                  }
+                }
                 break;
               case 6: //Go back
                 break;

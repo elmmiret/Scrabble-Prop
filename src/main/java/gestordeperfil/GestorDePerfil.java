@@ -168,9 +168,18 @@ public class GestorDePerfil {
                 System.out.println("1- Yes");
                 System.out.println("2- No");
                 int chosenOption = scanner.nextInt();
-                if (chosenOption == 1) players.remove(username);
-                else System.out.println("Your profile won't be deleted"); //Extension 2: The player chooses to not delete the profile
-                return true;
+                scanner.nextLine(); //consume console buffer
+                if (chosenOption == 1)
+                {
+                    players.remove(username);
+                    System.out.println("\nProfile deleted successfully\n");
+                    return true;
+                }
+                else
+                {
+                    System.out.println("\nYour profile won't be deleted\n"); //Extension 2: The player chooses to not delete the profile
+                    return false;
+                }
             }
             else //Extension 1b: incorrect password, the player can recover the password with the passphrase
             {
