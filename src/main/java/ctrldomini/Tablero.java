@@ -73,7 +73,9 @@ public class Tablero {
     }
 
     public String getLetra(int x, int y) {
-        return tablero.get(x).get(y).getKey().getLetra();
+        SimpleEntry<Ficha, TipoModificador> casilla = tablero.get(x).get(y);
+        if (casilla.getKey() != null) return casilla.getKey().getLetra();
+        else return null;
     }
 
     public int getPuntuacion(int x, int y) {
@@ -84,7 +86,7 @@ public class Tablero {
         return tablero.get(x).get(y).getValue();
     }
 
-    public void setFicha(int x, int y, Ficha f) {
+    public void setFicha(Ficha f, int x, int y) {
         tablero.get(x).set(y, new SimpleEntry<>(f, tablero.get(x).get(y).getValue()));
     }
 

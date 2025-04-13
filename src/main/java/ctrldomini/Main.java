@@ -1,17 +1,21 @@
 package ctrldomini;
 
-import com.google.gson.Gson;
-
 public class Main {
   public static void main(String[] args) {
-    System.out.println("Hello world!");
-    new Gson();
+    Perfil j1 = new Perfil("Pollito", "a", "a");
+    Perfil j2 = new Perfil("Gian", "b", "b");
+    Partida.Modo m = Partida.Modo.PvP;
+    Partida partida = new Partida(j1, j2, "partida-de-prueba", m);
 
-    Main divisioner = new Main();
-    System.out.println("Dividing 10 by 2 is " + divisioner.division(10,2));
-  }
+    // Coloca fichas de prueba
+    Ficha fichaA = new Ficha("A", 1);
+    Ficha fichaB = new Ficha("B", 3);
 
-  public float division(int a, int b) throws ArithmeticException {
-    return a/b;
+    partida.getTablero().setFicha(fichaA, 7, 7); // Centro del tablero
+    partida.getTablero().setFicha(fichaB, 7, 8);
+
+    // Imprimir tablero
+    System.out.println("Estado del tablero:");
+    partida.getTablero().imprimirTablero();
   }
 }
