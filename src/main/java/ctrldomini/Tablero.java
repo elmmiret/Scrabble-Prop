@@ -3,8 +3,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
 
-//
-
 public class Tablero {
     private List<List<SimpleEntry<Ficha, TipoModificador>>> tablero;
     public static final int FILAS = 15;
@@ -25,43 +23,29 @@ public class Tablero {
     }
 
     public void montarTablero () {
-        TipoModificador m = null;
+        TipoModificador[][] mapaModificadores = new TipoModificador[][] {
+                {TipoModificador.tripleTantoDePalabra, null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null, TipoModificador.tripleTantoDePalabra},
+                {null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null},
+                {null, null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null, null},
+                {TipoModificador.dobleTantoDeLetra, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, TipoModificador.dobleTantoDeLetra},
+                {null, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, null},
+                {null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null},
+                {null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDeLetra, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null},
+                {TipoModificador.tripleTantoDePalabra, null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null, TipoModificador.tripleTantoDePalabra},
+                {null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDeLetra, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null},
+                {null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null},
+                {null, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, null},
+                {TipoModificador.dobleTantoDeLetra, null, null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null, null, TipoModificador.dobleTantoDeLetra},
+                {null, null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null, null},
+                {null, TipoModificador.dobleTantoDePalabra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDeLetra, null, null, null, TipoModificador.dobleTantoDePalabra, null},
+                {TipoModificador.tripleTantoDePalabra, null, null, TipoModificador.dobleTantoDeLetra, null, null, null, TipoModificador.tripleTantoDePalabra, null, null, null, TipoModificador.dobleTantoDeLetra, null, null, TipoModificador.tripleTantoDePalabra}
+        };
+
+        tablero = new ArrayList<>();
         for (int i = 0; i < FILAS; i++) {
             List<SimpleEntry<Ficha, TipoModificador>> fila = new ArrayList<>();
             for (int j = 0; j < COLUMNAS; j++) {
-                if (i == j || i+j == FILAS-1) {             // construccion diagonales
-                    if (i == 0 || i == FILAS-1) m = TipoModificador.tripleTantoDePalabra;
-                    else if (i == 5 || i == 9) m = TipoModificador.tripleTantoDeLetra;
-                    else m = TipoModificador.dobleTantoDePalabra;
-                }
-                else if (i == 0 || i == FILAS-1) {          // consruccion triangulos arriba/abajo
-                    if (j == 3 || j == COLUMNAS-1-3) m = TipoModificador.dobleTantoDeLetra;
-                    if (j == (COLUMNAS-1)/2) m = TipoModificador.tripleTantoDePalabra;
-                }
-                else if (i == 1 || i == FILAS-1-1) {
-                    if (j == 5 || j == COLUMNAS-1-5) m = TipoModificador.tripleTantoDeLetra;
-                }
-                else if (i == 2 || i == FILAS-1-2) {
-                    if (j == 6 || j == COLUMNAS-1-6) m = TipoModificador.dobleTantoDeLetra;
-                }
-                else if (i == 3 || i == FILAS-1-3) {
-                    if (j == COLUMNAS-1) m = TipoModificador.dobleTantoDeLetra;
-                }
-                else if (j == 0 || j == COLUMNAS-1) {          // consruccion triangulos izquierda/derecha
-                    if (i == 3 || i == FILAS-1-3) m = TipoModificador.dobleTantoDeLetra;
-                    if (i == (FILAS-1)/2) m = TipoModificador.tripleTantoDePalabra;
-                }
-                else if (j == 1 || j == COLUMNAS-1-1) {
-                    if (i == 5 || i == COLUMNAS-1-5) m = TipoModificador.tripleTantoDeLetra;
-                }
-                else if (j == 2 || j == COLUMNAS-1-2) {
-                    if (i == 6 || i == FILAS-1-6) m = TipoModificador.dobleTantoDeLetra;
-                }
-                else if (j == 3 || j == COLUMNAS-1-3) {
-                    if (i == FILAS-1) m = TipoModificador.dobleTantoDeLetra;
-                }
-                else m = null;
-                fila.add(new SimpleEntry<>(null, m));  // segun como lo vayamos a leer
+                fila.add(new SimpleEntry<>(null, mapaModificadores[i][j]));
             }
             tablero.add(fila);
         }
@@ -87,28 +71,76 @@ public class Tablero {
     }
 
     public void setFicha(Ficha f, int x, int y) {
+        // si ya tiene algo escrito que de error, depende como implementemos el poder ir poniendo sin verifcar o colocar una vez verificada que la palabra existe y cabe
         tablero.get(x).set(y, new SimpleEntry<>(f, tablero.get(x).get(y).getValue()));
     }
 
     // imprimir
     public void imprimirTablero() {
-        System.out.println("1 2 3 4 5 6 7 8 9 10 11 12 13 14 15");
-        for (int i = 0; i < FILAS; i++) {
-            System.out.printf("%2d ", 'A' + i);
-            for (int j = 0; j < COLUMNAS; j++) {
-                String ficha = getLetra(i, j);
-                TipoModificador m = getTipoModificador(i, j);
+        // todo el texto tiene que ser de tres espacios para garantizar la representacion de todas las letras, ej: L·L
+        String color, texto, ficha;
+        TipoModificador m;
+        // para los colores, si queremos cambiar el background, la secuencia que hay que seguir es: \u001B[48;2;R;G;Bm
+        // el color de la letra a negro es 30 en vez de 48 y 000
+        String rojo = "\u001B[48;2;255;0;0m\u001B[30m";
+        String azul = "\u001B[48;2;0;0;255m\u001B[30m";
+        String cielo = "\u001B[48;2;106;174;234m\u001B[30m";
+        String naranja = "\u001B[48;2;245;135;15m\u001B[30m";
+        String dorado = "\u001B[48;2;234;200;106m\u001B[30m"; // para el centro
 
-                // TODO: Cambiar nomenclatura segun el idioma en el que se juegue
-                //       Ponerle casillas con ------  y ||||||
-                if (ficha != null) System.out.print(ficha + " ");
-                else if (m == TipoModificador.tripleTantoDePalabra) System.out.print("3P ");
-                else if (m == TipoModificador.dobleTantoDePalabra) System.out.print("2P ");
-                else if (m == TipoModificador.tripleTantoDeLetra) System.out.print("3L ");
-                else if (m == TipoModificador.dobleTantoDeLetra) System.out.print("2L ");
-                else System.out.print(" . ");
+        System.out.println("     1   2   3   4   5   6   7   8   9  10  11  12  13  14  15");
+        for (int i = 0; i < FILAS; i++) {
+            System.out.println("   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+");
+            System.out.printf("%2s ", (char)('A' + i));
+            System.out.print("|");
+            for (int j = 0; j < COLUMNAS; j++) {
+                color = "";
+                ficha = getLetra(i, j);
+                if (ficha == null) texto = "   ";
+                else if (ficha.length() == 1) texto = " "+ficha+" ";
+                else if (ficha.length() == 2) texto = ficha+" ";
+                else texto = ficha;
+                m = getTipoModificador(i, j);
+
+                if (m != null) {
+                    switch (m) {
+                        case dobleTantoDeLetra:
+                            color = cielo;
+                            break;
+                        case tripleTantoDeLetra:
+                            color = azul;
+                            break;
+                        case dobleTantoDePalabra:
+                            color = naranja;
+                            break;
+                        case tripleTantoDePalabra:
+                            color = rojo;
+                            break;
+                    }
+                }
+                if (i == FILAS/2 && j == COLUMNAS/2) {
+                    color = dorado;
+                }
+                System.out.print(color + texto + "\u001B[0m");
+                System.out.print("|");
             }
             System.out.println();
         }
+        System.out.println("   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+");
+
+        // leyenda para el código de colores
+        // TODO: Cambiar nomenclatura segun el idioma en el que se juegue
+        System.out.println();
+        System.out.println("           LEYENDA");
+        System.out.print(rojo + "   " + "\u001B[0m");
+        System.out.println(" TRIPLE TANTO DE PALABRA");
+        System.out.print(naranja + "   " + "\u001B[0m");
+        System.out.println(" DOBLE  TANTO DE PALABRA");
+        System.out.print(azul + "   " + "\u001B[0m");
+        System.out.println(" TRIPLE TANTO DE  LETRA");
+        System.out.print(cielo + "   " + "\u001B[0m");
+        System.out.println(" DOBLE  TANTO DE  LETRA");
+        System.out.print(dorado + "   " + "\u001B[0m");
+        System.out.println(" CENTRO");
     }
 }
