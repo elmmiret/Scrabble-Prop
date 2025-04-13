@@ -182,48 +182,45 @@ public class Algoritmo {
      * @param diccionario
      * @return
      */
-    private boolean esPalabraValida(char[][] tablero, int fila, int columna, char letra, Set<String> diccionario)
+    private boolean esPalabraValida( List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> tablero, int fila, int columna, String letra, Dawg diccionario)
     {
         int filaIni = fila;
-        while (fila > 0 && fila != '.')
+        while (fila > 0 && !tablero.get(fila).get(columna).getKey().getKey().equals("."))
         {
             --fila;
         }
         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-        while (fila < tablero[0].length && (fila != '.' || fila == filaIni))
+        while (fila < tablero.size() && (!tablero.get(fila).get(columna).getKey().getKey().equals(".") || fila == filaIni))
         {
             if (fila != filaIni)
-                paraula.append(tablero[fila][columna]);
+                paraula.append(tablero.get(fila).get(columna).getKey().getKey());
             else
                 paraula.append(letra);
             ++fila;
         }
-        return diccionario.contains(paraula);
+        return diccionario.existePalabra(paraula.toString());
     }
 
     /**
      *
      * @param dawg
-     * @return
+     * @param tablero
+     * @param atril
      */
-    public Map<SimpleEntry<Integer, Integer>, Set<Character>> computarCrossChecks(Dawg dawg/*tablero y atril*/)
+    public void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril)
     {
-        Map<SimpleEntry<Integer, Integer>, Set<Character>> crossChecksValidos = new HashMap<>();
-        for (int f = 0; f < tablero[0].length; ++f) {
-            for (int c = 0; c < tablero.length; ++c) {
-                if (tablero[f][c] == '.') {
-                    Set<Character> caracteresValidos = new HashSet<>();
-                    for (char letra : letrasAtril) {
-                        if (esPalabraValida(tablero, f, c, letra, diccionario)) {
-                            caracteresValidos.add(letra);
-                        }
-                    }
-                    crossChecksValidos.put(new SimpleEntry<>(f, c), caracteresValidos);
+        for (int f = 0; f < tablero.size(); ++f) {
+            for (int c = 0; c < tablero.get(0).size(); ++c) {
 
+                if (tablero.get(f).get(c).getKey().getKey().equals(".")) {
+                    tablero.get(f).get(c).getValue().clear();
+                    for (String letra : atril) {
+                        if (esPalabraValida(tablero, f, c, letra, dawg))
+                            tablero.get(f).get(c).getValue().add(letra);
+                    }
                 }
             }
         }
-        return crossChecksValidos;
     }
 
     /**
@@ -231,15 +228,15 @@ public class Algoritmo {
      * @param tablero
      * @return
      */
-    public List<SimpleEntry<Integer, Integer>> computarAnclas(char[][] tablero)
+    public List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero)
     {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
-        for (int fila = 0; fila < tablero[0].length; ++fila)
-            for (int columna = 0; columna < tablero.length; ++columna)
+        for (int f = 0; f < tablero.size(); ++f)
+            for (int c = 0; c < tablero.get(0).size(); ++c)
             {
-                if (tablero[fila][columna] == '.' && tieneAdyacentes(tablero, fila, columna))
+                if (tablero.get(f).get(c).getKey().getKey().equals(".") && tieneAdyacentes(tablero, f, c))
                 {
-                    listaAnchors.add(new SimpleEntry<>(fila, columna));
+                    listaAnchors.add(new SimpleEntry<>(f, c));
                 }
             }
         return listaAnchors;
@@ -252,14 +249,14 @@ public class Algoritmo {
      * @param columna
      * @return
      */
-    private boolean tieneAdyacentes(char[][] tablero, int fila, int columna)
+    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna)
     {
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] direction : directions)
         {
-            int dirX = direction[0] + fila;
-            int dirY = direction[1] + columna;
-            if (tablero[dirX][dirY] != '.')
+            int newFila = direction[0] + fila;
+            int newColumna = direction[1] + columna;
+            if (casillaCorrecta(newFila, newColumna) && !tablero.get(newFila).get(newColumna).getKey().getKey().equals("."))
                 return true;
         }
         return false;
