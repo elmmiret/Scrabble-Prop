@@ -43,11 +43,7 @@ public class Main {
               case 1: //Create new profile
                 while (!operationDone)
                 {
-                  if (gestorDePerfil.createPerfil())
-                  {
-                    System.out.println("\nProfile created successfully\n");
-                    operationDone = true;
-                  }
+                  if (gestorDePerfil.createPerfil()) operationDone = true;
                   else
                   {
                     System.out.println("Do you want to try again?");
@@ -59,13 +55,11 @@ public class Main {
                   }
                 }
                 break;
+
               case 2: //Erase a profile
                 while (!operationDone)
                 {
-                  if (gestorDePerfil.eraseProfile())
-                  {
-                    operationDone = true;
-                  }
+                  if (gestorDePerfil.eraseProfile()) operationDone = true;
                   else
                   {
                     System.out.println("Do you want to try again?");
@@ -77,14 +71,11 @@ public class Main {
                   }
                 }
                 break;
+
               case 3: //Change password
                 while (!operationDone)
                 {
-                  if (gestorDePerfil.changePassword())
-                  {
-                    System.out.println("\nPassword changed successfully\n");
-                    operationDone = true;
-                  }
+                  if (gestorDePerfil.changePassword()) operationDone = true;
                   else
                   {
                     System.out.println("Do you want to try again?");
@@ -98,15 +89,9 @@ public class Main {
                 break;
 
               case 4: //Reestablish password
-                break;
-              case 5: //Change username
                 while (!operationDone)
                 {
-                  if (gestorDePerfil.changeUsername())
-                  {
-                    System.out.println("\nUsername changed successfully\n");
-                    operationDone = true;
-                  }
+                  if (gestorDePerfil.reestablishPassword()) operationDone = true;
                   else
                   {
                     System.out.println("Do you want to try again?");
@@ -118,6 +103,23 @@ public class Main {
                   }
                 }
                 break;
+
+              case 5: //Change username
+                while (!operationDone)
+                {
+                  if (gestorDePerfil.changeUsername()) operationDone = true;
+                  else
+                  {
+                    System.out.println("Do you want to try again?");
+                    System.out.println("1- Yes");
+                    System.out.println("2- No");
+                    chosenOption = scanner.nextInt();
+                    if (chosenOption == 2) operationDone = true;
+                    scanner.nextLine(); //consume console buffer
+                  }
+                }
+                break;
+
               case 6: //Go back
                 break;
               default:
