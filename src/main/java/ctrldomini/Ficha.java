@@ -19,7 +19,7 @@ public class Ficha {
      * @param puntuacion Puntuación de la letra
      */
     public Ficha(String letra, int puntuacion) {
-        this.letra = letra;
+        this.letra = letra.toUpperCase();
         this.puntuacion = puntuacion;
     }
 
