@@ -8,23 +8,28 @@ public class Dawg {
     private static Set<String> Digrafos;
     private NodoDawg root;  // Nodo raíz del DAWG
     private Map<NodoDawg, NodoDawg> registro;   // Mapa para evitar nodos multiplicados (minimizar)
-    private String[] palabraAnterior;   // Última palabra insertada
+    private List<String> palabraAnterior;   // Última palabra insertada
 
     // Funcion constructora
     public Dawg() {
         Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
         root = new NodoDawg();
         registro = new HashMap<>();
-        palabraAnterior = new String[0];
+        palabraAnterior = new ArrayList<>();
     }
 
     // Inserta una nueva palabra en el DAWG
+
+    /**
+     * Función que inserta una nueva palabra String en el DAWG
+     * @param palabra
+     */
     public void insertar(String palabra) {
-        String[] simbolos = dividirPalabra(palabra);
+        List<String> simbolos = dividirPalabra(palabra);
         int prefijosComunes = 0;
 
         // Encuentra la logitud del prefijo común con la palabra anterior
-        while(prefijosComunes < simbolos.length && prefijosComunes < palabraAnterior.length && simbolos[prefijosComunes].equals(palabraAnterior[prefijosComunes])) {
+        while(prefijosComunes < simbolos.size() && prefijosComunes < palabraAnterior.size() && simbolos.get(prefijosComunes).equals(palabraAnterior.get(prefijosComunes))) {
             prefijosComunes++;
         }
 
@@ -34,13 +39,13 @@ public class Dawg {
         // Empieza desde la raíz y avanza hasta el nodo correspondiente al prefijo común
         NodoDawg nodo = root;
         for(int i = 0; i < prefijosComunes && nodo != null; i++) {
-            nodo = nodo.getHijos().get(palabraAnterior[i]);
+            nodo = nodo.getHijos().get(palabraAnterior.get(i));
         }
 
         // Agrega nuevos nodos para los simbolos restantes
-        for(int i = prefijosComunes; i < simbolos.length && nodo != null; i++) {
+        for(int i = prefijosComunes; i < simbolos.size() && nodo != null; i++) {
             NodoDawg siguiente = new NodoDawg();
-            nodo.getHijos().put(simbolos[i], siguiente);
+            nodo.getHijos().put(simbolos.get(i), siguiente);
             nodo = siguiente;
         }
 
@@ -49,16 +54,21 @@ public class Dawg {
         palabraAnterior = simbolos;
     }
 
-    // Finaliza la construcción del DAWG minimizando todos los nodos restantes
+    /**
+     * Función que finaliza la construcción del DAWG minimizando todos los nodos restantes
+     */
     public void acabar() {
         minimizar(0);
     }
 
-    // Minimiza los nodos desde el último insertado hasta el índice dado
+    /**
+     * Función que minimiza los nodos desde el último insertado hasta el índice dado
+     * @param hasta
+     */
     private void minimizar(int hasta) {
         NodoDawg nodo = root;
-        for(int i = 0; i < palabraAnterior.length - hasta; i++) {
-            String simbolo = palabraAnterior[palabraAnterior.length - 1 - i];
+        for(int i = 0; i < palabraAnterior.size() - hasta; i++) {
+            String simbolo = palabraAnterior.get(palabraAnterior.size() - 1 - i);
             NodoDawg hijo = nodo.getHijos().get(simbolo);
             if(hijo != null) {
                 NodoDawg nodoregistrado = registro.get(hijo);
@@ -76,7 +86,13 @@ public class Dawg {
     }
 
     // Divide una palabra en símbolos, reconociendo dígrafos de 2 y 3 letras como unidades
-    private String[] dividirPalabra(String palabra) {
+
+    /**
+     * Función para dividir una palabra en String a una Lista de Strings con sus letras
+     * @param palabra
+     * @return
+     */
+    private List<String> dividirPalabra(String palabra) {
         List<String> division = new ArrayList<>();
         for(int i = 0; i < palabra.length(); ) {
             boolean haydigrafo = false;
@@ -101,10 +117,15 @@ public class Dawg {
             }
         }
 
-        return division.toArray(new String[0]);
+        return division;
     }
 
     // Devuelve el nodo raíz del DAWG
+
+    /**
+     * Función para obtener el nodo raíz del DAWG
+     * @return
+     */
     public NodoDawg getRoot() {
         return root;
     }
@@ -117,9 +138,13 @@ public class Dawg {
         }
     }
 
-    // True o false si existe el prefijo indicado en el Dawg
+    /**
+     * True o false si existe el prefijo indicado en el DAWG
+     * @param prefijo
+     * @return
+     */
     public boolean existePrefijo(String prefijo) {
-        String[] simbolos = dividirPalabra(prefijo);
+        List<String> simbolos = dividirPalabra(prefijo);
         NodoDawg nodo = root;
 
         for(String simbolo : simbolos) {
@@ -131,9 +156,13 @@ public class Dawg {
         return true;
     }
 
-    // True o false si existe la palabra indicada en el Dawg
+    /**
+     * True o false si existe la palabra indicada en el Dawg
+     * @param palabra
+     * @return
+     */
     public boolean existePalabra(String palabra) {
-        String[] simbolos = dividirPalabra(palabra);
+        List<String> simbolos = dividirPalabra(palabra);
         NodoDawg nodo = root;
 
         for(String simbolo : simbolos) {

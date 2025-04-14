@@ -3,6 +3,7 @@ package algorisme;
 import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 
 public class Algoritmo {
@@ -45,7 +46,7 @@ public class Algoritmo {
             // Por cada ancla, obtenemos la mejor palaba
             for(SimpleEntry<Integer, Integer> ancla : anclas) {
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = computarPalabraAncla(dawg,tablero,ancla,atril);
-                int puntuacionPalabra = computarPuntuacionPalabra(mejorPalabraAncla);
+                int puntuacionPalabra = obtenerPuntuacion(tablero,mejorPalabraAncla);
                 if(puntuacionPalabra > mejorPuntuacion) {
                     mejorPalabra = mejorPalabraAncla;
                 }
@@ -91,16 +92,28 @@ public class Algoritmo {
                 int max_long = tamañoParteIzquierdaTablero(tablero,x,y); //HECHA
 
                 // Funcion que devuelve la parte izquierda ya en el tablero
-                // extender por cada parte izquierda posible a la derecha y quedarse con la máxima
                 parteIzquierda = computarParteIzquierdaTablero(tablero,max_long,x,y); //HECHA
 
-                List<SimpleEntry<String, Boolean>> mejorPalabra = new ArrayList<>();
+                // Asignamos las posiciones del tablero a la parte izquierda
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
+                mejorPalabra = asignarPosiciones(parteIzquierda,max_long,x,y);
+
+                // Obtenemos el nodo de la última letra de la parte izquierda
+                NodoDawg nodo = dawg.getRoot();
+                for(int i = 0; i < parteIzquierda.size(); i++) {
+                    NodoDawg siguiente = nodo.getHijos().get(parteIzquierda.getFirst().getKey());
+                    if(siguiente != null) {
+                        parteIzquierda.removeFirst();
+                        nodo = siguiente;
+                    }
+                }
+
+                boolean[] usados = new boolean[atril.length];
+
                 // Backtracking de para encontrar la mejor parte derecha posible para la parte izquierda indicada
-                mejorPalabra = computarParteDerechaTablero(tablero,dawg,parteIzquierda,atril,x,y);
+                int puntuacion = extenderParteDerecha(tablero,mejorPalabra,atril,usados,nodo,x,y);
 
-                // Añadir funcion para añadir las posiciones a las letras de la palabra
-                mejorPalabraAncla = asignarPosiciones(mejorPalabra,max_long,x,y); //HECHA (REVISAR)
-
+                mejorPalabraAncla = mejorPalabra;
 
             }
 
@@ -111,14 +124,11 @@ public class Algoritmo {
                 //List<List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>> parteDerecha = new ArrayList<>();
 
                 // Funcion para saber la logitud maxima de la parte izquierda
-                int max_long = tamañoParteIzquierdaAtril(tablero,x,y); //HECHA !!!!!MIRAR SI ESTÁ BIEN
+                int max_long = tamañoParteIzquierdaAtril(tablero,x,y); //HECHA
 
-                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
                 // Backtracking de las partes izquierdas posibles con las fichas del atril y tamaño indicado
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
                 mejorPalabra = computarMejorPalabraDelAtril(dawg.getRoot(),atril,max_long,tablero,x,y);
-
-                // Añadir funcion para añadir las posiciones a las letras de la palabra
-                //mejorPalabraAncla = asignarPosiciones(mejorPalabra,max_long,x,y); //HECHA (REVISAR)
 
             }
 
@@ -185,23 +195,21 @@ public class Algoritmo {
      * @param diccionario
      * @return
      */
-    private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> tablero, int fila, int columna, String letra, Dawg diccionario)
+    private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> tablero, int fila, int columna, String letra, Dawg dawg)
     {
         int filaIni = fila;
-        while (fila > 0 && !tablero.get(fila).get(columna).getKey().getKey().equals("."))
-        {
+        while (fila > 0 && tablero[fila][columna].getKey().getKey() != null) {
             --fila;
         }
         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-        while (fila < tablero.size() && (!tablero.get(fila).get(columna).getKey().getKey().equals(".") || fila == filaIni))
-        {
+        while (fila < tablero.size() && (tablero[fila][columna].getKey().getKey() != null || fila == filaIni)) {
             if (fila != filaIni)
-                paraula.append(tablero.get(fila).get(columna).getKey().getKey());
+                paraula.append(tablero[fila][columna].getKey().getKey());
             else
                 paraula.append(letra);
             ++fila;
         }
-        return diccionario.existePalabra(paraula.toString());
+        return dawg.existePalabra(paraula.toString());
     }
 
     /**
@@ -215,11 +223,11 @@ public class Algoritmo {
         for (int f = 0; f < tablero.size(); ++f) {
             for (int c = 0; c < tablero.get(0).size(); ++c) {
 
-                if (tablero.get(f).get(c).getKey().getKey().equals(".")) {
-                    tablero.get(f).get(c).getValue().clear();
+                if (tablero[f][c].getKey().getKey().equals(".")) {
+                    tablero[f][c].getValue().clear();
                     for (String letra : atril) {
                         if (esPalabraValida(tablero, f, c, letra, dawg))
-                            tablero.get(f).get(c).getValue().add(letra);
+                            tablero[f][c].getValue().add(letra);
                     }
                 }
             }
@@ -235,10 +243,8 @@ public class Algoritmo {
     {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
         for (int f = 0; f < tablero.size(); ++f)
-            for (int c = 0; c < tablero.get(0).size(); ++c)
-            {
-                if (tablero.get(f).get(c).getKey().getKey().equals(".") && tieneAdyacentes(tablero, f, c))
-                {
+            for (int c = 0; c < tablero.get(0).size(); ++c) {
+                if (tablero[f][c].getKey().getKey() == null && tieneAdyacentes(tablero, f, c)) {
                     listaAnchors.add(new SimpleEntry<>(f, c));
                 }
             }
@@ -255,11 +261,10 @@ public class Algoritmo {
     private boolean tieneAdyacentes(Tablero tablero, int fila, int columna)
     {
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-        for (int[] direction : directions)
-        {
+        for (int[] direction : directions) {
             int newFila = direction[0] + fila;
             int newColumna = direction[1] + columna;
-            if (casillaCorrecta(newFila, newColumna) && !tablero.get(newFila).get(newColumna).getKey().getKey().equals("."))
+            if (casillaCorrecta(newFila, newColumna) && tablero[newFila][newColumna].getKey().getKey() != null)
                 return true;
         }
         return false;
@@ -368,6 +373,12 @@ public class Algoritmo {
     private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) {
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
+
+        // si no es casilla correcta significa que estamos fuera del tablero y por lo tanto devuelve la mejorPuntuacion
+        if (!casillaCorrecta(x,y)) {
+            return mejorPuntuacion;
+        }
+
         if (nodo.getEsFinal())
         {
             // lo de mejor palabra vi que era mejor hacerlo de esta forma porque si haces mejorPalabra = caminoAuxPos, lo que haces es "linkarlas" y si caminoAuxPos cambia mejorPalabra también cambia ya que estan linkadas. Asi mejorPalabra guarda lo que tiene caminoAuxPos pero si este cambia mejorPalabra sigue como tendria que estar
@@ -379,17 +390,12 @@ public class Algoritmo {
                 mejorPalabra.addAll(new ArrayList<>(caminoAuxPos));
             }
 
+        }
 
-        }
-        // si no es casilla correcta significa que estamos fuera del tablero y por lo tanto devuelve la mejorPuntuacion
-        if (!casillaCorrecta(x,y))
-        {
-            return mejorPuntuacion;
-        }
+
         // si el tablero con posicion x  y (que hago que sea la posicion en la que estamos de la palabra en construccion) esta vacia probamos todas las letras y lo hacemos recursivamente
-        String letraTablero = tablero.get(x).get(y).getKey().getKey();
-        if (letraTablero == null)
-        {
+        String letraTablero = tablero[x][y].getKey().getKey();
+        if (letraTablero == null) {
             for (int i = 0; i < atril.length; i++) {
                 if (!usados[i]) {
                     String letra = atril[i];
@@ -398,8 +404,7 @@ public class Algoritmo {
                         usados[i] = true;
                         caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(letra, true), new SimpleEntry<>(x, y)));
                         int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, siguiente, mejorPalabra, x, y + 1, puntuacion);
-                        if (puntuacionRec > mejorPuntuacion)
-                        {
+                        if (puntuacionRec > mejorPuntuacion) {
                             mejorPuntuacion = puntuacionRec;
                         }
                         caminoAuxPos.remove(caminoAuxPos.size() - 1);
@@ -409,15 +414,17 @@ public class Algoritmo {
             }
         }
         // en caso de que este ocupada, miramos si el nodo de la palabra que tenemos hasta ahora tiene un hijo con la letra que esta ocupando y si es asi hacemos la llamada recursiva con esta
-        else if (nodo.getHijos().get(letraTablero) != null)
-        {
-            caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(tablero.get(x).get(y).getKey().getKey(), false), new SimpleEntry<>(x, y)));
-            int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero.get(x).get(y).getKey().getKey()), mejorPalabra, x, y+1, puntuacion);
-            if (puntuacionRec > mejorPuntuacion)
-            {
-                mejorPuntuacion = puntuacionRec;
+        // si la casilla se encuentra ocupada
+        else {
+            // miramos si la parte izquierda puede seguir haciendo una palabra con esa letra
+            if (nodo.getHijos().get(letraTablero) != null) {
+                caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(tablero[x][y].getKey().getKey(), false), new SimpleEntry<>(x, y)));
+                int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero[x][y].getKey().getKey()),mejorPalabra,x,y+1,puntuacion);
+                if (puntuacionRec > mejorPuntuacion) {
+                    mejorPuntuacion = puntuacionRec;
+                }
+                caminoAuxPos.remove(caminoAuxPos.size() - 1);
             }
-            caminoAuxPos.remove(caminoAuxPos.size() - 1);
         }
 
         return mejorPuntuacion;
@@ -439,32 +446,6 @@ public class Algoritmo {
         }
 
         return parteIzquierda;
-    }
-
-    /**
-     * Función que devuelve la mejor palabra del ancla a partir de las diferentes partes izquierdas posibles
-     * @param tablero
-     * @param partesIzquierdas
-     * @param atril
-     * @param x
-     * @param y
-     * @return
-     */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarParteDerechaAtril(Tablero tablero, Dawg dawg, List<List<SimpleEntry<String, Boolean>>> partesIzquierdas, String[] atril, int x, int y) {
-
-    }
-
-    /**
-     * Función que devuelve la mejor palabra del ancla a partir de la parte izquierda obtenida del tablero
-     * @param tablero
-     * @param parteIzquierda
-     * @param atril
-     * @param x
-     * @param y
-     * @return
-     */
-    private List<SimpleEntry<String, Boolean>> computarParteDerechaTablero(Tablero tablero, Dawg dawg,  List<SimpleEntry<String, Boolean>> parteIzquierda, String[] atril, int x, int y) {
-
     }
 
     /**
