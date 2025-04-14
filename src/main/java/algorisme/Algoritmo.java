@@ -308,13 +308,14 @@ public class Algoritmo {
 
             // Si mejorPalabra no esta asignada, se le asigna la primera palabra que llegue
             if(mejorPalabra.isEmpty()) {
-                mejorPalabra = caminoAuxConPosiciones;
+                mejorPalabra.addAll(caminoAuxConPosiciones);;
             }
 
             // Si mejorPalabra ya esta asignada, comparar valores y asignar la palabra de mayor puntuación
             else {
                 if(puntuacionCamino > obtenerPuntuacion(tablero,mejorPalabra)) {
-                    mejorPalabra = caminoAuxConPosiciones;
+                    mejorPalabra.clear();
+                    mejorPalabra.addAll(caminoAuxConPosiciones);
                 }
             }
 
@@ -355,16 +356,71 @@ public class Algoritmo {
      * @return
      */
     private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) {
-        int puntuacion = 0;
 
-        extenderParteDerechaAux(tablero,palabra,atril,usados,nodo);
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
+
+        int puntuacion = extenderParteDerechaAux(tablero,caminoAuxConPosiciones,atril,usados,nodo, mejorPalabra, x, y, 0);
 
         return puntuacion;
     }
 
     
-    private void extenderParteDerechaAux() {
+    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) {
+        // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
+        int mejorPuntuacion = puntuacion;
+        if (nodo.getEsFinal())
+        {
+            // lo de mejor palabra vi que era mejor hacerlo de esta forma porque si haces mejorPalabra = caminoAuxPos, lo que haces es "linkarlas" y si caminoAuxPos cambia mejorPalabra también cambia ya que estan linkadas. Asi mejorPalabra guarda lo que tiene caminoAuxPos pero si este cambia mejorPalabra sigue como tendria que estar
+            int puntuacionCamino = obtenerPuntuacion(tablero, caminoAuxPos);
+            if (puntuacionCamino > mejorPuntuacion)
+            {
+                mejorPuntuacion = puntuacionCamino;
+                mejorPalabra.clear();
+                mejorPalabra.addAll(new ArrayList<>(caminoAuxPos));
+            }
 
+
+        }
+        // si no es casilla correcta significa que estamos fuera del tablero y por lo tanto devuelve la mejorPuntuacion
+        if (!casillaCorrecta(x,y))
+        {
+            return mejorPuntuacion;
+        }
+        // si el tablero con posicion x  y (que hago que sea la posicion en la que estamos de la palabra en construccion) esta vacia probamos todas las letras y lo hacemos recursivamente
+        String letraTablero = tablero.get(x).get(y).getKey().getKey();
+        if (letraTablero == null)
+        {
+            for (int i = 0; i < atril.length; i++) {
+                if (!usados[i]) {
+                    String letra = atril[i];
+                    NodoDawg siguiente = nodo.getHijos().get(letra);
+                    if (siguiente != null) {
+                        usados[i] = true;
+                        caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(letra, true), new SimpleEntry<>(x, y)));
+                        int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, siguiente, mejorPalabra, x, y + 1, puntuacion);
+                        if (puntuacionRec > mejorPuntuacion)
+                        {
+                            mejorPuntuacion = puntuacionRec;
+                        }
+                        caminoAuxPos.remove(caminoAuxPos.size() - 1);
+                        usados[i] = false;
+                    }
+                }
+            }
+        }
+        // en caso de que este ocupada, miramos si el nodo de la palabra que tenemos hasta ahora tiene un hijo con la letra que esta ocupando y si es asi hacemos la llamada recursiva con esta
+        else if (nodo.getHijos().get(letraTablero) != null)
+        {
+            caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(tablero.get(x).get(y).getKey().getKey(), false), new SimpleEntry<>(x, y)));
+            int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero.get(x).get(y).getKey().getKey()), mejorPalabra, x, y+1, puntuacion);
+            if (puntuacionRec > mejorPuntuacion)
+            {
+                mejorPuntuacion = puntuacionRec;
+            }
+            caminoAuxPos.remove(caminoAuxPos.size() - 1);
+        }
+
+        return mejorPuntuacion;
     }
 
     /**
