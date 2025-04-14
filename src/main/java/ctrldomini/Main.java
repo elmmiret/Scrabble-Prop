@@ -13,10 +13,10 @@ public class Main {
     Ficha fichaC = new Ficha("CH", 8);
     Ficha fichaD = new Ficha("L·L", 10);
 
-    partida.getTablero().setFicha(fichaA, 7, 7); // Centro del tablero
-    partida.getTablero().setFicha(fichaB, 7, 8);
-    partida.getTablero().setFicha(fichaC, 8, 7);
-    partida.getTablero().setFicha(fichaD, 7, 9);
+    partida.getTablero().setFicha(fichaA, 'H', 7); // Centro del tablero
+    partida.getTablero().setFicha(fichaB, 'H', 8);
+    partida.getTablero().setFicha(fichaC, 'I', 7);
+    partida.getTablero().setFicha(fichaD, 'H', 9);
 
     System.out.println("Estado del tablero:");
     partida.getTablero().imprimirTablero();
