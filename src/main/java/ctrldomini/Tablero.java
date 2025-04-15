@@ -38,6 +38,7 @@ public class Tablero {
         montarTablero();
     }
 
+    // TODO: pensar como añadiria el abecedario pq de momento está vacio
     /**
      * Monta el Tablero.
      *
@@ -110,6 +111,18 @@ public class Tablero {
     }
 
     /**
+     * Obtiene el set de letras que se encuentra en la posición (x, y) del tablero.
+     *
+     * @param x Fila del abecedario.
+     * @param y Columna del abeceadrio.
+     * @return Set de letras situado en la posición (x, y) o null si no hay abecedario.
+     */
+    public Set getAbecedario(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        return tablero.get(x).get(y).getValue();
+    }
+
+    /**
      * Coloca una ficha en la posicion (x, y) del tablero.
      * Si ya hay una ficha, lanza error ya que el juego no permite cambiar fichas una vez están bien colocadas.
      *
@@ -119,7 +132,7 @@ public class Tablero {
      * @param x Fila donde colocar la ficha.
      * @param c Columna donde colocar la ficha.
      */
-    public void setFicha(Ficha f, char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException{
+    public void setFicha(Ficha f, char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int x = x_char - 'A';
         --y;
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -127,6 +140,46 @@ public class Tablero {
 
         SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
         tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));    }
+
+    /**
+     * Coloca una letra en la posicion (x, y) del abecedario del tablero.
+     * Si ya existia, se ignora.
+     *
+     * @param letra Letra que se desea colocar.
+     * @param x Fila del abecedario.
+     * @param y Columna del abeceadrio.
+     */
+    public void setLetraAbecedario(String letra, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        Set<String> abecedario = tablero.get(x).get(y).getValue();
+        abecedario.add(letra);
+    }
+
+    /**
+     * Borra una letra en la posicion (x, y) del abecedario del tablero.
+     * Si no existia, se ignora.
+     *
+     * @param letra Letra que se desea borrar.
+     * @param x Fila del abecedario.
+     * @param y Columna del abeceadrio.
+     */
+    public void borrarLetraAbecedario(String letra, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        Set<String> abecedario = tablero.get(x).get(y).getValue();
+        abecedario.remove(letra);
+    }
+
+    /**
+     * Obtiene la casilla que se encuentra en la posición (x, y) del tablero.
+     *
+     * @param x Fila de la casilla.
+     * @param y Columna de la casilla.
+     * @return Casilla de la posición (x, y) del tablero.
+     */
+    public SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> getCasilla(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        return tablero.get(x).get(y);
+    }
 
     //  ESCRITURA
 
@@ -136,7 +189,7 @@ public class Tablero {
      * Muestra tanto las fichas colocadas como los modificadores de cada casilla en forma de color.
      * Proveé una pequeña leyenda para asociar el color de una casilla al modificador que representa.
      */
-    public void imprimirTablero() throws CoordenadaFueraDeRangoException{
+    public void imprimirTablero() throws CoordenadaFueraDeRangoException {
         // todo el texto tiene que ser de tres espacios para garantizar la representacion de todas las letras, ej: L·L
         String color, texto;
         TipoModificador m;

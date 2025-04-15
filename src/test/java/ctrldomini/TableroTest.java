@@ -3,6 +3,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
 import exceptions.*;
+import java.util.Set;
+import java.util.AbstractMap.SimpleEntry;
+
 
 /**
  * Tests para probar las funcionalidades de la clase Tablero
@@ -59,5 +62,49 @@ public class TableroTest {
         Ficha f2 = new Ficha("B", 2);
         tablero.setFicha(f1, 'F', 11);
         tablero.setFicha(f2, 'F', 11);
+    }
+
+    @Test
+    public void testSetYGetAbecedario() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        tablero.setLetraAbecedario("A", 2, 3);
+        assertEquals("Debe devolver el set con la letra A", Set.of("A"), tablero.getAbecedario(2, 3));
+    }
+
+    @Test
+    public void testBorrarLetraAbecedario() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        tablero.setLetraAbecedario("A", 2, 3);
+        tablero.borrarLetraAbecedario("A", 2, 3);
+        assertEquals("Debe devolver un set vacío", Set.of(), tablero.getAbecedario(2, 3));
+    }
+
+    @Test
+    public void testBorrarLetraNoExistente() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        tablero.borrarLetraAbecedario("A", 2, 3);
+        assertEquals("Debe devolver un set vacío", Set.of(), tablero.getAbecedario(2, 3));
+    }
+
+    @Test(expected = CoordenadaFueraDeRangoException.class)
+    public void testSetLetraAbecedarioFueraDeRango() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        tablero.setLetraAbecedario("A", -1, 16);
+    }
+
+    @Test(expected = CoordenadaFueraDeRangoException.class)
+    public void testBorrarLetraAbecedarioFueraDeRango() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        tablero.borrarLetraAbecedario("A", 20, 5);
+    }
+
+    // ! con este test me replanteo hacer una clase casilla para hacer get: abecedario, ficha y modificador directamente
+    @Test
+    public void testGetCasilla() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        SimpleEntry<SimpleEntry<Ficha, Tablero.TipoModificador>, Set<String>> casilla = tablero.getCasilla(0, 0);
+        assertNull("Debe devolver null", casilla.getKey().getKey());
+        assertEquals("Debe devolver tripleTantoDePalabra como modificador", Tablero.TipoModificador.tripleTantoDePalabra, casilla.getKey().getValue());
+        assertEquals("Debe devolver un set vacío para el abecedario", Set.of(), casilla.getValue());
     }
 }
