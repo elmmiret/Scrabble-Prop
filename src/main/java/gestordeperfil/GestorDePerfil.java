@@ -78,6 +78,7 @@ public class GestorDePerfil {
      * @return true if the profile was successfully created, false if any validation failed
      */
     public boolean createPerfil() {
+        System.out.print("\n");
         System.out.print("Username: ");
         String username = scanner.nextLine();
         if (!players.containsKey(username)) {
@@ -105,6 +106,7 @@ public class GestorDePerfil {
      * @return true if the username was changed or the password was recovered, false otherwise
      */
     public boolean changeUsername() {
+        System.out.print("\n");
         System.out.print("Username: ");
         String username = scanner.nextLine();
         if (players.containsKey(username)) {
@@ -138,6 +140,7 @@ public class GestorDePerfil {
      * @return true if the password was changed or recovered, false otherwise
      */
     public boolean changePassword() {
+        System.out.print("\n");
         System.out.print("Username: ");
         String username = scanner.nextLine();
         if (players.containsKey(username)) {
@@ -168,6 +171,7 @@ public class GestorDePerfil {
      * @return true if password was successfully reset, false otherwise
      */
     public boolean reestablishPassword() {
+        System.out.print("\n");
         System.out.print("Username: ");
         String username = scanner.nextLine();
         if (players.containsKey(username)) {
@@ -197,6 +201,7 @@ public class GestorDePerfil {
      * @return true if the profile was deleted or process completed, false on critical errors
      */
     public boolean eraseProfile() {
+        System.out.print("\n");
         System.out.print("Username: ");
         String username = scanner.nextLine();
         if (players.containsKey(username)) {
@@ -227,6 +232,7 @@ public class GestorDePerfil {
     private boolean handlePasswordRecovery() {
         System.out.println("Recover password?");
         System.out.println("1- Yes\n2- No");
+        System.out.print("\n");
         int chosenOption = scanner.nextInt();
         scanner.nextLine(); // Clear buffer
         return (chosenOption == 1) ? reestablishPassword() : false;

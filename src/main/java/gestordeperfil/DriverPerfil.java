@@ -24,6 +24,7 @@ public class DriverPerfil {
     public void profileManagement(GestorDePerfil gestorDePerfil)
     {
         Scanner scanner = new Scanner(System.in);
+        System.out.print("\n");
         System.out.println("Please, pick any of the following options:");
         System.out.println("1- Create a new profile");
         System.out.println("2- Erase a profile");
@@ -31,6 +32,7 @@ public class DriverPerfil {
         System.out.println("4- Reestablish password");
         System.out.println("5- Change a username");
         System.out.println("6- Go back");
+        System.out.print("\n");
         int chosenOption = scanner.nextInt();
         boolean operationDone = false;
         switch (chosenOption)
@@ -44,6 +46,7 @@ public class DriverPerfil {
                         System.out.println("Do you want to try again?");
                         System.out.println("1- Yes");
                         System.out.println("2- No");
+                        System.out.print("\n");
                         chosenOption = scanner.nextInt();
                         if (chosenOption == 2) operationDone = true;
                         scanner.nextLine(); //consume console buffer
@@ -60,6 +63,7 @@ public class DriverPerfil {
                         System.out.println("Do you want to try again?");
                         System.out.println("1- Yes");
                         System.out.println("2- No");
+                        System.out.print("\n");
                         chosenOption = scanner.nextInt();
                         if (chosenOption == 2) operationDone = true;
                         scanner.nextLine(); //consume console buffer
@@ -76,6 +80,7 @@ public class DriverPerfil {
                         System.out.println("Do you want to try again?");
                         System.out.println("1- Yes");
                         System.out.println("2- No");
+                        System.out.print("\n");
                         chosenOption = scanner.nextInt();
                         if (chosenOption == 2) operationDone = true;
                         scanner.nextLine(); //consume console buffer
@@ -92,6 +97,7 @@ public class DriverPerfil {
                         System.out.println("Do you want to try again?");
                         System.out.println("1- Yes");
                         System.out.println("2- No");
+                        System.out.print("\n");
                         chosenOption = scanner.nextInt();
                         if (chosenOption == 2) operationDone = true;
                         scanner.nextLine(); //consume console buffer
@@ -108,6 +114,7 @@ public class DriverPerfil {
                         System.out.println("Do you want to try again?");
                         System.out.println("1- Yes");
                         System.out.println("2- No");
+                        System.out.print("\n");
                         chosenOption = scanner.nextInt();
                         if (chosenOption == 2) operationDone = true;
                         scanner.nextLine(); //consume console buffer

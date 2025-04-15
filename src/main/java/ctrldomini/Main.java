@@ -26,6 +26,7 @@ public class Main {
       System.out.println("3- Play a started game");
       System.out.println("4- See ranking");
       System.out.println("5- Exit");
+      System.out.print("\n");
 
       int chosenOption = scanner.nextInt();
         switch (chosenOption)
