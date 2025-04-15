@@ -3,7 +3,6 @@ package algorisme;
 import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 
 public class Algoritmo {
@@ -136,8 +135,14 @@ public class Algoritmo {
 
         // en este caso la parte izquierda NO se computa
         else{
+
+            List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
+            boolean[] usados = new boolean[atril.length];
+
+            int puntuacion = extenderParteDerecha(tablero,mejorPalabra,atril,usados,dawg.getRoot(),x,y);
+
             // Computación únicamente de la parte derecha
-            mejorPalabraAncla = computarParteDerechaUnicamente(tablero,dawg,atril,x,y);
+            //mejorPalabraAncla = computarParteDerechaUnicamente(tablero,dawg,atril,x,y);
 
         }
 
@@ -198,13 +203,13 @@ public class Algoritmo {
     private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> tablero, int fila, int columna, String letra, Dawg dawg)
     {
         int filaIni = fila;
-        while (fila > 0 && tablero[fila][columna].getKey().getKey() != null) {
+        while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
             --fila;
         }
         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-        while (fila < tablero.size() && (tablero[fila][columna].getKey().getKey() != null || fila == filaIni)) {
+        while (fila < tablero.size() && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
             if (fila != filaIni)
-                paraula.append(tablero[fila][columna].getKey().getKey());
+                paraula.append(tablero.getFicha(fila,columna).getLetra());
             else
                 paraula.append(letra);
             ++fila;
@@ -242,9 +247,9 @@ public class Algoritmo {
     private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero)
     {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
-        for (int f = 0; f < tablero.size(); ++f)
-            for (int c = 0; c < tablero.get(0).size(); ++c) {
-                if (tablero[f][c].getKey().getKey() == null && tieneAdyacentes(tablero, f, c)) {
+        for (int f = 0; f < tablero.size()/*15*/; ++f)
+            for (int c = 0; c < tablero.get(0).size()/*15*/; ++c) {
+                if (tablero.getFicha(f,c).getLetra() == null && tieneAdyacentes(tablero, f, c)) {
                     listaAnchors.add(new SimpleEntry<>(f, c));
                 }
             }
@@ -264,7 +269,7 @@ public class Algoritmo {
         for (int[] direction : directions) {
             int newFila = direction[0] + fila;
             int newColumna = direction[1] + columna;
-            if (casillaCorrecta(newFila, newColumna) && tablero[newFila][newColumna].getKey().getKey() != null)
+            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna).getLetra() != null)
                 return true;
         }
         return false;
@@ -323,13 +328,6 @@ public class Algoritmo {
                     mejorPalabra.addAll(caminoAuxConPosiciones);
                 }
             }
-
-
-            // mejorPalabra.add(new ArrayList<>(camino));
-            // crear nueva lista de simple entrys (palabra) asignandole camino para extender esta variable y no camino
-            // extenderemos parte derecha (tablero, usados, palabra (nueva lista), atril, nodo)
-            // comparamos puntuacion mejor palabra con la nueva "mejor" palabra y en caso de ser mayor pues mejorPalabra = nuevaPalabra
-
         }
         if(restantes == 0) return;
 
@@ -361,15 +359,16 @@ public class Algoritmo {
      * @return
      */
     private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) {
+        int puntuacion = 0;
 
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
 
-        int puntuacion = extenderParteDerechaAux(tablero,caminoAuxConPosiciones,atril,usados,nodo, mejorPalabra, x, y, 0);
+        int pt = extenderParteDerechaAux(tablero,caminoAuxConPosiciones,atril,usados,nodo, mejorPalabra, x, y, 0);
 
-        return puntuacion;
+        return pt;
     }
 
-    
+
     private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) {
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
@@ -394,10 +393,10 @@ public class Algoritmo {
 
 
         // si el tablero con posicion x  y (que hago que sea la posicion en la que estamos de la palabra en construccion) esta vacia probamos todas las letras y lo hacemos recursivamente
-        String letraTablero = tablero[x][y].getKey().getKey();
+        String letraTablero = tablero.getFicha(x,y).getLetra();
         if (letraTablero == null) {
             for (int i = 0; i < atril.length; i++) {
-                if (!usados[i]) {
+                if (!usados[i] && tablero.getSet(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
                     String letra = atril[i];
                     NodoDawg siguiente = nodo.getHijos().get(letra);
                     if (siguiente != null) {
@@ -418,8 +417,8 @@ public class Algoritmo {
         else {
             // miramos si la parte izquierda puede seguir haciendo una palabra con esa letra
             if (nodo.getHijos().get(letraTablero) != null) {
-                caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(tablero[x][y].getKey().getKey(), false), new SimpleEntry<>(x, y)));
-                int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero[x][y].getKey().getKey()),mejorPalabra,x,y+1,puntuacion);
+                caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(tablero.getFicha(x,y).getLetra(), false), new SimpleEntry<>(x, y)));
+                int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero.getFicha(x,y).getLetra()),mejorPalabra,x,y+1,puntuacion);
                 if (puntuacionRec > mejorPuntuacion) {
                     mejorPuntuacion = puntuacionRec;
                 }
@@ -442,7 +441,7 @@ public class Algoritmo {
 
         // col se coloca en el principio de la parte izquierda y va retrocediendo hasta su última casilla, justo antes del ancla
         for(int col = y - longitud; col < y; col++) {
-            parteIzquierda.add(new SimpleEntry<>(tablero[x][col].getKey().getKey(), false));
+            parteIzquierda.add(new SimpleEntry<>(tablero.getFicha(x,col).getLetra(), false));
         }
 
         return parteIzquierda;
@@ -457,9 +456,9 @@ public class Algoritmo {
      * @param y
      * @return
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarParteDerechaUnicamente(Tablero tablero, Dawg dawg, String[] atril, int x, int y) {
+    /*private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarParteDerechaUnicamente(Tablero tablero, Dawg dawg, String[] atril, int x, int y) {
 
-    }
+    }*/
 
     /**
      * Función para saber si una casilla está dentro del tablero o no
@@ -501,7 +500,7 @@ public class Algoritmo {
         // Mientras las casillas a la izquierda sean correctas y no esten ocupadas, sumar uno a size
         for(int col = y - 1; casillaCorrecta(x, col); col--) {
             // Si hay una casilla ya ocupada, no vamos a empezar la palabra directamente a su derecha, sino que vamos a dejar un espacio
-            if(tablero[x][col].getKey().getKey() != null) {
+            if(tablero.getFicha(x,col).getLetra() != null) {
                 --size;
                 return size;
             }
@@ -522,7 +521,7 @@ public class Algoritmo {
         int size = 0;
 
         // Mientras las casillas a la izquierda sean correctas y esten ocupadas, sumar uno a size
-        for(int col = y - 1; tablero[x][col].getKey().getKey() != null && casillaCorrecta(x, col); col--) {
+        for(int col = y - 1; tablero.getFicha(x,col).getLetra() != null && casillaCorrecta(x, col); col--) {
             ++size;
         }
 
