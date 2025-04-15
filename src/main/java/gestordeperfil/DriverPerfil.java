@@ -5,8 +5,22 @@ import gestordeperfil.Perfil;
 
 import java.util.Scanner;
 
+/**
+ * Provides a console-based interface for profile management operations.
+ * This driver class handles user interaction for executing profile-related actions
+ * through a {@link GestorDePerfil} instance, including retry logic for failed operations.
+ *
+ * @author Marc Ribas Acon
+ */
 public class DriverPerfil {
 
+    /**
+     * Displays and manages the profile operations menu.
+     * Handles user input/output flow for various profile management tasks through console interactions.
+     * Implements retry mechanisms for failed operations until success or user cancellation.
+     *
+     * @param gestorDePerfil the profile manager instance containing profile data and business logic
+     */
     public void profileManagement(GestorDePerfil gestorDePerfil)
     {
         Scanner scanner = new Scanner(System.in);

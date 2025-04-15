@@ -4,28 +4,60 @@ import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
 
-//this class manages the creation, elimination and logs into the database of the profiles
+/**
+ * Manages user profiles including creation, deletion, authentication, and password recovery.
+ * This class handles profile operations through console interactions and maintains a database
+ * of profiles using a HashMap. Implements password security checks and recovery mechanisms.
+ *
+ * @author Marc Ribas Acon
+ */
 public class GestorDePerfil {
 
     private Map<String, Perfil> players;
     Scanner scanner;
 
-    public GestorDePerfil()
-    {
+    /**
+     * Constructs a new profile manager with an empty database.
+     * Initializes the scanner for user input and the profile storage map.
+     */
+    public GestorDePerfil() {
         scanner = new Scanner(System.in);
         players = new HashMap<>();
     }
 
-    private boolean correctPassword(String username, String password)
-    {
-        return players.get(username).getPassword().equalsIgnoreCase(password);
+    /**
+     * Validates if the provided password matches the stored password for a username.
+     * Case-sensitive comparison.
+     *
+     * @param username the username to verify
+     * @param password the password to check
+     * @return true if the provided password matches the user's password, false otherwise
+     */
+    private boolean correctPassword(String username, String password) {
+        return players.get(username).getPassword().equals(password);
     }
 
-    private boolean correctRecoveryPhrase(String username, String recoveryPhrase)
-    {
-        return players.get(username).getRecoveryPhrase().equals(recoveryPhrase);
+    /**
+     * Validates if the provided recovery phrase matches the stored phrase for a username.
+     * Case-insensitive comparison.
+     *
+     * @param username the username to verify
+     * @param recoveryPhrase the recovery phrase
+     * @return true if the provided recovery phrase matches the user's recovery phrase, false otherwise
+     */
+    private boolean correctRecoveryPhrase(String username, String recoveryPhrase) {
+        return players.get(username).getRecoveryPhrase().equalsIgnoreCase(recoveryPhrase);
     }
 
+    /**
+     * Checks if a password meets security requirements:
+     * - Minimum 8 characters
+     * - At least 1 uppercase letter
+     * - At least 1 digit
+     *
+     * @param password the password to validate
+     * @return true if the password meets requirements, false otherwise
+     */
     public static boolean passwordIsSafe(String password) {
         if (password == null || password.length() < 8) return false;
         boolean hasUpperCase = false;
@@ -39,214 +71,164 @@ public class GestorDePerfil {
         return false;
     }
 
-    public boolean createPerfil()
-    {
+    /**
+     * Guides user through profile creation process via console.
+     * Validates username uniqueness and password safety requirements.
+     *
+     * @return true if the profile was successfully created, false if any validation failed
+     */
+    public boolean createPerfil() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
-        if (!players.containsKey(username))
-        {
+        if (!players.containsKey(username)) {
             System.out.print("Password: ");
             String password = scanner.nextLine();
             if (passwordIsSafe(password)) {
                 System.out.print("Password again: ");
                 String password2 = scanner.nextLine();
-                if (password.equals(password2))
-                {
+                if (password.equals(password2)) {
                     System.out.print("What's your favourite color? (Recovery phrase): ");
                     String recoveryPhrase = scanner.nextLine();
                     players.put(username, new Perfil(username, password, recoveryPhrase));
                     System.out.println("\nProfile created successfully\n");
-                    System.out.println(players.get(username).getUsername());
-                    System.out.println(players.get(username).getPassword());
-                    System.out.println(players.get(username).getRecoveryPhrase());
                     return true;
-                }
-                else System.out.println("\nThe passwords don't match\n"); //Extension 1b: two passwords don't match
-            }
-            else System.out.println("\nThe password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 1c: password doesn't meet minimum safety requirements
-        }
-        else System.out.println("\nThis username is already in use\n"); //Extension 1a: profile already exists
-
+                } else System.out.println("\nThe passwords don't match\n");
+            } else System.out.println("\nThe password doesn't meet the minimum safety requirements\n");
+        } else System.out.println("\nThis username is already in use\n");
         return false;
     }
 
-    //return true if oldName and the actual name of the profile are the same and the password is correct, meaning that
-    // the process turned ok
-    //return false if oldName and the actual name of the profile dont match, if the password is incorrect or the old and
-    //new usernames are the same
+    /**
+     * Handles a profile's username change process with authentication checks.
+     * Includes password recovery option for failed attempts.
+     *
+     * @return true if the username was changed or the password was recovered, false otherwise
+     */
     public boolean changeUsername() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
-        if (players.containsKey(username))
-        {
+        if (players.containsKey(username)) {
             System.out.print("Password: ");
             String password = scanner.nextLine();
-            if (correctPassword(username, password))
-            {
+            if (correctPassword(username, password)) {
                 System.out.print("New username: ");
                 String newUsername = scanner.nextLine();
-                if (!username.equals(newUsername))
-                {
-                    if (!players.containsKey(newUsername))
-                    {
+                if (!username.equals(newUsername)) {
+                    if (!players.containsKey(newUsername)) {
                         Perfil player = players.get(username);
                         player.changeUsername(newUsername);
                         players.remove(username);
                         players.put(newUsername, player);
                         System.out.println("\nUsername changed successfully\n");
-                        System.out.println(players.get(newUsername).getUsername());
-                        System.out.println(players.get(newUsername).getPassword());
-                        System.out.println(players.get(newUsername).getRecoveryPhrase());
                         return true;
-                    }
-                    else System.out.println("\nThis username is already in use\n"); //Extension 1c: the new password is already in use
-                }
-                else System.out.println("\nThe old and the new username are the same\n"); //Extension 1b: the old and new username are the same
-            }
-            else //Extension 1d: incorrect password, the player can recover the password with the recoveryPhrase
-            {
+                    } else System.out.println("\nThis username is already in use\n");
+                } else System.out.println("\nThe old and new username are the same\n");
+            } else {
                 System.out.println("\nIncorrect password\n");
-                System.out.println("Do you want to reestablish your password?");
-                System.out.println("1- Yes");
-                System.out.println("2- No");
-                int chosenOption = scanner.nextInt();
-                scanner.nextLine(); //consume console buffer
-                if (chosenOption == 1)
-                {
-                    reestablishPassword();
-                    return true;
-                }
-                else return false;
+                return handlePasswordRecovery();
             }
-        }
-        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
-
+        } else System.out.println("\nNo profile with this username\n");
         return false;
     }
 
-    //return true if the password was changed without any problems
-    //return false if the username and the name don't match, if the oldPassword does not match wit the actual password
-    //or if the new and old passwords are the same
+    /**
+     * Manages a profile's password change process with security validations.
+     * Includes recovery flow for failed authentication attempts.
+     *
+     * @return true if the password was changed or recovered, false otherwise
+     */
     public boolean changePassword() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
-        if (players.containsKey(username))
-        {
+        if (players.containsKey(username)) {
             System.out.print("Password: ");
             String password = scanner.nextLine();
-            if (correctPassword(username, password))
-            {
+            if (correctPassword(username, password)) {
                 System.out.print("New password: ");
                 String newPassword = scanner.nextLine();
-                if (passwordIsSafe(newPassword))
-                {
-                    if (!password.equals(newPassword))
-                    {
+                if (passwordIsSafe(newPassword)) {
+                    if (!password.equals(newPassword)) {
                         players.get(username).changePassword(newPassword);
                         System.out.println("\nPassword changed successfully\n");
-                        System.out.println(players.get(username).getUsername());
-                        System.out.println(players.get(username).getPassword());
-                        System.out.println(players.get(username).getRecoveryPhrase());
                         return true;
-                    }
-                    else System.out.println("\nThe old and the new password are the same\n"); //Extension 1c: old and new password are the same
-                }
-                else System.out.println("\nThe password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 1b: password doesn't meet minimum safety requirements
-            }
-            else //Extension 1d: incorrect password, the player can recover the password with the recoveryPhrase
-            {
+                    } else System.out.println("\nOld and new password are the same\n");
+                } else System.out.println("\nPassword doesn't meet requirements\n");
+            } else {
                 System.out.println("\nIncorrect password\n");
-                System.out.println("Do you want to reestablish your password?");
-                System.out.println("1- Yes");
-                System.out.println("2- No");
-                int chosenOption = scanner.nextInt();
-                scanner.nextLine(); //consume console buffer
-                if (chosenOption == 1)
-                {
-                    reestablishPassword();
-                    return true;
-                }
-                else return false;
+                return handlePasswordRecovery();
             }
-        }
-        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
+        } else System.out.println("\nNo profile with this username\n");
         return false;
     }
 
+    /**
+     * Resets password using recovery phrase authentication.
+     * Validates new password safety and confirmation.
+     *
+     * @return true if password was successfully reset, false otherwise
+     */
     public boolean reestablishPassword() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
-        if (players.containsKey(username))
-        {
+        if (players.containsKey(username)) {
             System.out.print("What's your favourite color? (Recovery phrase): ");
             String recoveryPhrase = scanner.nextLine();
-            if (correctRecoveryPhrase(username, recoveryPhrase))
-            {
+            if (correctRecoveryPhrase(username, recoveryPhrase)) {
                 System.out.print("New password: ");
                 String newPassword = scanner.nextLine();
-                if (passwordIsSafe(newPassword))
-                {
+                if (passwordIsSafe(newPassword)) {
                     System.out.print("New password again: ");
                     String newPassword2 = scanner.nextLine();
-                    if (newPassword.equals(newPassword2))
-                    {
+                    if (newPassword.equals(newPassword2)) {
                         players.get(username).changePassword(newPassword);
                         System.out.println("\nPassword reestablished successfully\n");
-                        System.out.println(players.get(username).getUsername());
-                        System.out.println(players.get(username).getPassword());
-                        System.out.println(players.get(username).getRecoveryPhrase());
                         return true;
-                    }
-                    else System.out.println("\nThe passwords don't match\n"); //Extension 3a: the passwords don't match
-                }
-                else System.out.println("\nThe password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 3b: password doesn't meet minimum safety requirements
-            }
-            else System.out.println("\nThe recovery phrase is not correct\n"); //Extension 1b: incorrect recovery phrase
-        }
-        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
+                    } else System.out.println("\nPasswords don't match\n");
+                } else System.out.println("\nPassword doesn't meet requirements\n");
+            } else System.out.println("\nIncorrect recovery phrase\n");
+        } else System.out.println("\nNo profile with this username\n");
         return false;
     }
 
-    public boolean eraseProfile()
-    {
+    /**
+     * Deletes a profile after confirmation and authentication.
+     * Provides recovery option for failed password attempts.
+     *
+     * @return true if the profile was deleted or process completed, false on critical errors
+     */
+    public boolean eraseProfile() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
-        if (players.containsKey(username))
-        {
+        if (players.containsKey(username)) {
             System.out.print("Password: ");
             String password = scanner.nextLine();
-            if (correctPassword(username, password))
-            {
-                System.out.println("Do you really want to permanently delete your profile?");
-                System.out.println("1- Yes");
-                System.out.println("2- No");
+            if (correctPassword(username, password)) {
+                System.out.println("Permanently delete your profile?");
+                System.out.println("1- Yes\n2- No");
                 int chosenOption = scanner.nextInt();
-                scanner.nextLine(); //consume console buffer
-                if (chosenOption == 1)
-                {
+                scanner.nextLine(); // Clear buffer
+                if (chosenOption == 1) {
                     players.remove(username);
                     System.out.println("\nProfile deleted successfully\n");
-                }
-                else System.out.println("\nYour profile won't be deleted\n"); //Extension 2: The player chooses to not delete the profile
+                } else System.out.println("\nDeletion canceled\n");
                 return true;
-            }
-            else //Extension 1b: incorrect password, the player can recover the password with the recoveryPhrase
-            {
+            } else {
                 System.out.println("\nIncorrect password\n");
-                System.out.println("Do you want to reestablish your password?");
-                System.out.println("1- Yes");
-                System.out.println("2- No");
-                int chosenOption = scanner.nextInt();
-                scanner.nextLine(); //consume console buffer
-                if (chosenOption == 1)
-                {
-                    reestablishPassword();
-                    return true;
-                }
-                else return false;
+                return handlePasswordRecovery();
             }
-        }
-        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
+        } else System.out.println("\nNo profile with this username\n");
         return false;
+    }
+
+    /**
+     * Handles password recovery workflow for failed authentication attempts and calls the function that handles it
+     * @return true if password was recovered, false if user declined
+     */
+    private boolean handlePasswordRecovery() {
+        System.out.println("Recover password?");
+        System.out.println("1- Yes\n2- No");
+        int chosenOption = scanner.nextInt();
+        scanner.nextLine(); // Clear buffer
+        return (chosenOption == 1) ? reestablishPassword() : false;
     }
 }
