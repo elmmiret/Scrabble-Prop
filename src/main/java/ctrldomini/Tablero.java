@@ -16,9 +16,15 @@ public class Tablero {
     private List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> tablero;
     public static final int FILAS = 15;
     public static final int COLUMNAS = 15;
-    public enum TipoModificador {   // si esta null es que no hay niingun bonificador en esa casilla
+    public enum TipoModificador {   // si esta null es que no hay ningun bonificador en esa casilla
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
     }
+
+    // TODO: Cambiar los rangos para q los usuarios puedan usar de 1 a 15 y no q empiece por 0,
+    // que por 0 solo sea cuando se necesitan bucles
+    // depende de la implementacion final
+
+    // TODO: para @test  que no puedas setear una ficha que no existe en el diccionario o eso es mas bien de partida?
 
     // CONSTRUCTORA
 
@@ -115,6 +121,7 @@ public class Tablero {
      */
     public void setFicha(Ficha f, char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException{
         int x = x_char - 'A';
+        --y;
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if (getFicha(x, y) != null) throw new CasillaOcupadaException(x, y);
 

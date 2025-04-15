@@ -2,6 +2,11 @@ package ctrldomini;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
+/**
+ * Tests para probar las funcionalidades de la clase Ficha
+ *
+ * @author: Paula Pérez
+ */
 public class FichaTest {
 
     @Test
