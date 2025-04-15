@@ -61,11 +61,11 @@ public class GestorDePerfil {
                     System.out.println(players.get(username).getRecoveryPhrase());
                     return true;
                 }
-                else System.out.println("\nERROR: The passwords don't match\n"); //Extension 1b: two passwords don't match
+                else System.out.println("\nThe passwords don't match\n"); //Extension 1b: two passwords don't match
             }
-            else System.out.println("\nERROR: The password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 1c: password doesn't meet minimum safety requirements
+            else System.out.println("\nThe password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 1c: password doesn't meet minimum safety requirements
         }
-        else System.out.println("\nERROR: This username is already in use\n"); //Extension 1a: profile already exists
+        else System.out.println("\nThis username is already in use\n"); //Extension 1a: profile already exists
 
         return false;
     }
@@ -99,13 +99,13 @@ public class GestorDePerfil {
                         System.out.println(players.get(newUsername).getRecoveryPhrase());
                         return true;
                     }
-                    else System.out.println("\nERROR: This username is already in use\n"); //Extension 1c: the new password is already in use
+                    else System.out.println("\nThis username is already in use\n"); //Extension 1c: the new password is already in use
                 }
-                else System.out.println("\nERROR: The old and the new username are the same\n"); //Extension 1b: the old and new username are the same
+                else System.out.println("\nThe old and the new username are the same\n"); //Extension 1b: the old and new username are the same
             }
             else //Extension 1d: incorrect password, the player can recover the password with the recoveryPhrase
             {
-                System.out.println("\nERROR: Incorrect password\n");
+                System.out.println("\nIncorrect password\n");
                 System.out.println("Do you want to reestablish your password?");
                 System.out.println("1- Yes");
                 System.out.println("2- No");
@@ -119,7 +119,7 @@ public class GestorDePerfil {
                 else return false;
             }
         }
-        else System.out.println("\nERROR: There is no profile with this username\n"); //Extension 1a: No profile with this username exists
+        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
 
         return false;
     }
@@ -149,13 +149,13 @@ public class GestorDePerfil {
                         System.out.println(players.get(username).getRecoveryPhrase());
                         return true;
                     }
-                    else System.out.println("\nERROR: The old and the new password are the same\n"); //Extension 1c: old and new password are the same
+                    else System.out.println("\nThe old and the new password are the same\n"); //Extension 1c: old and new password are the same
                 }
-                else System.out.println("\nERROR: The password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 1b: password doesn't meet minimum safety requirements
+                else System.out.println("\nThe password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 1b: password doesn't meet minimum safety requirements
             }
             else //Extension 1d: incorrect password, the player can recover the password with the recoveryPhrase
             {
-                System.out.println("\nERROR: Incorrect password\n");
+                System.out.println("\nIncorrect password\n");
                 System.out.println("Do you want to reestablish your password?");
                 System.out.println("1- Yes");
                 System.out.println("2- No");
@@ -169,7 +169,7 @@ public class GestorDePerfil {
                 else return false;
             }
         }
-        else System.out.println("\nERROR: There is no profile with this username\n"); //Extension 1a: No profile with this username exists
+        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
         return false;
     }
 
@@ -197,13 +197,13 @@ public class GestorDePerfil {
                         System.out.println(players.get(username).getRecoveryPhrase());
                         return true;
                     }
-                    else System.out.println("\nERROR: The passwords don't match\n"); //Extension 3a: the passwords don't match
+                    else System.out.println("\nThe passwords don't match\n"); //Extension 3a: the passwords don't match
                 }
-                else System.out.println("\nERROR: The password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 3b: password doesn't meet minimum safety requirements
+                else System.out.println("\nThe password doesn't meet the minimum safety requirements: 8 characters and at least 1 upper case letter and 1 number\n"); //Extension 3b: password doesn't meet minimum safety requirements
             }
-            else System.out.println("\nERROR: The recovery phrase is not correct\n"); //Extension 1b: incorrect recovery phrase
+            else System.out.println("\nThe recovery phrase is not correct\n"); //Extension 1b: incorrect recovery phrase
         }
-        else System.out.println("\nERROR: There is no profile with this username\n"); //Extension 1a: No profile with this username exists
+        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
         return false;
     }
 
@@ -232,7 +232,7 @@ public class GestorDePerfil {
             }
             else //Extension 1b: incorrect password, the player can recover the password with the recoveryPhrase
             {
-                System.out.println("\nERROR: Incorrect password\n");
+                System.out.println("\nIncorrect password\n");
                 System.out.println("Do you want to reestablish your password?");
                 System.out.println("1- Yes");
                 System.out.println("2- No");
@@ -246,7 +246,7 @@ public class GestorDePerfil {
                 else return false;
             }
         }
-        else System.out.println("\nERROR: There is no profile with this username\n"); //Extension 1a: No profile with this username exists
+        else System.out.println("\nThere is no profile with this username\n"); //Extension 1a: No profile with this username exists
         return false;
     }
 }
