@@ -58,7 +58,7 @@ public class GestorDePerfil {
      * @param password the password to validate
      * @return true if the password meets requirements, false otherwise
      */
-    public static boolean passwordIsSafe(String password) {
+    private static boolean passwordIsSafe(String password) {
         if (password == null || password.length() < 8) return false;
         boolean hasUpperCase = false;
         boolean hasDigit = false;
@@ -81,7 +81,7 @@ public class GestorDePerfil {
         System.out.print("Username: ");
         String username = scanner.nextLine();
         if (!players.containsKey(username)) {
-            System.out.print("Password: ");
+            System.out.print("Password (minimum 8 characters, 1 upper case letter and 1 number): ");
             String password = scanner.nextLine();
             if (passwordIsSafe(password)) {
                 System.out.print("Password again: ");
@@ -93,7 +93,7 @@ public class GestorDePerfil {
                     System.out.println("\nProfile created successfully\n");
                     return true;
                 } else System.out.println("\nThe passwords don't match\n");
-            } else System.out.println("\nThe password doesn't meet the minimum safety requirements\n");
+            } else System.out.println("\nThe password doesn't meet the minimum safety requirements (minimum 8 characters, 1 upper case letter and 1 number)\n");
         } else System.out.println("\nThis username is already in use\n");
         return false;
     }
@@ -144,7 +144,7 @@ public class GestorDePerfil {
             System.out.print("Password: ");
             String password = scanner.nextLine();
             if (correctPassword(username, password)) {
-                System.out.print("New password: ");
+                System.out.print("New password (minimum 8 characters, 1 upper case letter and 1 number): ");
                 String newPassword = scanner.nextLine();
                 if (passwordIsSafe(newPassword)) {
                     if (!password.equals(newPassword)) {
@@ -152,7 +152,7 @@ public class GestorDePerfil {
                         System.out.println("\nPassword changed successfully\n");
                         return true;
                     } else System.out.println("\nOld and new password are the same\n");
-                } else System.out.println("\nPassword doesn't meet requirements\n");
+                } else System.out.println("\nPassword doesn't meet requirements (minimum 8 characters, 1 upper case letter and 1 number)\n");
             } else {
                 System.out.println("\nIncorrect password\n");
                 return handlePasswordRecovery();
@@ -174,7 +174,7 @@ public class GestorDePerfil {
             System.out.print("What's your favourite color? (Recovery phrase): ");
             String recoveryPhrase = scanner.nextLine();
             if (correctRecoveryPhrase(username, recoveryPhrase)) {
-                System.out.print("New password: ");
+                System.out.print("New password (minimum 8 characters, 1 upper case letter and 1 number): ");
                 String newPassword = scanner.nextLine();
                 if (passwordIsSafe(newPassword)) {
                     System.out.print("New password again: ");
@@ -184,7 +184,7 @@ public class GestorDePerfil {
                         System.out.println("\nPassword reestablished successfully\n");
                         return true;
                     } else System.out.println("\nPasswords don't match\n");
-                } else System.out.println("\nPassword doesn't meet requirements\n");
+                } else System.out.println("\nPassword doesn't meet requirements (minimum 8 characters, 1 upper case letter and 1 number)\n");
             } else System.out.println("\nIncorrect recovery phrase\n");
         } else System.out.println("\nNo profile with this username\n");
         return false;
