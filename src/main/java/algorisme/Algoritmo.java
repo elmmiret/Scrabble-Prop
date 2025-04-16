@@ -6,7 +6,8 @@ import java.util.AbstractMap.SimpleEntry;
 
 
 public class Algoritmo {
-
+    private static final int FILAS = 15;
+    private static final int COLUMNAS = 15;
 
     /**
      *
@@ -168,11 +169,9 @@ public class Algoritmo {
         if (tablero.isEmpty()) return;
 
         List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> transpuesta = new ArrayList<>();
-        int files = tablero.size();
-        int columnes = tablero.get(0).size();
-        for (int c = 0; c < columnes; ++c) {
+        for(int c = 0; c < COLUMNAS; ++c) {
             List<SimpleEntry<SimpleEntry<String, TipoModificador>, Set>> fila = new ArrayList<>();
-            for (int f = 0; f < files; ++f)
+            for (int f = 0; f < FILAS; ++f)
             {
                 fila.add(tablero.get(f).get(c));
             }
@@ -223,16 +222,16 @@ public class Algoritmo {
      * @param tablero
      * @param atril
      */
-    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril)
-    {
-        for (int f = 0; f < tablero.size(); ++f) {
-            for (int c = 0; c < tablero.get(0).size(); ++c) {
+    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) {
+        for (int f = 0; f < FILAS; ++f) {
+            for (int c = 0; c < COLUMNAS; ++c) {
 
-                if (tablero[f][c].getKey().getKey().equals(".")) {
-                    tablero[f][c].getValue().clear();
+                if (tablero.getFicha(f,c).getLetra() == null) {
+                    tablero.clearAbecedario(f,c);
                     for (String letra : atril) {
-                        if (esPalabraValida(tablero, f, c, letra, dawg))
-                            tablero[f][c].getValue().add(letra);
+                        if (esPalabraValida(tablero,f,c,letra,dawg))
+                            //tablero[f][c].getValue().add(letra);
+                            tablero.setLetraAbecedario(letra,f,c);
                     }
                 }
             }
@@ -244,11 +243,10 @@ public class Algoritmo {
      * @param tablero
      * @return
      */
-    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero)
-    {
+    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
-        for (int f = 0; f < tablero.size()/*15*/; ++f)
-            for (int c = 0; c < tablero.get(0).size()/*15*/; ++c) {
+        for (int f = 0; f < FILAS; ++f)
+            for (int c = 0; c < COLUMNAS; ++c) {
                 if (tablero.getFicha(f,c).getLetra() == null && tieneAdyacentes(tablero, f, c)) {
                     listaAnchors.add(new SimpleEntry<>(f, c));
                 }
@@ -263,8 +261,7 @@ public class Algoritmo {
      * @param columna
      * @return
      */
-    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna)
-    {
+    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) {
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] direction : directions) {
             int newFila = direction[0] + fila;
@@ -368,7 +365,6 @@ public class Algoritmo {
         return pt;
     }
 
-
     private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) {
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
@@ -388,9 +384,7 @@ public class Algoritmo {
                 mejorPalabra.clear();
                 mejorPalabra.addAll(new ArrayList<>(caminoAuxPos));
             }
-
         }
-
 
         // si el tablero con posicion x  y (que hago que sea la posicion en la que estamos de la palabra en construccion) esta vacia probamos todas las letras y lo hacemos recursivamente
         String letraTablero = tablero.getFicha(x,y).getLetra();
@@ -467,7 +461,7 @@ public class Algoritmo {
      * @return
      */
     private boolean casillaCorrecta(Integer x, Integer y) {
-        return x >= 0 && x < 15 && y >= 0 && y < 15;
+        return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
     private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) {
