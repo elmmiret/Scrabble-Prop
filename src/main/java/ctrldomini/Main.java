@@ -13,26 +13,26 @@ public class Main {
     // INIT
     Scanner scanner = new Scanner(System.in);
     GestorDePerfil gestorDePerfil = new GestorDePerfil();
-    DriverPerfil driverPerfil = new DriverPerfil();
+    DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
     while (true)
     {
-      System.out.println("Hello! Welcome to Scrabble!");
-      System.out.println("Please, pick any of the following options:");
-      System.out.println("1- Profile management");
-      System.out.println("2- Create a new game");
-      System.out.println("3- Play a started game");
-      System.out.println("4- See ranking");
-      System.out.println("5- Exit");
+      System.out.println("Por favor, escoja una de las siguientes opciones:");
+      System.out.println("1- Gestión de perfil");
+      System.out.println("2- Crear nueva partida");
+      System.out.println("3- Jugar una partida empezada");
+      System.out.println("4- Ver ranking");
+      System.out.println("5- Salir");
       System.out.print("\n");
 
       int chosenOption = scanner.nextInt();
+      scanner.nextLine(); //consume console buffer
         switch (chosenOption)
         {
           case 1: //Profile management
-            driverPerfil.profileManagement(gestorDePerfil);
+            driverPerfil.profileManagement();
             break;
           case 2: //Create new game
             System.out.println("Creating new game");

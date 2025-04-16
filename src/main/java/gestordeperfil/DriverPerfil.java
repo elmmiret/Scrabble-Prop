@@ -1,131 +1,292 @@
 package gestordeperfil;
 
-import gestordeperfil.GestorDePerfil;
-import gestordeperfil.Perfil;
-
 import java.util.Scanner;
 
 /**
- * Provides a console-based interface for profile management operations.
- * This driver class handles user interaction for executing profile-related actions
- * through a {@link GestorDePerfil} instance, including retry logic for failed operations.
+ * Clase principal para la gestión interactiva de perfiles mediante consola.
+ * Proporciona un menú para crear, eliminar y modificar perfiles de usuario.
  *
  * @author Marc Ribas Acon
  */
 public class DriverPerfil {
 
+    Scanner lector;
+    GestorDePerfil gestorDePerfil;
+
     /**
-     * Displays and manages the profile operations menu.
-     * Handles user input/output flow for various profile management tasks through console interactions.
-     * Implements retry mechanisms for failed operations until success or user cancellation.
+     * Construye un DriverPerfil asociado a un GestorDePerfil específico.
+     * Inicializa el scanner para lectura de entrada del usuario.
      *
-     * @param gestorDePerfil the profile manager instance containing profile data and business logic
+     * @param gdp el gestor de perfiles a utilizar
      */
-    public void profileManagement(GestorDePerfil gestorDePerfil)
-    {
-        Scanner scanner = new Scanner(System.in);
+    public DriverPerfil(GestorDePerfil gdp) {
+        gestorDePerfil = gdp;
+        lector = new Scanner(System.in);
+    }
+
+    /**
+     * Maneja el proceso de creación de un nuevo perfil.
+     * Solicita username, password y frase de recuperación, verificando requisitos.
+     *
+     * @return true si el perfil fue creado exitosamente, false en caso contrario
+     */
+    private boolean nuevoPerfil() {
         System.out.print("\n");
-        System.out.println("Please, pick any of the following options:");
-        System.out.println("1- Create a new profile");
-        System.out.println("2- Erase a profile");
-        System.out.println("3- Change a password");
-        System.out.println("4- Reestablish password");
-        System.out.println("5- Change a username");
-        System.out.println("6- Go back");
+        System.out.print("Username: ");
+        String username = lector.nextLine();
+        if (!gestorDePerfil.existeJugador(username)) {
+            System.out.print("Password (mínimo 8 carácteres, 1 mayúscula y 1 número): ");
+            String password = lector.nextLine();
+            if (gestorDePerfil.esPasswordSegura(password)) {
+                System.out.print("Password otra vez: ");
+                String password2 = lector.nextLine();
+                if (password.equals(password2)) {
+                    System.out.print("Cuál es tu color favorito? (Frase de recuperación): ");
+                    String recoveryPhrase = lector.nextLine();
+                    gestorDePerfil.crearPerfil(username, password, recoveryPhrase);
+                    System.out.println("\nProfile created successfully\n");
+                    return true;
+                } else System.out.println("\nLas passwords no coinciden\n");
+            } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
+        } else System.out.println("\nEste username ya está en uso\n");
+        return false;
+    }
+
+    /**
+     * Maneja el proceso de eliminación de un perfil existente.
+     * Verifica credenciales antes de proceder con la eliminación.
+     *
+     * @return true si el perfil fue eliminado o la operación cancelada, false en caso contrario
+     */
+    private boolean eliminarPerfil() {
         System.out.print("\n");
-        int chosenOption = scanner.nextInt();
+        System.out.print("Username: ");
+        String username = lector.nextLine();
+        if (gestorDePerfil.existeJugador(username)) {
+            System.out.print("Password: ");
+            String password = lector.nextLine();
+            if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                System.out.println("Borrar permanentemente tu perfil?");
+                System.out.println("1- Sí\n2- No");
+                int chosenOption = lector.nextInt();
+                lector.nextLine(); // Limpiar buffer
+                if (chosenOption == 1) {
+                    gestorDePerfil.eliminarPerfil(username);
+                    System.out.println("\nPerfil eliminado correctamente\n");
+                }
+                else System.out.println("\nEliminación abortada\n");
+                return true;
+            }
+            else {
+                System.out.println("\nPassword incorrecta\n");
+                return ofrecerReestablecer();
+            }
+        } else System.out.println("\nNo existe ningún perfil con este username\n");
+        return false;
+    }
+
+    /**
+     * Maneja el cambio de password de un perfil existente.
+     * Verifica la password actual y los requisitos de la nueva password.
+     *
+     * @return true si la password fue cambiada exitosamente, false en caso contrario
+     */
+    private boolean cambiarPassword() {
+        System.out.print("\n");
+        System.out.print("Username: ");
+        String username = lector.nextLine();
+        if (gestorDePerfil.existeJugador(username)) {
+            System.out.print("Password: ");
+            String password = lector.nextLine();
+            if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                System.out.print("Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número): ");
+                String newPassword = lector.nextLine();
+                if (gestorDePerfil.esPasswordSegura(newPassword)) {
+                    if (!password.equals(newPassword)) {
+                        gestorDePerfil.cambiarPassword(username, newPassword);
+                        System.out.println("\nPassword cambiada correctamente\n");
+                        return true;
+                    } else System.out.println("\nLa password antigua y nueva son iguales\n");
+                } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
+            } else {
+                System.out.println("\nPassword incorrecta\n");
+                return ofrecerReestablecer();
+            }
+        } else System.out.println("\nNo existe ningún perfil con este username\n");
+        return false;
+    }
+
+    /**
+     * Maneja el restablecimiento de password mediante frase de recuperación.
+     *
+     * @return true si la password fue restablecida exitosamente, false en caso contrario
+     */
+    private boolean reestablecerPassword() {
+        System.out.print("\n");
+        System.out.print("Username: ");
+        String username = lector.nextLine();
+        if (gestorDePerfil.existeJugador(username)) {
+            System.out.print("Cuál es tu color favorito? (Frase de recuperación): ");
+            String recoveryPhrase = lector.nextLine();
+            if (gestorDePerfil.esFraseRecuperacionCorrecta(username, recoveryPhrase)) {
+                System.out.print("Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número):");
+                String newPassword = lector.nextLine();
+                if (gestorDePerfil.esPasswordSegura(newPassword)) {
+                    System.out.print("New password otra vez: ");
+                    String newPassword2 = lector.nextLine();
+                    if (newPassword.equals(newPassword2)) {
+                        gestorDePerfil.cambiarPassword(username, newPassword);
+                        System.out.println("\nPassword reestablecida correctamente\n");
+                        return true;
+                    } else System.out.println("\nLas passwords no coinciden\n");
+                } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
+            } else System.out.println("\nFrase de recuperación incorrecta\n");
+        } else System.out.println("\nNo existe ningún perfil con este username\n");
+        return false;
+    }
+
+    /**
+     * Ofrece la opción de restablecer la password tras un fallo de autenticación.
+     *
+     * @return true si se inicia el proceso de restablecimiento, false en caso contrario
+     */
+    private boolean ofrecerReestablecer() {
+        System.out.println("Reestablecer password?");
+        System.out.println("1- Sí\n2- No");
+        System.out.print("\n");
+        int chosenOption = lector.nextInt();
+        lector.nextLine(); // Limpiar buffer
+        return (chosenOption == 1) ? reestablecerPassword() : false;
+    }
+
+    /**
+     * Maneja el cambio de username de un perfil existente.
+     * Verifica credenciales y disponibilidad del nuevo username.
+     *
+     * @return true si el username fue cambiado exitosamente, false en caso contrario
+     */
+    private boolean cambiarUsername() {
+        System.out.print("\n");
+        System.out.print("Username: ");
+        String username = lector.nextLine();
+        if (gestorDePerfil.existeJugador(username)) {
+            System.out.print("Password: ");
+            String password = lector.nextLine();
+            if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                System.out.print("Nuevo username: ");
+                String newUsername = lector.nextLine();
+                if (!username.equals(newUsername)) {
+                    if (!gestorDePerfil.existeJugador(newUsername)) {
+                        gestorDePerfil.cambiarUsername(username, newUsername);
+                        System.out.println("\nUsername cambiado correctamente\n");
+                        return true;
+                    } else System.out.println("\nEste username ya está en uso\n");
+                } else System.out.println("\nEl username antiguo y el nuevo son el mismo\n");
+            } else {
+                System.out.println("\nPassword incorrecta\n");
+                return ofrecerReestablecer();
+            }
+        } else System.out.println("\nNo existe ningún perfil con este username\n");
+        return false;
+    }
+
+    /**
+     * Muestra el menú de gestión de perfiles y maneja las opciones seleccionadas.
+     * Permite navegar por las diferentes operaciones disponibles.
+     */
+    public void profileManagement() {
+        System.out.print("\n");
+        System.out.println("Por favor, escoja una de las siguientes opciones:");
+        System.out.println("1- Crear un nuevo perfil");
+        System.out.println("2- Eliminar un perfil");
+        System.out.println("3- Cambiar password");
+        System.out.println("4- Reestablecer password");
+        System.out.println("5- Cambiar username");
+        System.out.println("6- Atrás");
+        System.out.print("\n");
+        int chosenOption = lector.nextInt();
+        lector.nextLine(); // Limpiar buffer
         boolean operationDone = false;
-        switch (chosenOption)
-        {
-            case 1: //Create new profile
-                while (!operationDone)
-                {
-                    if (gestorDePerfil.createPerfil()) operationDone = true;
-                    else
-                    {
-                        System.out.println("Do you want to try again?");
-                        System.out.println("1- Yes");
+        switch (chosenOption) {
+            case 1: // Crear nuevo perfil
+                while (!operationDone) {
+                    operationDone = nuevoPerfil();
+                    if (!operationDone) {
+                        System.out.println("Quieres intentarlo otra vez?");
+                        System.out.println("1- Sí");
                         System.out.println("2- No");
                         System.out.print("\n");
-                        chosenOption = scanner.nextInt();
+                        chosenOption = lector.nextInt();
                         if (chosenOption == 2) operationDone = true;
-                        scanner.nextLine(); //consume console buffer
+                        lector.nextLine(); // Limpiar buffer
                     }
                 }
                 break;
 
-            case 2: //Erase a profile
-                while (!operationDone)
-                {
-                    if (gestorDePerfil.eraseProfile()) operationDone = true;
-                    else
-                    {
-                        System.out.println("Do you want to try again?");
-                        System.out.println("1- Yes");
+            case 2: // Eliminar perfil
+                while (!operationDone) {
+                    operationDone = eliminarPerfil();
+                    if (!operationDone) {
+                        System.out.println("Quieres intentarlo otra vez?");
+                        System.out.println("1- Sí");
                         System.out.println("2- No");
                         System.out.print("\n");
-                        chosenOption = scanner.nextInt();
+                        chosenOption = lector.nextInt();
                         if (chosenOption == 2) operationDone = true;
-                        scanner.nextLine(); //consume console buffer
+                        lector.nextLine(); // Limpiar buffer
                     }
                 }
                 break;
 
-            case 3: //Change password
-                while (!operationDone)
-                {
-                    if (gestorDePerfil.changePassword()) operationDone = true;
-                    else
-                    {
-                        System.out.println("Do you want to try again?");
-                        System.out.println("1- Yes");
+            case 3: // Cambiar password
+                while (!operationDone) {
+                    operationDone = cambiarPassword();
+                    if (!operationDone) {
+                        System.out.println("Quieres intentarlo otra vez?");
+                        System.out.println("1- Sí");
                         System.out.println("2- No");
                         System.out.print("\n");
-                        chosenOption = scanner.nextInt();
+                        chosenOption = lector.nextInt();
                         if (chosenOption == 2) operationDone = true;
-                        scanner.nextLine(); //consume console buffer
+                        lector.nextLine(); // Limpiar buffer
                     }
                 }
                 break;
 
-            case 4: //Reestablish password
-                while (!operationDone)
-                {
-                    if (gestorDePerfil.reestablishPassword()) operationDone = true;
-                    else
-                    {
-                        System.out.println("Do you want to try again?");
-                        System.out.println("1- Yes");
+            case 4: // Restablecer password
+                while (!operationDone) {
+                    operationDone = reestablecerPassword();
+                    if (!operationDone) {
+                        System.out.println("Quieres intentarlo otra vez?");
+                        System.out.println("1- Sí");
                         System.out.println("2- No");
                         System.out.print("\n");
-                        chosenOption = scanner.nextInt();
+                        chosenOption = lector.nextInt();
                         if (chosenOption == 2) operationDone = true;
-                        scanner.nextLine(); //consume console buffer
+                        lector.nextLine(); // Limpiar buffer
                     }
                 }
                 break;
 
-            case 5: //Change username
-                while (!operationDone)
-                {
-                    if (gestorDePerfil.changeUsername()) operationDone = true;
-                    else
-                    {
-                        System.out.println("Do you want to try again?");
-                        System.out.println("1- Yes");
+            case 5: // Cambiar username
+                while (!operationDone) {
+                    operationDone = cambiarUsername();
+                    if (!operationDone) {
+                        System.out.println("Quieres intentarlo otra vez?");
+                        System.out.println("1- Sí");
                         System.out.println("2- No");
                         System.out.print("\n");
-                        chosenOption = scanner.nextInt();
+                        chosenOption = lector.nextInt();
                         if (chosenOption == 2) operationDone = true;
-                        scanner.nextLine(); //consume console buffer
+                        lector.nextLine(); // Limpiar buffer
                     }
                 }
                 break;
 
-            case 6: //Go back
+            case 6: // Volver
                 break;
             default:
-                System.out.println("Incorrect option, please choose any of the options offered");
+                System.out.println("Opción incorrecta, por favor selecciona una de las opciones ofrecidas");
                 break;
         }
     }
