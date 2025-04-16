@@ -5,6 +5,7 @@ import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import ctrldomini.*;
+import exceptions.CoordenadaFueraDeRangoException;
 
 public class Algoritmo {
     private static final int FILAS = 15;
@@ -84,7 +85,7 @@ public class Algoritmo {
         if(casillaCorrecta(x, y - 1)) {
             // Mirar si la casilla a la izquierda del ancla es vacía o no
             // Si la casilla esta ocupada (parte izq. compuesta de letras ya en el tablero)
-            if(tablero.get(x).get(y - 1).getKey().getKey() != null) {
+            if(tablero.getFicha(x,y-1).getLetra() != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
                 //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
@@ -169,15 +170,16 @@ public class Algoritmo {
     private void transponerTablero(Tablero tablero) {
         if (tablero.isEmpty()) return;
 
-        Tablero transpuesta = new ArrayList<>();
+        Tablero transpuesta = new Tablero();
         for(int c = 0; c < COLUMNAS; ++c) {
             List<SimpleEntry<SimpleEntry<String, Tablero.TipoModificador>, Set<String>>> fila = new ArrayList<>();
             for (int f = 0; f < FILAS; ++f)
             {
-                fila.add(tablero.get(f).get(c));
+                fila.add(tablero.getCasilla(f,c));
             }
             transpuesta.add(fila);
         }
+
         tablero.clear();
         tablero.addAll(transpuesta);
 
@@ -200,14 +202,14 @@ public class Algoritmo {
      * @param diccionario
      * @return
      */
-    private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,Tablero.TipoModificador>, Set<String>>>> tablero, int fila, int columna, String letra, Dawg dawg)
+    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg)
     {
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
             --fila;
         }
         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-        while (fila < tablero.size() && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
+        while (fila < FILAS && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
             if (fila != filaIni)
                 paraula.append(tablero.getFicha(fila,columna).getLetra());
             else
@@ -391,7 +393,7 @@ public class Algoritmo {
         String letraTablero = tablero.getFicha(x,y).getLetra();
         if (letraTablero == null) {
             for (int i = 0; i < atril.length; i++) {
-                if (!usados[i] && tablero.getSet(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
+                if (!usados[i] && tablero.getAbecedario(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
                     String letra = atril[i];
                     NodoDawg siguiente = nodo.getHijos().get(letra);
                     if (siguiente != null) {
@@ -523,7 +525,34 @@ public class Algoritmo {
         return size;
     }
 
+    /**
+     * Función que comprueba que la palabra que se quiere colocar en el tablero sea correcta
+     * @param tablero
+     * @param palabra
+     * @param x
+     * @param y
+     * @param modo
+     * @return
+     * @throws CoordenadaFueraDeRangoException
+     */
+    public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        // Si no hay ficha colocada en la casilla
+        if(tablero.getFicha(x,y).getLetra() == null) {
+            // Recorrer el tablero desde la posicion dada, hacia abajo
+            if(modo == "vertical") {
 
+
+            }
+
+            // Recorrer el tablero desde la posicion dada, hacia la derecha
+            if(modo == "horizontal") {
+
+
+            }
+        }
+        else return false;
+    }
 
     //función que devuelve la mejor palabra que se puede colocar en el tablero
     // a partir de las letras del atril
