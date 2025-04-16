@@ -9,6 +9,11 @@ Useful commands:
 the whole directory structure that will allow to install your project along with its dependencies in a machine without IDE (only with java 11 installed) and run it.
 ./gradlew clean: will clean the compilation files and the created artifacts
 
+Para ejecutar drivers:
+./gradlew build
+java -cp "build/classes/java/test:build/classes/java/main" ctrldomini.NOMBRE_DRIVER
+
+
 
 More info
 

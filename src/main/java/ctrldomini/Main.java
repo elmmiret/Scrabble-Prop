@@ -1,10 +1,8 @@
-package ctrldomini;
+
 
 //import com.google.gson.Gson;
 import algorisme.*;
 import java.util.*;
-
-public class Main {
     public static void main(String[] args) {
 
       //vector de palabras
@@ -18,12 +16,10 @@ public class Main {
               "snake", "sun", "tiger", "tree", "umbrella", "unicorn", "violet",
               "violin", "whale", "window", "xylophone", "yak", "zebra", "zoo"
       };
-
       //insertar todas las palabras del vector en el DAWG
       for(String palabra : palabras) {
         dawg.insertar(palabra);
       }*/
-
       Dawg dawgcatala = new Dawg();
       dawgcatala.insertarDiccionarioCastellano(dawgcatala);
 
@@ -51,4 +47,3 @@ public class Main {
       System.out.println("La linea con L·L del alfabeto catalan tiene frequencia y puntuacion de " + alfcat.getFrequenciaLetra("L·L") + " y " + alfcat.getPuntuacionLetra("L·L"));
 
     }
-}
