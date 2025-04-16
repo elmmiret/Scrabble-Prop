@@ -1,4 +1,5 @@
 package ctrldomini;
+
 import exceptions.*;
 import java.util.Map;
 import java.util.HashMap;
@@ -8,7 +9,7 @@ public class Turno {
     private int numero;
     private Perfil jugador;
     // mapa de ficha (letra y puntuación) y la cantidad que tienes
-    private Map<Ficha,Integer> atrilJ1; 
+    private Map<Ficha,Integer> atrilJ1;
     private Map<Ficha,Integer> atrilJ2;
     public static final int MAX_FICHAS = 7;
 
