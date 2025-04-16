@@ -221,22 +221,6 @@ public class Algoritmo {
         return palabra;
     }
     /**
-     * int filaIni = fila;
-     *         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
-     *             --fila;
-     *         }
-     *         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-     *         while (fila < FILAS && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
-     *             if (fila != filaIni)
-     *                 paraula.append(tablero.getFicha(fila,columna).getLetra());
-     *             else
-     *                 paraula.append(letra);
-     *             ++fila;
-     *         }
-     *         return dawg.existePalabra(paraula.toString());
-     */
-
-    /**
      *
      * @param tablero
      */
