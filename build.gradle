@@ -29,8 +29,16 @@ java {
 
 run {
     standardInput = System.in;
+    jvmArgs += '--enable-preview'
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += '--enable-preview'
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs += '--enable-preview'
+}
 
 repositories {
     mavenCentral()
