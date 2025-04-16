@@ -115,5 +115,13 @@ public class TableroTest {
         tablero.clearAbecedario(2, 3);
         assertEquals("Debe devolver un set vacío para el abecedario", Set.of(), tablero.getAbecedario(2, 3));
     }
-    
+
+    @Test
+    public void testTableroVacio()  {
+        Tablero tablero = new Tablero();
+        assertEquals("Debe devolver true", true, tablero.estaVacio());
+        Ficha f1 = new Ficha("A", 1);
+        tablero.setFicha(f1, 'A', 1);
+        assertEquals("Debe devolver false", false, tablero.estaVacio());
+    }
 }

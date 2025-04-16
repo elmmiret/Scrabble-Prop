@@ -193,6 +193,22 @@ public class Tablero {
         return tablero.get(x).get(y);
     }
 
+    /**
+     * Indica si el tablero esta vacío o no.
+     * El tablero está vacío cuando no tiene ninguna ficha colocada ni ningun abecedario inicializado
+     *
+     * @return bool True si esta facio o False si no.
+     */
+    public boolean estaVacio() {
+        for (int i = 0; i < FILAS; i++) {
+            for (int j = 0; j < COLUMNAS; j++) {
+                if (tablero.getFicha(i,j) == null) return false;
+                if (tablero.getAbecedario(i,j) == null) return false;
+            }
+        }
+        return true;
+    }
+
     //  ESCRITURA
 
     /**
