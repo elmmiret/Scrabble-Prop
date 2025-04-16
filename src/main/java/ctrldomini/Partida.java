@@ -17,6 +17,8 @@ public class Partida {
     private LocalDateTime fechaHoraCreacion;
     private Modo modoPartida;
     private int dificultad; // depende como lo implementemos, 0 es que no se usa este parametro
+    // TODO: añadir diccionario
+    // funcion para cargar el diccionario con lo que hay en la rama del algoritmo.
 
     // implementar diccionario de alguna manera para que se comunique desde la calse partida
 

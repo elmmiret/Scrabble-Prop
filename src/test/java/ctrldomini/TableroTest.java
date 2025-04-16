@@ -98,7 +98,6 @@ public class TableroTest {
         tablero.borrarLetraAbecedario("A", 20, 5);
     }
 
-    // ! con este test me replanteo hacer una clase casilla para hacer get: abecedario, ficha y modificador directamente
     @Test
     public void testGetCasilla() throws CoordenadaFueraDeRangoException {
         Tablero tablero = new Tablero();
@@ -107,4 +106,14 @@ public class TableroTest {
         assertEquals("Debe devolver tripleTantoDePalabra como modificador", Tablero.TipoModificador.tripleTantoDePalabra, casilla.getKey().getValue());
         assertEquals("Debe devolver un set vacío para el abecedario", Set.of(), casilla.getValue());
     }
+
+    @Test
+    public void testClearAbecedario() throws CoordenadaFueraDeRangoException {
+        Tablero tablero = new Tablero();
+        tablero.setLetraAbecedario("A", 2, 3);
+        tablero.setLetraAbecedario("B", 2, 3);
+        tablero.clearAbecedario(2, 3);
+        assertEquals("Debe devolver un set vacío para el abecedario", Set.of(), tablero.getAbecedario(2, 3));
+    }
+    
 }

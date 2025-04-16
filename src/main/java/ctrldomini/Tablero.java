@@ -14,8 +14,8 @@ import java.util.AbstractMap.SimpleEntry;
  */
 public class Tablero {
     private List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> tablero;
-    public static final int FILAS = 15;
-    public static final int COLUMNAS = 15;
+    private static final int FILAS = 15;
+    private static final int COLUMNAS = 15;
     public enum TipoModificador {   // si esta null es que no hay ningun bonificador en esa casilla
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
     }
@@ -167,6 +167,18 @@ public class Tablero {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         Set<String> abecedario = tablero.get(x).get(y).getValue();
         abecedario.remove(letra);
+    }
+
+    /**
+     * Borra todo el set de abecedario entero en la posición (x, y) del tablero.
+     *
+     * @param x Fila del abecedario.
+     * @param y Columna del abecedario.
+     */
+    public void clearAbecedario(int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        Set<String> abecedario = tablero.get(x).get(y).getValue();
+        abecedario.clear();
     }
 
     /**
