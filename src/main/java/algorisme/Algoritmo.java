@@ -3,7 +3,7 @@ package algorisme;
 import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-
+import ctrldomini.*;
 
 public class Algoritmo {
     private static final int FILAS = 15;
@@ -83,7 +83,7 @@ public class Algoritmo {
         if(casillaCorrecta(x, y - 1)) {
             // Mirar si la casilla a la izquierda del ancla es vacía o no
             // Si la casilla esta ocupada (parte izq. compuesta de letras ya en el tablero)
-            if(tablero[x][y - 1].getKey().getKey() != null) {
+            if(tablero.get(x).get(y - 1).getKey().getKey() != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
                 //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
@@ -165,12 +165,12 @@ public class Algoritmo {
      *
      * @param tablero
      */
-    private void transponerTablero(List<List<SimpleEntry<SimpleEntry<String, TipoModificador>, Set>>> tablero) {
+    private void transponerTablero(Tablero tablero) {
         if (tablero.isEmpty()) return;
 
-        List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> transpuesta = new ArrayList<>();
+        Tablero transpuesta = new ArrayList<>();
         for(int c = 0; c < COLUMNAS; ++c) {
-            List<SimpleEntry<SimpleEntry<String, TipoModificador>, Set>> fila = new ArrayList<>();
+            List<SimpleEntry<SimpleEntry<String, Tablero.TipoModificador>, Set<String>>> fila = new ArrayList<>();
             for (int f = 0; f < FILAS; ++f)
             {
                 fila.add(tablero.get(f).get(c));
@@ -199,7 +199,7 @@ public class Algoritmo {
      * @param diccionario
      * @return
      */
-    private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,TipoModificador>, Set>>> tablero, int fila, int columna, String letra, Dawg dawg)
+    private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,Tablero.TipoModificador>, Set<String>>>> tablero, int fila, int columna, String letra, Dawg dawg)
     {
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
