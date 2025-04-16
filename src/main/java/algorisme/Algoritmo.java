@@ -1,5 +1,6 @@
 package algorisme;
 
+import ctrldomini.*;
 import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;

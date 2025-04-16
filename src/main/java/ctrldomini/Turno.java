@@ -1,5 +1,6 @@
 package ctrldomini;
 
+import algorisme.*;
 import exceptions.*;
 import java.util.Map;
 import java.util.HashMap;

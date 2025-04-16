@@ -1,4 +1,5 @@
 package ctrldomini;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;  // para dar formato a la fecha y hora
 import java.util.Queue;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Partida {
-    private static int idPartida = 0;
+    private int idPartida;
     private Perfil creador;
     private Perfil oponente;
     private String nombre;
@@ -28,7 +29,7 @@ public class Partida {
 
     // Constructora PvP
     public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida) {
-        this.idPartida = ++idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
+        this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
         this.nombre = nombre;
@@ -42,7 +43,7 @@ public class Partida {
 
     // Constructora PvIA
     public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, int dificultad) {
-        this.idPartida = ++idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
+        this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
         this.nombre = nombre;
