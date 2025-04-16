@@ -1,5 +1,5 @@
 
-
+import ctrldomini.*;
 //import com.google.gson.Gson;
 import algorisme.*;
 import java.util.*;
@@ -44,6 +44,6 @@ import java.util.*;
       //Map<String, AbstractMap.SimpleEntry<Integer, Integer>> mapaLetrasCat = alfcat.getMapaLetras();
 
       //Verificar que el alfabeto funciona
-      System.out.println("La linea con L·L del alfabeto catalan tiene frequencia y puntuacion de " + alfcat.getFrequenciaLetra("L·L") + " y " + alfcat.getPuntuacionLetra("L·L"));
+      //System.out.println("La linea con L·L del alfabeto catalan tiene frequencia y puntuacion de " + alfcat.getFrequenciaLetra("L·L") + " y " + alfcat.getPuntuacionLetra("L·L"));
 
     }

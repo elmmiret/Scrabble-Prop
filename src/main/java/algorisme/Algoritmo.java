@@ -1,9 +1,11 @@
 package algorisme;
 
+import ctrldomini.*;
 import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import ctrldomini.*;
+import exceptions.CoordenadaFueraDeRangoException;
 
 public class Algoritmo {
     private static final int FILAS = 15;
@@ -83,7 +85,7 @@ public class Algoritmo {
         if(casillaCorrecta(x, y - 1)) {
             // Mirar si la casilla a la izquierda del ancla es vacía o no
             // Si la casilla esta ocupada (parte izq. compuesta de letras ya en el tablero)
-            if(tablero.get(x).get(y - 1).getKey().getKey() != null) {
+            if(tablero.getFicha(x,y-1).getLetra() != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
                 //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
@@ -157,26 +159,84 @@ public class Algoritmo {
      */
     private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) {
         int puntuacion = 0;
+        int puntuacion_vertical = 0;
+        int multiplicadorPalabra = 1;
+        int fichasAtril = 0;
+        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
+            String letra = letra_i.getKey().getKey();
+            boolean esDelAtril = letra_i.getKey().getValue();
+            int pos_x = letra_i.getValue().getKey();
+            int pos_y = letra_i.getValue().getValue();
+            int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+            if (esDelAtril) {
+               Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
+                switch (mod) {
+                    case dobleTantoDeLetra:
+                        valor_letra *= 2;
+                        break;
+                    case tripleTantoDeLetra:
+                        valor_letra *= 3;
+                        break;
+                    case dobleTantoDePalabra:
+                        multiplicadorPalabra *= 2;
+                        break;
+                    case tripleTantoDePalabra:
+                        multiplicadorPalabra *= 3;
+                        break;
+                }
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraVertical = obtenerPalabraVertical(tablero, letra_i);
+                if (palabraVertical != null ) {
+                    puntuacion_vertical += obtenerPuntuacion(tablero, palabraVertical);
+                }
+                fichasAtril += 1;
+            }
+            puntuacion += valor_letra;
+        }
+        puntuacion *= multiplicadorPalabra;
+        if (fichasAtril == 7) {
+            puntuacion += 50;
+        }
 
-        return puntuacion;
+        return puntuacion + puntuacion_vertical;
     }
 
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> obtenerPalabraVertical(Tablero tablero, int pos_x, int pos_y) {
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
+        int pos_ini = pos_x;
+        while (casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
+            --pos_x;
+        }
+        while(casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
+            SimpleEntry<String, Boolean> letra
+            if (pos_ini == pos_x) {
+                letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), true);
+            }
+            else {
+                letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), false);
+            }
+            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(pos_x, pos_y);
+            palabra.add(new SimpleEntry<>(letra, posicion));
+            ++pos_x;
+        }
+        return palabra;
+    }
     /**
      *
      * @param tablero
      */
     private void transponerTablero(Tablero tablero) {
-        if (tablero.isEmpty()) return;
+        //if (tablero.isEmpty()) return;
 
-        Tablero transpuesta = new ArrayList<>();
+        Tablero transpuesta = new Tablero();
         for(int c = 0; c < COLUMNAS; ++c) {
             List<SimpleEntry<SimpleEntry<String, Tablero.TipoModificador>, Set<String>>> fila = new ArrayList<>();
             for (int f = 0; f < FILAS; ++f)
             {
-                fila.add(tablero.get(f).get(c));
+                fila.add(tablero.getCasilla(f,c));
             }
             transpuesta.add(fila);
         }
+
         tablero.clear();
         tablero.addAll(transpuesta);
 
@@ -199,14 +259,14 @@ public class Algoritmo {
      * @param diccionario
      * @return
      */
-    private boolean esPalabraValida(List<List<SimpleEntry<SimpleEntry<String,Tablero.TipoModificador>, Set<String>>>> tablero, int fila, int columna, String letra, Dawg dawg)
+    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg)
     {
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
             --fila;
         }
         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-        while (fila < tablero.size() && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
+        while (fila < FILAS && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
             if (fila != filaIni)
                 paraula.append(tablero.getFicha(fila,columna).getLetra());
             else
@@ -230,7 +290,6 @@ public class Algoritmo {
                     tablero.clearAbecedario(f,c);
                     for (String letra : atril) {
                         if (esPalabraValida(tablero,f,c,letra,dawg))
-                            //tablero[f][c].getValue().add(letra);
                             tablero.setLetraAbecedario(letra,f,c);
                     }
                 }
@@ -390,7 +449,7 @@ public class Algoritmo {
         String letraTablero = tablero.getFicha(x,y).getLetra();
         if (letraTablero == null) {
             for (int i = 0; i < atril.length; i++) {
-                if (!usados[i] && tablero.getSet(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
+                if (!usados[i] && tablero.getAbecedario(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
                     String letra = atril[i];
                     NodoDawg siguiente = nodo.getHijos().get(letra);
                     if (siguiente != null) {
@@ -522,7 +581,34 @@ public class Algoritmo {
         return size;
     }
 
+    /**
+     * Función que comprueba que la palabra que se quiere colocar en el tablero sea correcta
+     * @param tablero
+     * @param palabra
+     * @param x
+     * @param y
+     * @param modo
+     * @return
+     * @throws CoordenadaFueraDeRangoException
+     */
+    public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        // Si no hay ficha colocada en la casilla
+        if(tablero.getFicha(x,y).getLetra() == null) {
+            // Recorrer el tablero desde la posicion dada, hacia abajo
+            if(modo == "vertical") {
 
+
+            }
+
+            // Recorrer el tablero desde la posicion dada, hacia la derecha
+            if(modo == "horizontal") {
+
+
+            }
+        }
+        else return false;
+    }
 
     //función que devuelve la mejor palabra que se puede colocar en el tablero
     // a partir de las letras del atril
