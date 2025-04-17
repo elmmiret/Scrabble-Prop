@@ -1,4 +1,5 @@
 package algorisme;
+import ctrldomini.*;
 
 //import java.lang.reflect.Array;
 import java.util.*;
@@ -14,11 +15,25 @@ public class Dawg {
     private List<String> palabraAnterior;   // Última palabra insertada
 
     // Funcion constructora
-    public Dawg() {
+    public Dawg(Partida.Idioma idiomaPartida) {
         Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
         root = new NodoDawg();
         registro = new HashMap<>();
         palabraAnterior = new ArrayList<>();
+
+        switch (idiomaPartida) {
+            case CAT:
+                insertarDiccionarioCatalan();
+                break;
+            case CAST:
+                insertarDiccionarioCastellano();
+                break;
+            case ENG:
+                insertarDiccionarioIngles();
+                break;
+            default:
+                break;
+        }
     }
 
     // Inserta una nueva palabra en el DAWG
@@ -177,39 +192,39 @@ public class Dawg {
         return nodo.getEsFinal();
     }
 
-    public void insertarDiccionarioCatalan(Dawg dawg) {
+    public void insertarDiccionarioCatalan() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/catalan.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                dawg.insertar(linea);
+                insertar(linea);
             }
-            dawg.acabar();
+            acabar();
             //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 
-    public void insertarDiccionarioCastellano(Dawg dawg) {
+    public void insertarDiccionarioCastellano() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                dawg.insertar(linea);
+                insertar(linea);
             }
-            dawg.acabar();
+            acabar();
             //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 
-    public void insertarDiccionarioIngles(Dawg dawg) {
+    public void insertarDiccionarioIngles() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/ingles.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                dawg.insertar(linea);
+                insertar(linea);
             }
-            dawg.acabar();
+            acabar();
             //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());

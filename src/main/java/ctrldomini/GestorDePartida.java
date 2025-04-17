@@ -5,25 +5,28 @@ import java.util.Scanner;
 import java.util.Map;
 
 /**
- *
+ * Esta clase representa el Gestor de Partida
  *
  * @author Arnau Miret Barrull
  */
-
 public class GestorDePartida {
     private Map<Integer, Partida> partidas;
     Scanner scanner;
 
     /**
-     * Construye un nuevo controlador de partidas con una base de datos vacía.
-     * Inicializa el scanner, para que el usuario pueda comunicarse, y el mapa que almacena las partidas
+     * @author Arnau Miret Barrull
      */
     public GestorDePartida() {
         scanner = new Scanner(System.in);
         partidas = new HashMap<>();
     }
 
+    /**
+     * @author Arnau Miret Barrull
+     */
+    // TODO: acabar esta clase
     public Partida crearPartida() {
+        Partida partida = null;
         System.out.print("Identificador de la partida: ");
         int idpartida = scanner.nextInt();
         if(!partidas.containsKey(idpartida)) {
@@ -111,7 +114,24 @@ public class GestorDePartida {
         }
         else System.out.println("\nEste identificador ya está en uso\n");
 
-        return false;
+        return partida;
+    }
+
+    // si no existe nada, que imprima un mensaje informativo
+    public void consultarPartidasJugador(Perfil jugador) {
+
+    }
+
+    public boolean existePartidaJugador(Perfil jugador) {
+
+    }
+
+    public void jugar(int idpartida) {
+
+    }
+
+    public void borrar(int idpartida) {
+
     }
 
 
