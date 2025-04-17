@@ -20,7 +20,6 @@ public class GestorDePerfil {
      * Construye un nuevo gestor de perfiles inicializando las estructuras de datos necesarias.
      */
     public GestorDePerfil() {
-        lector = new Scanner(System.in);
         jugadores = new HashMap<>();
     }
 

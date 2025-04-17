@@ -1,5 +1,6 @@
 package gestordeperfil;
 
+import java.io.InputStream;
 import java.util.Scanner;
 
 /**
@@ -19,9 +20,10 @@ public class DriverPerfil {
      *
      * @param gdp el gestor de perfiles a utilizar
      */
-    public DriverPerfil(GestorDePerfil gdp) {
+    // Modified constructor
+    public DriverPerfil(GestorDePerfil gdp, InputStream inputStream) {
         gestorDePerfil = gdp;
-        lector = new Scanner(System.in);
+        lector = new Scanner(inputStream);
     }
 
     /**
@@ -103,9 +105,14 @@ public class DriverPerfil {
                 String newPassword = lector.nextLine();
                 if (gestorDePerfil.esPasswordSegura(newPassword)) {
                     if (!password.equals(newPassword)) {
-                        gestorDePerfil.cambiarPassword(username, newPassword);
-                        System.out.println("\nPassword cambiada correctamente\n");
-                        return true;
+                        System.out.print("Nueva password otra vez: ");
+                        String newPassword2 = lector.nextLine();
+                        if (newPassword.equals(newPassword2))
+                        {
+                            gestorDePerfil.cambiarPassword(username, newPassword);
+                            System.out.println("\nPassword cambiada correctamente\n");
+                            return true;
+                        } else System.out.println("\nLas passwords no coinciden\n");
                     } else System.out.println("\nLa password antigua y nueva son iguales\n");
                 } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
             } else {

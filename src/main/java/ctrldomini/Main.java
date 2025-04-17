@@ -13,7 +13,7 @@ public class Main {
     // INIT
     Scanner scanner = new Scanner(System.in);
     GestorDePerfil gestorDePerfil = new GestorDePerfil();
-    DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil);
+    DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, System.in);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
