@@ -23,7 +23,7 @@ public class GestorDePartida {
         partidas = new HashMap<>();
     }
 
-    public boolean crearPartida() {
+    public Partida crearPartida() {
         System.out.print("Identificador de la partida: ");
         int idpartida = scanner.nextInt();
         if(!partidas.containsKey(idpartida)) {

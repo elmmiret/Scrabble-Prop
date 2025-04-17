@@ -4,6 +4,9 @@ package algorisme;
 import java.util.*;
 import java.io.*;
 
+/**
+ * @author Arnau Miret Barrull
+ */
 public class Dawg {
     private static Set<String> Digrafos;
     private NodoDawg root;  // Nodo raíz del DAWG
@@ -92,7 +95,7 @@ public class Dawg {
      * @param palabra
      * @return
      */
-    private List<String> dividirPalabra(String palabra) {
+    public List<String> dividirPalabra(String palabra) {
         List<String> division = new ArrayList<>();
         for(int i = 0; i < palabra.length(); ) {
             boolean haydigrafo = false;

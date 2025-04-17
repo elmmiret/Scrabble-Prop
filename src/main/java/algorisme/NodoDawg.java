@@ -2,6 +2,9 @@ package algorisme;
 
 import java.util.*;
 
+/**
+ * @author Arnau Miret Barrull
+ */
 public class NodoDawg {
     private Map<String, NodoDawg> hijos;
     private boolean esFinal;
