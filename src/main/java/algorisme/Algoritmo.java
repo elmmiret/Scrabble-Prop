@@ -160,16 +160,73 @@ public class Algoritmo {
      */
     private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) {
         int puntuacion = 0;
+        int puntuacion_vertical = 0;
+        int multiplicadorPalabra = 1;
+        int fichasAtril = 0;
+        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
+            String letra = letra_i.getKey().getKey();
+            boolean esDelAtril = letra_i.getKey().getValue();
+            int pos_x = letra_i.getValue().getKey();
+            int pos_y = letra_i.getValue().getValue();
+            int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+            if (esDelAtril) {
+               Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
+                switch (mod) {
+                    case dobleTantoDeLetra:
+                        valor_letra *= 2;
+                        break;
+                    case tripleTantoDeLetra:
+                        valor_letra *= 3;
+                        break;
+                    case dobleTantoDePalabra:
+                        multiplicadorPalabra *= 2;
+                        break;
+                    case tripleTantoDePalabra:
+                        multiplicadorPalabra *= 3;
+                        break;
+                }
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraVertical = obtenerPalabraVertical(tablero, letra_i);
+                if (palabraVertical != null ) {
+                    puntuacion_vertical += obtenerPuntuacion(tablero, palabraVertical);
+                }
+                fichasAtril += 1;
+            }
+            puntuacion += valor_letra;
+        }
+        puntuacion *= multiplicadorPalabra;
+        if (fichasAtril == 7) {
+            puntuacion += 50;
+        }
 
-        return puntuacion;
+        return puntuacion + puntuacion_vertical;
     }
 
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> obtenerPalabraVertical(Tablero tablero, int pos_x, int pos_y) {
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
+        int pos_ini = pos_x;
+        while (casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
+            --pos_x;
+        }
+        while(casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
+            SimpleEntry<String, Boolean> letra
+            if (pos_ini == pos_x) {
+                letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), true);
+            }
+            else {
+                letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), false);
+            }
+            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(pos_x, pos_y);
+            palabra.add(new SimpleEntry<>(letra, posicion));
+            ++pos_x;
+        }
+        return palabra;
+    }
     /**
      *
      * @param tablero
      */
     private void transponerTablero(Tablero tablero) {
-        if (tablero.isEmpty()) return;
+        //if (tablero.isEmpty()) return;
 
         Tablero transpuesta = new Tablero();
         for(int c = 0; c < COLUMNAS; ++c) {
@@ -234,7 +291,6 @@ public class Algoritmo {
                     tablero.clearAbecedario(f,c);
                     for (String letra : atril) {
                         if (esPalabraValida(tablero,f,c,letra,dawg))
-                            //tablero[f][c].getValue().add(letra);
                             tablero.setLetraAbecedario(letra,f,c);
                     }
                 }
