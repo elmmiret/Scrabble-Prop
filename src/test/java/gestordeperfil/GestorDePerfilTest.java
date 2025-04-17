@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.Map;
+import ranking.Ranking;
 
 /**
  * Clase de pruebas unitarias para verificar el funcionamiento del GestorDePerfil.
@@ -23,17 +24,19 @@ import java.util.Map;
  */
 public class GestorDePerfilTest {
     private GestorDePerfil gestor;
+    private Ranking ranking;
     private final String TEST_USER = "testUser";
     private final String TEST_PASS = "SecurePass123";
     private final String TEST_PHRASE = "My Recovery Phrase";
 
     /**
      * Configura el entorno de prueba antes de cada test.
-     * Crea un gestor con un perfil de prueba predefinido.
+     * Crea un gestor con un perfil de prueba predefinido y un ranking.
      */
     @Before
     public void setUp() {
-        gestor = new GestorDePerfil();
+        ranking = new Ranking();
+        gestor = new GestorDePerfil(ranking);
         gestor.crearPerfil(TEST_USER, TEST_PASS, TEST_PHRASE);
     }
 
@@ -43,7 +46,8 @@ public class GestorDePerfilTest {
      */
     @Test
     public void testConstructorInitializesEmptyMap() {
-        GestorDePerfil newGestor = new GestorDePerfil();
+        Ranking newRanking = new Ranking();
+        GestorDePerfil newGestor = new GestorDePerfil(newRanking);
         assertTrue(newGestor.getJugadores().isEmpty());
     }
 
@@ -122,8 +126,8 @@ public class GestorDePerfilTest {
 
         gestor.cambiarUsername(TEST_USER, newUsername);
 
-        assertFalse(gestor.existeJugador(TEST_USER));
         assertTrue(gestor.existeJugador(newUsername));
+        assertFalse(gestor.existeJugador(TEST_USER));
         assertEquals(newUsername, gestor.getJugadores().get(newUsername).getUsername());
     }
 

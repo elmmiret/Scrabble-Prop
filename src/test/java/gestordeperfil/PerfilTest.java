@@ -73,9 +73,9 @@ public class PerfilTest {
      */
     @Test
     public void testIncrementarPartidasJugadas() {
-        perfil.incrementarPartidasJugadas();
+        perfil.incrementarPartidasJugadas(1);
         assertEquals(1, perfil.getPartidasJugadas());
-        perfil.incrementarPartidasJugadas();
+        perfil.incrementarPartidasJugadas(1);
         assertEquals(2, perfil.getPartidasJugadas());
     }
 
@@ -85,9 +85,9 @@ public class PerfilTest {
      */
     @Test
     public void testIncrementarPartidasGanadas() {
-        perfil.incrementarPartidasGanadas();
+        perfil.incrementarPartidasGanadas(1);
         assertEquals(1, perfil.getPartidasGanadas());
-        perfil.incrementarPartidasGanadas();
+        perfil.incrementarPartidasGanadas(1);
         assertEquals(2, perfil.getPartidasGanadas());
     }
 
@@ -97,9 +97,9 @@ public class PerfilTest {
      */
     @Test
     public void testIncrementarPartidasPerdidas() {
-        perfil.incrementarPartidasPerdidas();
+        perfil.incrementarPartidasPerdidas(1);
         assertEquals(1, perfil.getPartidasPerdidas());
-        perfil.incrementarPartidasPerdidas();
+        perfil.incrementarPartidasPerdidas(1);
         assertEquals(2, perfil.getPartidasPerdidas());
     }
 
@@ -129,9 +129,9 @@ public class PerfilTest {
      */
     @Test
     public void testMultipleIncrementsAndGetters() {
-        perfil.incrementarPartidasJugadas();
-        perfil.incrementarPartidasGanadas();
-        perfil.incrementarPartidasPerdidas();
+        perfil.incrementarPartidasJugadas(1);
+        perfil.incrementarPartidasGanadas(1);
+        perfil.incrementarPartidasPerdidas(1);
         perfil.incrementarPuntos(15);
 
         assertEquals(1, perfil.getPartidasJugadas());

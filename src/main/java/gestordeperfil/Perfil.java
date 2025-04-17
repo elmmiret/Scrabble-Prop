@@ -53,24 +53,30 @@ public class Perfil {
     }
 
     /**
-     * Incrementa el contador de partidas jugadas en uno.
+     * Incrementa el contador de partidas jugadas según el parámetro especificado.
+     *
+     * @param nuevasPartidas número de partidas nuevas jugadas a sumar
      */
-    public void incrementarPartidasJugadas() {
-        this.partidasJugadas++;
+    public void incrementarPartidasJugadas(int nuevasPartidas) {
+        partidasJugadas += nuevasPartidas;
     }
 
     /**
-     * Incrementa el contador de partidas ganadas en uno.
+     * Incrementa el contador de partidas ganadas según el parámetro especificado.
+     *
+     * @param nuevasVictorias número de victorias nuevas a sumar
      */
-    public void incrementarPartidasGanadas() {
-        this.partidasGanadas++;
+    public void incrementarPartidasGanadas(int nuevasVictorias) {
+        partidasGanadas += nuevasVictorias;
     }
 
     /**
-     * Incrementa el contador de partidas perdidas en uno.
+     * Incrementa el contador de partidas perdidas según el parámetro especificado.
+     *
+     * @param nuevasDerrotas número de derrotas nuevas a sumar
      */
-    public void incrementarPartidasPerdidas() {
-        this.partidasPerdidas++;
+    public void incrementarPartidasPerdidas(int nuevasDerrotas) {
+        this.partidasPerdidas += nuevasDerrotas;
     }
 
     /**

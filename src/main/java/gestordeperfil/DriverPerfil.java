@@ -11,8 +11,8 @@ import java.util.Scanner;
  */
 public class DriverPerfil {
 
-    Scanner lector;
-    GestorDePerfil gestorDePerfil;
+    private Scanner lector;
+    private GestorDePerfil gestorDePerfil;
 
     /**
      * Construye un DriverPerfil asociado a un GestorDePerfil específico.
@@ -46,7 +46,7 @@ public class DriverPerfil {
                     System.out.print("Cuál es tu color favorito? (Frase de recuperación): ");
                     String recoveryPhrase = lector.nextLine();
                     gestorDePerfil.crearPerfil(username, password, recoveryPhrase);
-                    System.out.println("\nProfile created successfully\n");
+                    System.out.println("\nPerfil creado correctamente\n");
                     return true;
                 } else System.out.println("\nLas passwords no coinciden\n");
             } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
@@ -68,8 +68,9 @@ public class DriverPerfil {
             System.out.print("Password: ");
             String password = lector.nextLine();
             if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                System.out.print("\n");
                 System.out.println("Borrar permanentemente tu perfil?");
-                System.out.println("1- Sí\n2- No");
+                System.out.println("1- Sí\n2- No\n");
                 int chosenOption = lector.nextInt();
                 lector.nextLine(); // Limpiar buffer
                 if (chosenOption == 1) {

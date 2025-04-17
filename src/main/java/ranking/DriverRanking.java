@@ -1,108 +1,90 @@
 package ranking;
 
-import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
- * Clase encargada de la gestión y visualización de rankings de jugadores.
- * Proporciona funcionalidades para generar y mostrar diferentes tipos de rankings
- * basados en las estadísticas de los perfiles de los jugadores.
+ * Clase encargada de la interacción con el usuario para la visualización de rankings.
+ * Gestiona la presentación de diferentes clasificaciones y el menú de navegación.
  *
- * <p>Los tipos de ranking disponibles son:
+ * <p>Funcionalidades principales:
  * <ul>
- *   <li>Por puntos totales</li>
- *   <li>Por número de partidas jugadas</li>
- *   <li>Por número de victorias</li>
- *   <li>Por número de derrotas</li>
+ *   <li>Visualización formateada de rankings por diferentes criterios</li>
+ *   <li>Menú interactivo para selección de tipo de ranking</li>
+ *   <li>Gestón de flujo de navegación entre rankings</li>
+ *   <li>Interacción con el usuario mediante consola</li>
  * </ul>
+ *
+ * <p>Tipos de ranking soportados:
+ * <ol>
+ *   <li>Puntos totales</li>
+ *   <li>Partidas jugadas</li>
+ *   <li>Victorias obtenidas</li>
+ *   <li>Derrotas acumuladas</li>
+ * </ol>
  *
  * @author Marc Ribas Acon
  */
-
 public class DriverRanking {
     Scanner lector;
-    GestorDePerfil gestorDePerfil;
+    Ranking ranking;
 
     /**
-     * Construye un DriverRanking asociado a un GestorDePerfil específico.
+     * Construye un controlador de rankings vinculado a un sistema de rankings existente.
      *
-     * @param gdp Gestor de perfiles que contiene los datos de los jugadores
-     * @param inputStream Fuente de entrada para la interacción del usuario
+     * @param rkg Sistema de rankings que contiene los datos a mostrar
+     * @param inputStream Fuente de entrada para interactuar con el usuario
      */
-    public DriverRanking(GestorDePerfil gdp, InputStream inputStream)
+    public DriverRanking(Ranking rkg, InputStream inputStream)
     {
-        gestorDePerfil = gdp;
+        ranking = rkg;
         lector = new Scanner(inputStream);
     }
 
     /**
-     * Genera un ranking ordenado de perfiles según el criterio especificado.
+     * Muestra en consola un ranking formateado según el criterio especificado.
      *
-     * @param modo Criterio de ordenación:
-     *             "puntos" - Por puntos totales
-     *             "partidasJugadas" - Por partidas jugadas
-     *             "victorias" - Por partidas ganadas
-     *             "derrotas" - Por partidas perdidas
-     * @return ArrayList de Perfil ordenado de mayor a menor según el criterio
-     * @throws IllegalArgumentException Si el modo especificado no es válido
-     */
-    public ArrayList<Perfil> generarRanking(String modo) {
-        Map<String, Perfil> jugadores = gestorDePerfil.getJugadores();
-        ArrayList<Perfil> ranking = new ArrayList<>(jugadores.values());
-        Comparator<Perfil> comparador;
-        switch (modo) {
-            case "puntos":
-                comparador = Comparator.comparingInt(Perfil::getPuntos).reversed();
-                break;
-            case "partidasJugadas":
-                comparador = Comparator.comparingInt(Perfil::getPartidasJugadas).reversed();
-                break;
-            case "victorias":
-                comparador = Comparator.comparingInt(Perfil::getPartidasGanadas).reversed();
-                break;
-            case "derrotas":
-                comparador = Comparator.comparingInt(Perfil::getPartidasPerdidas).reversed();
-                break;
-            default:
-                throw new IllegalArgumentException("Modo de ordenación no válido: " + modo);
-        }
-        ranking.sort(comparador);
-        return ranking;
-    }
-
-    /**
-     * Muestra el ranking formateado en la consola según el modo especificado.
-     *
-     * @param modo Tipo de ranking a mostrar:
-     *             "puntos", "partidasJugadas", "victorias" o "derrotas"
+     * @param modo Tipo de ranking a visualizar (case-insensitive):
      */
     public void mostrarRanking(String modo)
     {
-        ArrayList<Perfil> ranking;
-        ranking = generarRanking(modo);
         System.out.println("\n--- RANKING " + modo.toUpperCase() + " ---\n");
-        for (int i = 0; i < ranking.size(); ++i)
-        {
-            System.out.printf("%d- %s", i + 1, ranking.get(i).getUsername());
-            switch(modo) {
-                case "puntos":
-                    System.out.printf(" - Puntos: %d\n", ranking.get(i).getPuntos());
-                    break;
-                case "partidasJugadas":
-                    System.out.printf(" - Partidas jugadas: %d\n", ranking.get(i).getPartidasJugadas());
-                    break;
-                case "victorias":
-                    System.out.printf(" - Victorias: %d\n", ranking.get(i).getPartidasGanadas());
-                    break;
-                case "derrotas":
-                    System.out.printf(" - Derrotas: %d\n", ranking.get(i).getPartidasPerdidas());
-                    break;
-            }
+        TreeSet<Perfil> outputRanking;
+        int position = 1;
+        switch(modo) {
+            case "puntos":
+                outputRanking = ranking.getRankingPuntos();
+                for (Perfil perfil : outputRanking)
+                {
+                    System.out.printf("%d- %s", position++, perfil.getUsername());
+                    System.out.printf(" - Puntos: %d\n", perfil.getPuntos());
+                }
+                break;
+            case "partidasJugadas":
+                outputRanking = ranking.getRankingPartidasJugadas();
+                for (Perfil perfil : outputRanking)
+                {
+                    System.out.printf("%d- %s", position++, perfil.getUsername());
+                    System.out.printf(" - Partidas jugadas: %d\n", perfil.getPartidasJugadas());
+                }
+                break;
+            case "victorias":
+                outputRanking = ranking.getRankingVictorias();
+                for (Perfil perfil : outputRanking)
+                {
+                    System.out.printf("%d- %s", position++, perfil.getUsername());
+                    System.out.printf(" - Victorias: %d\n", perfil.getPartidasGanadas());
+                }
+                break;
+            case "derrotas":
+                outputRanking = ranking.getRankingDerrotas();
+                for (Perfil perfil : outputRanking)
+                {
+                    System.out.printf("%d- %s", position++, perfil.getUsername());
+                    System.out.printf(" - Derrotas: %d\n", perfil.getPartidasPerdidas());
+                }
+                break;
         }
         System.out.print("\n");
     }
@@ -131,7 +113,7 @@ public class DriverRanking {
      */
     public void rankingManagement()
     {
-        if (gestorDePerfil.hayJugadores()) {
+        if (!ranking.rankingsVacios()) {
             boolean operationDone = false;
             while (!operationDone)
             {
@@ -176,6 +158,6 @@ public class DriverRanking {
                         break;
                 }
             }
-        } else System.out.println("\nNo hay nigún jugador en el sistema\n");
+        } else System.out.println("\nNo hay ningún jugador en el sistema\n");
     }
 }

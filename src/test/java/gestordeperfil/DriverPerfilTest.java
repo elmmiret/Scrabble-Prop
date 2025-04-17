@@ -2,6 +2,8 @@ package gestordeperfil;
 
 import org.junit.Before;
 import org.junit.Test;
+import ranking.Ranking;
+
 import static org.junit.Assert.*;
 import java.io.*;
 
@@ -30,7 +32,8 @@ public class DriverPerfilTest
     @Before
     public void setUp()
     {
-        gestor = new GestorDePerfil();
+        Ranking ranking = new Ranking();
+        gestor = new GestorDePerfil(ranking);
     }
 
     /**
