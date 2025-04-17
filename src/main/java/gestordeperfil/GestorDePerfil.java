@@ -136,4 +136,11 @@ public class GestorDePerfil {
      * @return true si existe el perfil, false en caso contrario
      */
     public boolean existeJugador(String username) { return jugadores.containsKey(username); }
+
+    /**
+     * Comprueba si hay algún perfil en la base de datos
+     *
+     * @return true si hay almenos un perfil, false en caso contrario
+     */
+    public boolean hayJugadores() { return !jugadores.isEmpty(); }
 }

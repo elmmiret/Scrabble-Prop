@@ -3,6 +3,7 @@ package ctrldomini;
 import gestordeperfil.DriverPerfil;
 import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
+import ranking.DriverRanking;
 
 import java.util.Scanner;
 
@@ -14,6 +15,8 @@ public class Main {
     Scanner scanner = new Scanner(System.in);
     GestorDePerfil gestorDePerfil = new GestorDePerfil();
     DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, System.in);
+    DriverRanking driverRanking = new DriverRanking(gestorDePerfil, System.in);
+
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
@@ -41,7 +44,7 @@ public class Main {
             System.out.println("Please, choose a started game:");
             break;
           case 4: //See ranking
-            System.out.println("Displaying ranking...");
+            driverRanking.rankingManagement();
             break;
           case 5: //Exit
             System.out.println("Goodbye!");
