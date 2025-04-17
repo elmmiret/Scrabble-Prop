@@ -20,8 +20,8 @@ import java.util.*;
       for(String palabra : palabras) {
         dawg.insertar(palabra);
       }*/
-      Dawg dawgcatala = new Dawg();
-      dawgcatala.insertarDiccionarioCastellano(dawgcatala);
+     // Dawg dawgcatala = new Dawg();
+      //dawgcatala.insertarDiccionarioCastellano(dawgcatala);
 
       //dawgcatala.acabar();
       //dawgcatala.imprimir(dawgcatala.getRoot(), "");

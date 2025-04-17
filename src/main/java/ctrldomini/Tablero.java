@@ -16,6 +16,8 @@ public class Tablero {
     private List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> tablero;
     private static final int FILAS = 15;
     private static final int COLUMNAS = 15;
+    private Partida.Idioma idiomaPartida;
+
     public enum TipoModificador {   // si esta null es que no hay ningun bonificador en esa casilla
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
     }
@@ -33,8 +35,9 @@ public class Tablero {
      *
      * Todos los tableros tienen la misma estructura y distribución, por lo tanto, lo monta también.
      */
-    public Tablero() {
+    public Tablero(Partida.Idioma idiomaPartida) {
         tablero = new ArrayList<>();
+        this.idiomaPartida = idiomaPartida;
         montarTablero();
     }
 
@@ -199,11 +202,11 @@ public class Tablero {
      *
      * @return bool True si esta facio o False si no.
      */
-    public boolean estaVacio() {
+    public boolean estaVacio() throws CoordenadaFueraDeRangoException {
         for (int i = 0; i < FILAS; i++) {
             for (int j = 0; j < COLUMNAS; j++) {
-                if (tablero.getFicha(i,j) == null) return false;
-                if (tablero.getAbecedario(i,j) == null) return false;
+                if (getFicha(i,j) == null) return false;
+                if (getAbecedario(i,j) == null) return false;
             }
         }
         return true;
@@ -272,19 +275,53 @@ public class Tablero {
         }
         System.out.println("   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+");
 
-        // leyenda para el código de colores
-        // TODO: Cambiar nomenclatura segun el idioma en el que se juegue
-        System.out.println();
-        System.out.println("           LEYENDA");
-        System.out.print(rojo + "   " + "\u001B[0m");
-        System.out.println(" TRIPLE TANTO DE PALABRA");
-        System.out.print(naranja + "   " + "\u001B[0m");
-        System.out.println(" DOBLE  TANTO DE PALABRA");
-        System.out.print(azul + "   " + "\u001B[0m");
-        System.out.println(" TRIPLE TANTO DE  LETRA");
-        System.out.print(cielo + "   " + "\u001B[0m");
-        System.out.println(" DOBLE  TANTO DE  LETRA");
-        System.out.print(dorado + "   " + "\u001B[0m");
-        System.out.println(" CENTRO");
+        switch (idiomaPartida) {
+            case CAST:
+                System.out.println();
+                System.out.println("           LEYENDA");
+                System.out.print(rojo + "   " + "\u001B[0m");
+                System.out.println(" TRIPLE TANTO DE PALABRA");
+                System.out.print(naranja + "   " + "\u001B[0m");
+                System.out.println(" DOBLE  TANTO DE PALABRA");
+                System.out.print(azul + "   " + "\u001B[0m");
+                System.out.println(" TRIPLE TANTO DE  LETRA");
+                System.out.print(cielo + "   " + "\u001B[0m");
+                System.out.println(" DOBLE  TANTO DE  LETRA");
+                System.out.print(dorado + "   " + "\u001B[0m");
+                System.out.println(" CENTRO");
+                break;
+            case CAT:
+                System.out.println();
+                System.out.println("           LLEGENDA");
+                System.out.print(rojo + "   " + "\u001B[0m");
+                System.out.println(" TRIPLE TAN DE PARAULA");
+                System.out.print(naranja + "   " + "\u001B[0m");
+                System.out.println(" DOBLE  TANT DE PARAULA");
+                System.out.print(azul + "   " + "\u001B[0m");
+                System.out.println(" TRIPLE TANT DE  LLETRA");
+                System.out.print(cielo + "   " + "\u001B[0m");
+                System.out.println(" DOBLE  TANT DE  LLETRA");
+                System.out.print(dorado + "   " + "\u001B[0m");
+                System.out.println(" CENTRE");
+                break;
+            case ENG:
+                System.out.println();
+                System.out.println("        LEGEND");
+                System.out.print(rojo + "   " + "\u001B[0m");
+                System.out.println(" TRIPLE WORD VALUE");
+                System.out.print(naranja + "   " + "\u001B[0m");
+                System.out.println(" DOUBLE WORD VALUE");
+                System.out.print(azul + "   " + "\u001B[0m");
+                System.out.println(" TRIPLE LETTER VALUE");
+                System.out.print(cielo + "   " + "\u001B[0m");
+                System.out.println(" DOUBLE LETTER VALUE");
+                System.out.print(dorado + "   " + "\u001B[0m");
+                System.out.println(" CENTER");
+                break;
+            default:
+                break;
+        }
+
+
     }
 }

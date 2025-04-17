@@ -207,7 +207,7 @@ public class Algoritmo {
             --pos_x;
         }
         while(casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
-            SimpleEntry<String, Boolean> letra
+            SimpleEntry<String, Boolean> letra;
             if (pos_ini == pos_x) {
                 letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), true);
             }

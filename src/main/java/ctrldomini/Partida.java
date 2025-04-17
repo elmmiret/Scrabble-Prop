@@ -1,15 +1,20 @@
 package ctrldomini;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;  // para dar formato a la fecha y hora
+import java.time.format.DateTimeFormatter;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import algorisme.*;
 
 /**
  * Esta clase representa una Partida de Scrabble.
- * Contiene un id de partida,
+ * La Partida puede jugadase entre dos jugadores (PvP) o entre un jugador y una inteligencia artificial (PvIA).
+ * Contiene información sobre los jugadores, un tablero, una bolsa que contiene las fichas e imformacion de la partida.
  *
  * @author: Paula Pérez
  */
@@ -23,13 +28,9 @@ public class Partida {
     private List<Turno> rondas; // mirar de como gestionar esto en turno
     private LocalDateTime fechaHoraCreacion;
     private Modo modoPartida;
-    private Idioma idiomaPartida
-    private int dificultad; // depende como lo implementemos, 0 es que no se usa este parametro
-
-    // TODO: añadir diccionario
-    // funcion para cargar el diccionario con lo que hay en la rama del algoritmo.
-
-    // implementar diccionario de alguna manera para que se comunique desde la calse partida
+    private Idioma idiomaPartida;
+    public  Dawg dawg; // diccionario segun el idioma seleccionado
+    private int dificultad; // depende como lo implementemos, 0 es que no se usa este parametro      AUN NO IMPLEMENTADA EN EL ALGORITMO
 
     public enum Modo {
         PvP, PvIA
@@ -40,98 +41,175 @@ public class Partida {
         CAST, CAT, ENG
     }
 
-    // Constructora PvP
-    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida) {
+
+    // CONSTRUCTORA
+
+    /**
+     * Construye una instancia de Partida en modo PvP.
+     *
+     * Se inicializan tablero y bolsa segun el idioma seleccionado.
+     */
+    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, Idioma idiomaPartida) {
         this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
-        tablero = new Tablero();
+        dawg = new Dawg(idiomaPartida);
+        tablero = new Tablero(idiomaPartida);
         bolsa = new LinkedList<Ficha>();
-        // llenar la bolsa
+        setBolsa();
         rondas = new ArrayList<>();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         dificultad = 0;
     }
 
-    // Constructora PvIA
-    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, int dificultad) {
+    /**
+     * Construye una instancia de Partida en modo PvIA.
+     *
+     * Se inicializan tablero y bolsa segun el idioma seleccionado.
+     */
+    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad) {
         this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
-        tablero = new Tablero();
+        dawg = new Dawg(idiomaPartida);
+        tablero = new Tablero(idiomaPartida);
         bolsa = new LinkedList<Ficha>();
-        // llenar la bolsa
+        setBolsa();
         rondas = new ArrayList<>();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         this.dificultad = dificultad;
     }
 
-    // Métodos
+    // MÉTODOS
+
+    /**
+     * Obtiene el identificador único de la partida.
+     *
+     * @return El identificador de la partida.
+     */
     public int getId() {
         return idPartida;
     }
 
+    /**
+     * Obtiene el nombre de la partida.
+     *
+     * @return El nombre de la partida.
+     */
     public String getNombre() {
         return nombre;
     }
 
+
+    /**
+     * Obtiene la fecha y hora de creación de la partida.
+     *
+     * @return La fecha y hora de creación de la partida.
+     */
     public LocalDateTime getFechaHoraCreacion() {
         return fechaHoraCreacion;
     }
 
+    /**
+     * Obtiene el modo de la partida (PvP o PvIA).
+     *
+     * @return El modo de la partida.
+     */
     public Modo getModoPartida() {
         return modoPartida;
     }
 
+    /**
+     * Obtiene la dificultad de la partida (solo aplicable en modo PvIA).
+     *
+     * @return La dificultad de la partida o cero en caso de PvP.
+     */
     public int getDificultad() {
         return dificultad;
     }
 
+    /**
+     * Obtiene el tablero asociado a la partida.
+     *
+     * @return El tablero de la partida.
+     */
     public Tablero getTablero() {
         return tablero;
     }
 
+    /**
+     * Obtiene la bolsa de fichas de la partida.
+     *
+     * @return La bolsa de fichas de la partida.
+     */
     public Queue<Ficha> getBolsa() {
         return bolsa;
     }
 
+    /**
+     * Obtiene el perfil del creador de la partida.
+     *
+     * @return El perfil del creador de la partida.
+     */
     public Perfil getCreador() {
         return creador;
     }
 
+    /**
+     * Obtiene el perfil del oponente en la partida (solo aplicable en modo PvP).
+     *
+     * @return El perfil del oponente o null si no hay oponente.
+     */
     public Perfil getOponente() {
         return oponente;
     }
 
+    /**
+     * Crea un nuevo turno en la partida y lo añade a la lista de rondas.
+     */
     public void nuevoTurno() {
         //Turno turno = new Turno(this,...); // mirar de concretar
         //rondas.add(turno);
     }
 
-    // hay que randomizar la bolsa para que no siempre saque las fichas en el mismo orden
-    // depened el idioma, utilizar las clases alfabetoX para leer las letras
-    public void setBolsa(Idioma idiomaPartida) {
+    /**
+     * Configura la bolsa de fichas de la partida en función del idioma seleccionado.
+     * Mezcla la bolsa de fichas para ganrantizar una partida correcta con su perteneciente parte de aleatoriedad.
+     */
+    public void setBolsa() {
+        Map<Ficha, Integer> mapaBolsa = new HashMap<>();
         switch (idiomaPartida) {
             case CAT:
-
+                AlfabetoCAT alfabetoCat = new AlfabetoCAT();
+                mapaBolsa = alfabetoCat.getMapaFichas();
                 break;
             case CAST:
+                AlfabetoCAST alfabetoCast = new AlfabetoCAST();
+                mapaBolsa = alfabetoCast.getMapaFichas();
                 break;
             case ENG:
+                AlfabetoING alfabetoING = new AlfabetoING();
+                mapaBolsa = alfabetoING.getMapaFichas();
                 break;
             default:
-                // error o excepcion de no existe ese idioma
                 break;
-
-
         }
-    }
 
-    //TODO: para que un jugador normal, pueda jugar
+        List<Ficha> listaTemporal = new ArrayList<>();
+        for (Map.Entry<Ficha, Integer> entry : mapaBolsa.entrySet()) {
+            Ficha ficha = entry.getKey();
+            int cantidad = entry.getValue();
+            for (int i = 0; i < cantidad; i++) listaTemporal.add(ficha);
+        }
+
+        // mezclo las fichas para randomizar las posiciones
+        Collections.shuffle(listaTemporal);
+        bolsa.addAll(listaTemporal);
+    }
 }
