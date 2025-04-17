@@ -30,7 +30,7 @@ public class DriverPerfil {
      *
      * @return true si el perfil fue creado exitosamente, false en caso contrario
      */
-    private boolean nuevoPerfil() {
+    public boolean nuevoPerfil() {
         System.out.print("\n");
         System.out.print("Username: ");
         String username = lector.nextLine();
@@ -58,7 +58,7 @@ public class DriverPerfil {
      *
      * @return true si el perfil fue eliminado o la operación cancelada, false en caso contrario
      */
-    private boolean eliminarPerfil() {
+    public boolean eliminarPerfil() {
         System.out.print("\n");
         System.out.print("Username: ");
         String username = lector.nextLine();
@@ -91,7 +91,7 @@ public class DriverPerfil {
      *
      * @return true si la password fue cambiada exitosamente, false en caso contrario
      */
-    private boolean cambiarPassword() {
+    public boolean cambiarPassword() {
         System.out.print("\n");
         System.out.print("Username: ");
         String username = lector.nextLine();
@@ -121,7 +121,7 @@ public class DriverPerfil {
      *
      * @return true si la password fue restablecida exitosamente, false en caso contrario
      */
-    private boolean reestablecerPassword() {
+    public boolean reestablecerPassword() {
         System.out.print("\n");
         System.out.print("Username: ");
         String username = lector.nextLine();
@@ -150,7 +150,7 @@ public class DriverPerfil {
      *
      * @return true si se inicia el proceso de restablecimiento, false en caso contrario
      */
-    private boolean ofrecerReestablecer() {
+    public boolean ofrecerReestablecer() {
         System.out.println("Reestablecer password?");
         System.out.println("1- Sí\n2- No");
         System.out.print("\n");
@@ -165,7 +165,7 @@ public class DriverPerfil {
      *
      * @return true si el username fue cambiado exitosamente, false en caso contrario
      */
-    private boolean cambiarUsername() {
+    public boolean cambiarUsername() {
         System.out.print("\n");
         System.out.print("Username: ");
         String username = lector.nextLine();

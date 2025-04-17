@@ -117,7 +117,18 @@ public class GestorDePerfil {
      *
      * @return mapa con nombres de usuario como clave y perfiles como valores
      */
-    public Map<String, Perfil> obtenerJugadores() { return jugadores; }
+    public Map<String, Perfil> getJugadores() { return jugadores; }
+
+    /**
+     * Devuelve el perfil del jugador con el username indicado.
+     *
+     * @param username nombre de perfil del jugador a obtener
+     * @return el perfil que coincida con el username
+     */
+    public Perfil getPerfil(String username)
+    {
+        return jugadores.get(username);
+    }
 
     /**
      * Comprueba la existencia de un perfil con el nombre de usuario especificado.
