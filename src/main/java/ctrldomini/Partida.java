@@ -49,10 +49,11 @@ public class Partida {
      *
      * Se inicializan tablero y bolsa segun el idioma seleccionado.
      */
-    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, Idioma idiomaPartida) {
+    public Partida(Perfil creador, Perfil oponente, int id, String nombre, Modo modoPartida, Idioma idiomaPartida) {
         this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
+        idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
@@ -70,10 +71,11 @@ public class Partida {
      *
      * Se inicializan tablero y bolsa segun el idioma seleccionado.
      */
-    public Partida(Perfil creador, Perfil oponente, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad) {
+    public Partida(Perfil creador, int id, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad) {
         this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
+        idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);

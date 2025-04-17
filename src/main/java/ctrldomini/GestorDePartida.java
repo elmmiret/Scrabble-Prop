@@ -24,6 +24,7 @@ public class GestorDePartida {
     /**
      * @author Arnau Miret Barrull
      */
+    // TODO: acabar esta clase
     public Partida crearPartida() {
         Partida partida = null;
         System.out.print("Identificador de la partida: ");
