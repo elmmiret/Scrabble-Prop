@@ -224,4 +224,16 @@ public class GestorDePerfilTest {
         gestor.cambiarPassword("ghostUser", "newPass");
         gestor.eliminarPerfil("ghostUser");
     }
+
+    /**
+     * Valida la correcta detección de si hay o no jugadores en el sistema con un GestorDePerfil
+     * vacío y otro con un jugador
+     */
+    @Test
+    public void testHayJugadores()
+    {
+        GestorDePerfil gestorDePerfil = new GestorDePerfil(ranking);
+        assertFalse(gestorDePerfil.hayJugadores());
+        assertTrue(gestor.hayJugadores());
+    }
 }

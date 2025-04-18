@@ -5,6 +5,7 @@ import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 import ranking.DriverRanking;
 import ranking.Ranking;
+import estadisticas.DriverEstadisticas;
 
 import java.util.Scanner;
 
@@ -19,7 +20,7 @@ public class Main {
     GestorDePerfil gestorDePerfil = new GestorDePerfil(ranking);
     DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, System.in);
     DriverRanking driverRanking = new DriverRanking(ranking, System.in);
-
+    DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, System.in);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
@@ -48,7 +49,7 @@ public class Main {
             driverRanking.rankingManagement();
             break;
           case 4: //Exit
-            System.out.println("Estadísticas");
+            driverEstadisticas.estadisticasManagement();
             break;
           case 5:
             System.out.println("Chau!");
