@@ -28,9 +28,9 @@ public class Main {
       System.out.print("\n");
       System.out.println("Por favor, escoja una de las siguientes opciones:");
       System.out.println("1- Gestión de perfil");
-      System.out.println("2- Crear nueva partida");
-      System.out.println("3- Jugar una partida empezada");
-      System.out.println("4- Ver rankings");
+      System.out.println("2- Gestión de partida");
+      System.out.println("3- Ver rankings");
+      System.out.println("4- Ver estadísticas");
       System.out.println("5- Salir");
       System.out.print("\n");
 
@@ -44,14 +44,14 @@ public class Main {
           case 2: //Create new game
             System.out.println("Creating new game");
             break;
-          case 3: //Play a started game
-            System.out.println("Please, choose a started game:");
-            break;
-          case 4: //See ranking
+          case 3: //See ranking
             driverRanking.rankingManagement();
             break;
-          case 5: //Exit
-            System.out.println("Goodbye!");
+          case 4: //Exit
+            System.out.println("Estadísticas");
+            break;
+          case 5:
+            System.out.println("Chau!");
             System.exit(0);
             break;
           default: //Error option

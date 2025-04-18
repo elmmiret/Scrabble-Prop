@@ -36,9 +36,9 @@ public class Ranking {
     public Ranking()
     {
         rankingPuntos = new TreeSet<Perfil>(Comparator.comparingInt(Perfil::getPuntos).reversed().thenComparing(Perfil::getUsername));
-        rankingPartidasJugadas = new TreeSet<>(Comparator.comparingInt(Perfil::getPartidasJugadas).reversed().thenComparing(Perfil::getUsername));
-        rankingVictorias = new TreeSet<>(Comparator.comparingInt(Perfil::getPartidasGanadas).reversed().thenComparing(Perfil::getUsername));
-        rankingDerrotas = new TreeSet<>(Comparator.comparingInt(Perfil::getPartidasPerdidas).reversed().thenComparing(Perfil::getUsername));
+        rankingPartidasJugadas = new TreeSet<Perfil>(Comparator.comparingInt(Perfil::getPartidasJugadas).reversed().thenComparing(Perfil::getUsername));
+        rankingVictorias = new TreeSet<Perfil>(Comparator.comparingInt(Perfil::getPartidasGanadas).reversed().thenComparing(Perfil::getUsername));
+        rankingDerrotas = new TreeSet<Perfil>(Comparator.comparingInt(Perfil::getPartidasPerdidas).reversed().thenComparing(Perfil::getUsername));
     }
 
     /**
