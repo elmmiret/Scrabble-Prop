@@ -32,7 +32,7 @@ public class Algoritmo {
      *                                                (letra, esDeAtril)   (posicion)
      */
 
-    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorMovimiento(Dawg dawg, Tablero tablero, String[] atril) {
+    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorMovimiento(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
 
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
         int mejorPuntuacion = 0;
@@ -71,7 +71,7 @@ public class Algoritmo {
      * @param atril
      * @return
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
 
         //backtracking
@@ -79,6 +79,8 @@ public class Algoritmo {
         // Si hay casilla a la izquierda del ancla, se computa la parte izquierda y luego la derecha
         int x = ancla.getKey();
         int y = ancla.getValue();
+
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x,y);
 
         // Si la casilla a la izquierda del ancla queda fuera de los límites, la parte izquierda no se computa
 
@@ -158,7 +160,7 @@ public class Algoritmo {
      * @param palabra
      * @return
      */
-    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) {
+    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) throws CoordenadaFueraDeRangoException {
         int puntuacion = 0;
         int puntuacion_vertical = 0;
         int multiplicadorPalabra = 1;
@@ -201,7 +203,8 @@ public class Algoritmo {
         return puntuacion + puntuacion_vertical;
     }
 
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> obtenerPalabraVertical(Tablero tablero, int pos_x, int pos_y) {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> obtenerPalabraVertical(Tablero tablero, int pos_x, int pos_y) throws CoordenadaFueraDeRangoException {
+        if (pos_x < 0 || pos_x >= FILAS || pos_y < 0 || pos_y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(pos_x,pos_y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
         int pos_ini = pos_x;
         while (casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
@@ -260,8 +263,8 @@ public class Algoritmo {
      * @param diccionario
      * @return
      */
-    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg)
-    {
+    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
+        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
             --fila;
@@ -283,7 +286,7 @@ public class Algoritmo {
      * @param tablero
      * @param atril
      */
-    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) {
+    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
         for (int f = 0; f < FILAS; ++f) {
             for (int c = 0; c < COLUMNAS; ++c) {
 
@@ -303,7 +306,7 @@ public class Algoritmo {
      * @param tablero
      * @return
      */
-    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) {
+    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
         for (int f = 0; f < FILAS; ++f)
             for (int c = 0; c < COLUMNAS; ++c) {
@@ -321,7 +324,8 @@ public class Algoritmo {
      * @param columna
      * @return
      */
-    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) {
+    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
+        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] direction : directions) {
             int newFila = direction[0] + fila;
@@ -341,7 +345,8 @@ public class Algoritmo {
      * @param tablero
      * @return
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y) {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
         boolean[] usados = new boolean[atril.length];
 
@@ -362,7 +367,8 @@ public class Algoritmo {
      */
     // añadir funcion extender derecha para comparar
     // ALOMEJOR NO HACE FALTA PASAR EL DAWG
-    private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y) {
+    private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if(!camino.isEmpty()) {
             List<SimpleEntry<String, Boolean>> caminoAux = camino;
 
@@ -415,7 +421,8 @@ public class Algoritmo {
      * @param y
      * @return
      */
-    private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) {
+    private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int puntuacion = 0;
 
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
@@ -425,7 +432,8 @@ public class Algoritmo {
         return pt;
     }
 
-    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) {
+    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
 
@@ -490,7 +498,8 @@ public class Algoritmo {
      * @param y (columna del ancla)
      * @return
      */
-    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) {
+    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
 
         // col se coloca en el principio de la parte izquierda y va retrocediendo hasta su última casilla, justo antes del ancla
@@ -524,7 +533,8 @@ public class Algoritmo {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraFinal = new ArrayList<>();
         int columna_inicial = y - max_long;
 
@@ -548,7 +558,8 @@ public class Algoritmo {
      * @param y
      * @return
      */
-    private int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) {
+    private int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
         // Mientras las casillas a la izquierda sean correctas y no esten ocupadas, sumar uno a size
@@ -571,7 +582,8 @@ public class Algoritmo {
      * @param y
      * @return
      */
-    private int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) {
+    private int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
         // Mientras las casillas a la izquierda sean correctas y esten ocupadas, sumar uno a size
@@ -580,257 +592,5 @@ public class Algoritmo {
         }
 
         return size;
-    }
-
-    /**
-     * Función para dividir una palabra en String a una Lista de Strings con sus letras
-     * @param palabra
-     * @return
-     */
-    /*private List<String> dividirPalabra(String palabra) {
-        List<String> division = new ArrayList<>();
-        for(int i = 0; i < palabra.length(); ) {
-            boolean haydigrafo = false;
-
-            // Prioriza digrafos/trigrafos más largos
-            for(int l = 3; l >= 2; l--) {
-                if(i + l <= palabra.length()) {
-                    String sub = palabra.substring(i, i + l);
-                    if(Digrafos.contains(sub)) {
-                        division.add(sub);
-                        i += l;
-                        haydigrafo = true;
-                        break;
-                    }
-                }
-            }
-
-            // Si no se encontró digrafo, toma un solo carácter
-            if(!haydigrafo) {
-                division.add(String.valueOf(palabra.charAt(i)));
-                i++;
-            }
-        }
-
-        return division;
-    }*/
-
-    /**
-     * Función que comprueba que la palabra que se quiere colocar en el tablero sea correcta
-     * @param tablero
-     * @param palabra
-     * @param x
-     * @param y
-     * @param modo
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    public boolean comprobarPalabra(Dawg dawg, Tablero tablero, String palabra, int x, int y, String modo) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-        List<String> division = dawg.dividirPalabra(palabra);
-        int size = division.size();
-        if(!dawg.existePalabra(palabra)) return false;
-
-        // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
-        if(tablero.getFicha(x,y) == null) {
-            if(modo == "horizontal") {
-                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
-            }
-            else if(modo == "vertical") {
-                if(!cabePalabraVertical(tablero,division,x,y)) return false;
-
-            }
-            // Hay que mirar tanto arriba como abajo de la casilla para ver si se hacen nuevas palabras y si estas son correctas
-
-        }
-
-        // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
-        else {
-            if(modo == "horizontal"){
-                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
-                NodoDawg nodo = dawg.getRoot();
-                int pos_division = 0;
-
-                // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
-                for(int col = y; tablero.getFicha(x,col) != null && casillaCorrecta(x,col); col++) {
-                    nodo = nodo.getHijos().get(division.get(pos_division));
-                    pos_division++;
-                }
-
-                // Mirar por cada letra que le quede a division, que pueda extenderse
-                // Si la casilla es vacia, mirar si extiende palabras desde arriba o abajo
-                // Si la casilla esta ocupada, ver si esta es la misma que la letra que toca
-
-                for(int col = y + pos_division; col < y + size && casillaCorrecta(x,col); col++) {
-                    // En el caso de que no haya una ficha en esa nueva posicion
-                    if(tablero.getFicha(x,col) == null) {
-                        // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasHorizontal(dawg,tablero,division.get(pos_division),x,col)) return false;
-                        pos_division++;
-                    }
-
-                    // En el caso de que ya haya una ficha en esa nueva posicion
-                    else {
-                        // Si la letra del tablero coincide con la letra de la palabra
-                        String letra = tablero.getFicha(x,col).getLetra();
-                        if(letra != division.get(pos_division)) return false;
-                        else {
-                            nodo = nodo.getHijos().get(division.get(pos_division));
-                            pos_division++;
-                        }
-                    }
-                }
-
-            }
-
-            else if(modo == "vertical") {
-                if(!cabePalabraVertical(tablero,division,x,y)) return false;
-                NodoDawg nodo = dawg.getRoot();
-                int pos_tablero = 0;
-
-                // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
-                for(int fil = x; tablero.getFicha(fil,y) != null && casillaCorrecta(fil,y); fil++) {
-                    nodo = nodo.getHijos().get(division.get(pos_tablero));
-                    pos_tablero++;
-                }
-
-                // Mirar por cada letra que le quede a division, que pueda extenderse
-                // Si la casilla es vacia, mirar si extiende palabras desde arriba o abajo
-                // Si la casilla esta ocupada, ver si esta es la misma que la letra que toca
-
-                int pos_division = 0;
-                for(int i = pos_tablero; i < pos_tablero+size; i++) {
-
-                }
-            }
-        }
-    }
-
-    /**
-     * Función que comprueba que la colocación (en horizontal) de la letra en una posición del tablero es correcta
-     * @param dawg
-     * @param tablero
-     * @param letra
-     * @param x
-     * @param y
-     * @return
-     * @author Arnau Miret Barrull
-     */
-    private boolean mirarNuevasPalabrasHorizontal(Dawg dawg, Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        // En el caso de que la casilla de arriba esté ocupada, ver si se crea una palaba correcta
-        if(tablero.getFicha(x-1,y) != null) {
-            // Ir hacia arriba hasta el principio de la palabra y mirar que sea correcta
-            int fil = x;
-            while(tablero.getFicha(fil-1,y) != null && casillaCorrecta(fil-1,y)) fil--;
-
-            if(!palabraVerticalCorrecta(dawg,tablero,fil,y,x,letra)) return false;
-            else return true;
-        }
-
-        // En el caso de que solo la casilla de abajo esté ocupada, ver si crea una palabra correcta
-        else if(tablero.getFicha(x+1,y) != null && tablero.getFicha(x-1,y) == null) {
-            // Ir hacia abajo para comprobar que la palabra existe
-            if(!palabraVerticalCorrecta(dawg,tablero,x,y,x,letra)) return false;
-            else return true;
-        }
-
-        else return true;
-    }
-
-    /**
-     *  Función que comprueba que la colocación (en vertical) de la letra en una posición del tablero es correcta
-     * @param dawg
-     * @param tablero
-     * @param letra
-     * @param x
-     * @param y
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    private boolean mirarNuevasPalabrasVertical(Dawg dawg, Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        // En el caso de que la casilla de la izquierda esté ocupada, ver si se crea una palabra correcta
-        if(tablero.getFicha(x,y-1) != null) {
-            int col = y;
-            while(tablero.getFicha(x,col-1) != null && casillaCorrecta(x,col-1)) col--;
-
-            if(!palabraHorizontalCorrecta(dawg,tablero,x,col,y,letra)) return false;
-            else return true;
-        }
-
-        else if(tablero.getFicha(x,y+1) != null && tablero.getFicha(x,y-1) == null) {
-            // Ir hacia la derecha para comprobar que la palabra existe
-            if(!palabraHorizontalCorrecta(dawg,tablero,x,y,y,letra)) return false;
-            else return true;
-        }
-
-        else return true;
-    }
-
-    /**
-     *  Función que comprueba si la palabra que se forma verticalmente en el tablero con la nueva letra es correcta
-     * @param dawg
-     * @param tablero
-     * @param x
-     * @param y
-     * @param xletra
-     * @param letra
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    private boolean palabraVerticalCorrecta(Dawg dawg, Tablero tablero, int x, int y, int xletra, String letra) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        NodoDawg nodo = dawg.getRoot();
-        for(int fil = x; tablero.getFicha(fil,y) != null && casillaCorrecta(fil,y); fil++) {
-            if(fil == xletra) {
-                nodo = nodo.getHijos().get(letra);
-            }
-            else nodo = nodo.getHijos().get(tablero.getFicha(fil,y).getLetra());
-
-            if(nodo == null) return false;
-        }
-        return true;
-    }
-
-    /**
-     *  Función que comprueba si la palabra que se forma horizontalmente en el tablero con la nueva letra es correcta
-     * @param dawg
-     * @param tablero
-     * @param x
-     * @param y
-     * @param yletra
-     * @param letra
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    private boolean palabraHorizontalCorrecta(Dawg dawg, Tablero tablero, int x, int y, int yletra, String letra) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        NodoDawg nodo = dawg.getRoot();
-        for(int col = y; tablero.getFicha(x,col) != null && casillaCorrecta(x,col); col++) {
-            if(col == yletra) {
-                nodo = nodo.getHijos().get(letra);
-            }
-            else nodo = nodo.getHijos().get(tablero.getFicha(x,col).getLetra());
-
-            if(nodo == null) return false;
-        }
-        return true;
-    }
-
-    private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y) {
-
-    }
-
-    private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y) {
-
     }
 }

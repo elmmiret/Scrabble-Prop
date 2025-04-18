@@ -32,6 +32,13 @@ public class NodoDawg {
         this.esFinal = b;
     }
 
+    // Devuelve si el nodo tiene un nodo hijo con la letra requerida
+    public boolean existeHijo(String letra) {
+        NodoDawg aux = getHijos().get(letra);
+        if(aux == null) return false;
+        return true;
+    }
+
     // Necesario para comparar nodos al mizimizar el DAWG
     @Override
     public int hashCode() {
