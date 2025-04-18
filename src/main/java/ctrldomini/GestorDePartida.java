@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * Esta clase representa el Gestor de Partida
- *
+ * @author Albert Aulet Niubó
  * @author Arnau Miret Barrull
  */
 public class GestorDePartida {
@@ -122,16 +122,31 @@ public class GestorDePartida {
 
     }
 
-    public boolean existePartidaJugador(Perfil jugador) {
-
+    public boolean existePartidaJugador(Perfil jugador, int id_partida) {  // haria falta pasarle el id de la partida ?
+        if (partidas.containsKey(id_partida)) {
+            return partidas.get(id_partida).getCreador().equals(jugador) || partidas.get(id_partida).getOponente().equals(jugador);
+        }
+        return false;
     }
+
+    /**
+     * public boolean existePartidaJugador(Perfil jugador) {  // haria falta pasarle el id de la partida ?
+     *
+     *     }
+     */
 
     public void jugar(int idpartida) {
 
     }
 
     public void borrar(int idpartida) {
-
+        if (partidas.containsKey((idpartida))) {
+            partidas.remove(idpartida);
+            System.out.println("La partida con identificador " + idpartida + " ha sido borrada correctamente.\n");
+        }
+        else {
+            System.out.println("No existe ninguna partida con identificador " + idpartida + ".\n");
+        }
     }
 
 

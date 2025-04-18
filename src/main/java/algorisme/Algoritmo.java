@@ -56,7 +56,7 @@ public class Algoritmo {
             }
 
             // Transponemos la matriz del tablero
-            transponerTablero(tablero);
+            tablero.transponerTablero();
         }
 
         return mejorPalabra;
@@ -185,10 +185,7 @@ public class Algoritmo {
                         multiplicadorPalabra *= 3;
                         break;
                 }
-                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraVertical = obtenerPalabraVertical(tablero, letra_i);
-                if (palabraVertical != null ) {
-                    puntuacion_vertical += obtenerPuntuacion(tablero, palabraVertical);
-                }
+                puntuacion_vertical += obtenerPuntuacionPalabraVertical(tablero, pos_x, pos_y);
                 fichasAtril += 1;
             }
             puntuacion += valor_letra;
@@ -201,47 +198,61 @@ public class Algoritmo {
         return puntuacion + puntuacion_vertical;
     }
 
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> obtenerPalabraVertical(Tablero tablero, int pos_x, int pos_y) {
+    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
-        int pos_ini = pos_x;
-        while (casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
-            --pos_x;
+        int pos_ini = x;
+        while (casillaCorrecta(x, y) && tablero.getFicha(x, y).getLetra() != null) {
+            --x;
         }
-        while(casillaCorrecta(pos_x, pos_y) && tablero.getFicha(pos_x, pos_y).getLetra() != null) {
+        while(casillaCorrecta(x, y) && tablero.getFicha(x, y).getLetra() != null) {
             SimpleEntry<String, Boolean> letra;
-            if (pos_ini == pos_x) {
-                letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), true);
+            if (pos_ini == x) {
+                letra = new SimpleEntry<>(tablero.getFicha(x, y).getLetra(), true);
             }
             else {
-                letra = new SimpleEntry<>(tablero.getFicha(pos_x, pos_y).getLetra(), false);
+                letra = new SimpleEntry<>(tablero.getFicha(x, y).getLetra(), false);
             }
-            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(pos_x, pos_y);
+            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(x, y);
             palabra.add(new SimpleEntry<>(letra, posicion));
-            ++pos_x;
+            ++x;
         }
-        return palabra;
+
+        if (palabra == null) return 0;
+
+        int puntuacion = 0;
+        int multiplicadorPalabra = 1;
+        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
+            String letra = letra_i.getKey().getKey();
+            boolean esDelAtril = letra_i.getKey().getValue();
+            int pos_x = letra_i.getValue().getKey();
+            int pos_y = letra_i.getValue().getValue();
+            int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+            if (esDelAtril) {
+                Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
+                switch (mod) {
+                    case dobleTantoDeLetra:
+                        valor_letra *= 2;
+                        break;
+                    case tripleTantoDeLetra:
+                        valor_letra *= 3;
+                        break;
+                    case dobleTantoDePalabra:
+                        multiplicadorPalabra *= 2;
+                        break;
+                    case tripleTantoDePalabra:
+                        multiplicadorPalabra *= 3;
+                        break;
+                }
+            }
+            puntuacion += valor_letra;
+        }
+        return puntuacion*multiplicadorPalabra;
     }
     /**
      *
      * @param tablero
      */
-    private void transponerTablero(Tablero tablero) {
-        //if (tablero.isEmpty()) return;
 
-        Tablero transpuesta = new Tablero();
-        for(int c = 0; c < COLUMNAS; ++c) {
-            List<SimpleEntry<SimpleEntry<String, Tablero.TipoModificador>, Set<String>>> fila = new ArrayList<>();
-            for (int f = 0; f < FILAS; ++f)
-            {
-                fila.add(tablero.getCasilla(f,c));
-            }
-            transpuesta.add(fila);
-        }
-
-        tablero.clear();
-        tablero.addAll(transpuesta);
-
-    }
 
 
     /**
@@ -383,6 +394,7 @@ public class Algoritmo {
                 if(puntuacionCamino > obtenerPuntuacion(tablero,mejorPalabra)) {
                     mejorPalabra.clear();
                     mejorPalabra.addAll(caminoAuxConPosiciones);
+
                 }
             }
         }
