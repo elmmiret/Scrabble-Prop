@@ -6,7 +6,13 @@ import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import ctrldomini.*;
 import exceptions.CoordenadaFueraDeRangoException;
-
+/**
+ * Clase que implementa algoritmos para encontrar el mejor movimiento en un juego de Scrabble.
+ * Utiliza estructuras DAWG para validación de palabras y estrategias de backtracking para optimizar búsquedas.
+ *
+ * @author Albert Aulet Niubó
+ * @author Arnau Miret Barrull
+ */
 public class Algoritmo {
     private static final int FILAS = 15;
     private static final int COLUMNAS = 15;
@@ -32,7 +38,17 @@ public class Algoritmo {
      *                                                (letra, esDeAtril)   (posicion)
      */
 
-    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorMovimiento(Dawg dawg, Tablero tablero, String[] atril) {
+    /**
+     * Calcula la mejor palabra para colocar en el tablero, considerando direcciones horizontales y verticales.
+     * @param dawg Estructura DAWG para la comprobación de palabras
+     * @param tablero Estructura del tablero actual
+     * @param atril Fichas disponibles en el atril del jugador
+     * @return Lista de entradas con la palabra, si es del atril y su posición.
+     * @throws CoordenadaFueraDeRangoException Si se accede a una posición fuera del tablero
+     * @author Albert Aulet Niubó
+     * @author Arnau Miret Barrull
+     */
+    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorMovimiento(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
 
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
         int mejorPuntuacion = 0;
@@ -64,14 +80,17 @@ public class Algoritmo {
     }
 
     /**
-     *  Función que devuelve la mejor palabra que se puede computar en un ancla
-     * @param dawg
-     * @param tablero
-     * @param pos
-     * @param atril
-     * @return
+     * Calcula la mejor palabra para una posición ancla específica.
+     *
+     * @param dawg Estructura DAWG para validación de palabras.
+     * @param tablero Tablero actual del juego.
+     * @param ancla Posición ancla (x, y) donde se inicia la palabra.
+     * @param atril Fichas disponibles en el atril del jugador.
+     * @return Lista de entradas con la mejor palabra para el ancla.
+     * @throws CoordenadaFueraDeRangoException Si la posición ancla es inválida.
+     * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
 
         //backtracking
@@ -79,6 +98,8 @@ public class Algoritmo {
         // Si hay casilla a la izquierda del ancla, se computa la parte izquierda y luego la derecha
         int x = ancla.getKey();
         int y = ancla.getValue();
+
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x,y);
 
         // Si la casilla a la izquierda del ancla queda fuera de los límites, la parte izquierda no se computa
 
@@ -154,9 +175,12 @@ public class Algoritmo {
     }
 
     /**
-     *  Función que devuelve la puntuación de la palabra teniendo en cuenta los modificadores
-     * @param palabra
-     * @return
+     * Calcula la puntuación de una palabra considerando modificadores del tablero.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param palabra Lista de entradas que representan la palabra y sus posiciones.
+     * @return Puntuación total de la palabra, incluyendo bonificaciones.
+     * @author Albert Aulet Niubó
      */
     private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) {
         int puntuacion = 0;
@@ -170,7 +194,7 @@ public class Algoritmo {
             int pos_y = letra_i.getValue().getValue();
             int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
             if (esDelAtril) {
-               Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
+                Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
                 switch (mod) {
                     case dobleTantoDeLetra:
                         valor_letra *= 2;
@@ -198,6 +222,16 @@ public class Algoritmo {
         return puntuacion + puntuacion_vertical;
     }
 
+    /**
+     * Calcula la puntuación de una palabra vertical formada en una posición específica del tablero.
+     * Considera modificadores de letra/palabra y si las fichas pertenecen al atril del jugador.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param x Fila inicial de la posición a evaluar.
+     * @param y Columna de la posición a evaluar.
+     * @return Puntuación total de la palabra vertical, aplicando modificadores relevantes.
+     * @author Albert Aulet Niubó
+     */
     int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
         int pos_ini = x;
@@ -248,31 +282,21 @@ public class Algoritmo {
         }
         return puntuacion*multiplicadorPalabra;
     }
-    /**
-     *
-     * @param tablero
-     */
-
-
 
     /**
+     * Valida si una palabra formada en una posición es aceptada por el DAWG.
      *
-     *  Funcion que coloque la palabra en el tablero y modifique la estadisticas del jugador que ha hecho el movimiento
-     *                      (en clase PARTTIDA, partida obtiene la palabra y computa)
-     *
+     * @param tablero Tablero actual del juego.
+     * @param fila Fila de la posición inicial.
+     * @param columna Columna de la posición inicial.
+     * @param letra Letra a colocar.
+     * @param dawg Estructura DAWG para validación.
+     * @return true si la palabra es válida, false en caso contrario.
+     * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
+     * @author Albert Aulet Niubó
      */
-
-    /**
-     *
-     * @param tablero
-     * @param fila
-     * @param columna
-     * @param letra
-     * @param diccionario
-     * @return
-     */
-    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg)
-    {
+    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
+        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
             --fila;
@@ -289,12 +313,15 @@ public class Algoritmo {
     }
 
     /**
-     *
-     * @param dawg
-     * @param tablero
-     * @param atril
-     */
-    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) {
+    * Calcula los crosschecks válidos para cada posición vacía del tablero.
+    *
+    * @param dawg Estructura DAWG para validación.
+    * @param tablero Tablero actual del juego.
+    * @param atril Fichas disponibles en el atril.
+    * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
+     * @author Albert Aulet Niubó
+    */
+    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
         for (int f = 0; f < FILAS; ++f) {
             for (int c = 0; c < COLUMNAS; ++c) {
 
@@ -310,11 +337,14 @@ public class Algoritmo {
     }
 
     /**
+     * Encuentra todas las posiciones ancla en el tablero (casillas vacías adyacentes a letras).
      *
-     * @param tablero
-     * @return
+     * @param tablero Tablero actual del juego.
+     * @return Lista de posiciones (x, y) que son anclas.
+     * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
+     * @author Albert Aulet Niubó
      */
-    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) {
+    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
         for (int f = 0; f < FILAS; ++f)
             for (int c = 0; c < COLUMNAS; ++c) {
@@ -326,13 +356,17 @@ public class Algoritmo {
     }
 
     /**
-     *  Función auxiliar para ayuda a computarAnclas
-     * @param tablero
-     * @param fila
-     * @param columna
-     * @return
-     */
-    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) {
+    * Verifica si una posición tiene casillas adyacentes ocupadas.
+    *
+    * @param tablero Tablero actual del juego.
+    * @param fila Fila de la posición a verificar.
+    * @param columna Columna de la posición a verificar.
+    * @return true si hay al menos una casilla adyacente ocupada.
+    * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
+     * @author Albert Aulet Niubó
+    */
+    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
+        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] direction : directions) {
             int newFila = direction[0] + fila;
@@ -344,15 +378,21 @@ public class Algoritmo {
     }
 
     /**
-     *  Función que va a computar todas las partes izquierdas posibles con las letras del artril y por cada una va a buscar la mejor parte derecha,
-     *  hasta finalmente encontrar la mejor parte izquierda con su mejor parte derecha
-     * @param dawg
-     * @param atril
-     * @param longitud
-     * @param tablero
-     * @return
+     * Calcula la mejor combinación de letras del atril para formar una palabra válida en una posición ancla del tablero.
+     * Utiliza backtracking para explorar todas las combinaciones posibles dentro de la longitud máxima permitida.
+     *
+     * @param root Nodo raíz del DAWG para validación de prefijos.
+     * @param atril Array de letras disponibles en el atril del jugador.
+     * @param longitud Longitud máxima permitida para la parte izquierda de la palabra.
+     * @param tablero Tablero actual del juego.
+     * @param x Fila de la posición ancla.
+     * @param y Columna de la posición ancla.
+     * @return Lista de entradas que representan la mejor palabra encontrada, con letras, origen (atril/tablero) y posiciones.
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas (x, y) están fuera del rango del tablero.
+     * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y) {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
         boolean[] usados = new boolean[atril.length];
 
@@ -362,18 +402,23 @@ public class Algoritmo {
     }
 
     /**
-     * Función auxiliar a computarPartesIzquierdasDelAtril que devuelve todas las partes izquierdas con letras del atril posibles
-     * @param dawg
-     * @param nodo
-     * @param atril
-     * @param usados
-     * @param restantes
-     * @param camino
-     * @param mejorPalabra
+     * Función auxiliar recursiva que genera todas las combinaciones válidas de letras del atril para la parte izquierda de la palabra.
+     * Actualiza la mejor palabra encontrada comparando puntuaciones.
+     *
+     * @param nodo Nodo actual del DAWG durante la exploración.
+     * @param atril Letras disponibles en el atril.
+     * @param usados Array que indica qué letras del atril han sido usadas.
+     * @param restantes Número de letras restantes por colocar en la parte izquierda.
+     * @param camino Lista temporal con las letras y su origen (atril/tablero) en la combinación actual.
+     * @param mejorPalabra Referencia a la lista que almacena la mejor palabra encontrada.
+     * @param tablero Tablero actual del juego.
+     * @param x Fila de la posición ancla.
+     * @param y Columna de la posición ancla.
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas (x, y) son inválidas.
+     * @author Arnau Miret Barrull
      */
-    // añadir funcion extender derecha para comparar
-    // ALOMEJOR NO HACE FALTA PASAR EL DAWG
-    private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y) {
+    private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if(!camino.isEmpty()) {
             List<SimpleEntry<String, Boolean>> caminoAux = camino;
 
@@ -394,7 +439,6 @@ public class Algoritmo {
                 if(puntuacionCamino > obtenerPuntuacion(tablero,mejorPalabra)) {
                     mejorPalabra.clear();
                     mejorPalabra.addAll(caminoAuxConPosiciones);
-
                 }
             }
         }
@@ -417,17 +461,21 @@ public class Algoritmo {
     }
 
     /**
-     * Función para extender cada parte izquierda obtenida
-     * @param tablero
-     * @param caminoAuxConPosiciones
-     * @param atril
-     * @param usados
-     * @param nodo
-     * @param x
-     * @param y
-     * @return
+     * Extiende una palabra hacia la derecha desde una posición dada, validando combinaciones con el DAWG y calculando puntuaciones.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param caminoAuxConPosiciones Lista temporal con letras y posiciones de la palabra en construcción.
+     * @param atril Letras disponibles en el atril.
+     * @param usados Array que indica qué letras del atril han sido usadas.
+     * @param nodo Nodo actual del DAWG durante la extensión.
+     * @param x Fila actual durante la extensión.
+     * @param y Columna actual durante la extensión.
+     * @return Puntuación máxima obtenida durante la extensión.
+     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @author Albert Aulet Niubó
      */
-    private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) {
+    private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int puntuacion = 0;
 
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
@@ -437,7 +485,24 @@ public class Algoritmo {
         return pt;
     }
 
-    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) {
+    /**
+     * Función auxiliar recursiva para extender una palabra hacia la derecha, evaluando letras del atril y existentes en el tablero.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param caminoAuxPos Lista temporal con letras y posiciones de la palabra en construcción.
+     * @param atril Letras disponibles en el atril.
+     * @param usados Array que indica qué letras del atril han sido usadas.
+     * @param nodo Nodo actual del DAWG durante la extensión.
+     * @param mejorPalabra Referencia a la mejor palabra encontrada durante la extensión.
+     * @param x Fila actual durante la extensión.
+     * @param y Columna actual durante la extensión.
+     * @param puntuacion Puntuación acumulada hasta el momento.
+     * @return Puntuación máxima obtenida en esta rama de exploración.
+     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @author Albert Aulet Niubó
+     */
+    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
 
@@ -496,13 +561,18 @@ public class Algoritmo {
     }
 
     /**
-     * Función que devuelve la parte izquierda de un ancla cuando ya sabemos que esta está compuesta únicamente por letras ya en el tablero
-     * @param tablero
-     * @param x (fila del ancla)
-     * @param y (columna del ancla)
-     * @return
+     * Recupera las letras ya colocadas en el tablero a la izquierda de una posición ancla.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param longitud Longitud máxima de la parte izquierda a recuperar.
+     * @param x Fila de la posición ancla.
+     * @param y Columna de la posición ancla.
+     * @return Lista de letras existentes a la izquierda del ancla, indicando que no son del atril.
+     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) {
+    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
 
         // col se coloca en el principio de la parte izquierda y va retrocediendo hasta su última casilla, justo antes del ancla
@@ -514,29 +584,31 @@ public class Algoritmo {
     }
 
     /**
-     * Función que devuelve únicamente la mejor parte derecha, ya que no es posible tener parte izquierda
-     * @param tablero
-     * @param dawg
-     * @param atril
-     * @param x
-     * @param y
-     * @return
-     */
-    /*private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarParteDerechaUnicamente(Tablero tablero, Dawg dawg, String[] atril, int x, int y) {
-
-    }*/
-
-    /**
-     * Función para saber si una casilla está dentro del tablero o no
-     * @param x
-     * @param y
-     * @return
+     * Verifica si una coordenada (x, y) está dentro de los límites del tablero.
+     *
+     * @param x Fila a verificar.
+     * @param y Columna a verificar.
+     * @return true si (x, y) es una posición válida, false en caso contrario.
+     * @author Arnau Miret Barrull
      */
     private boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) {
+
+    /**
+     * Asigna posiciones del tablero a las letras de una palabra generada con el atril.
+     *
+     * @param palabra Lista de letras y su origen (atril/tablero).
+     * @param max_long Longitud de la parte izquierda de la palabra.
+     * @param x Fila de la posición ancla.
+     * @param y Columna de la posición ancla.
+     * @return Lista de entradas con letras, origen y posiciones asignadas.
+     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @author Arnau Miret Barrull
+     */
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraFinal = new ArrayList<>();
         int columna_inicial = y - max_long;
 
@@ -554,13 +626,17 @@ public class Algoritmo {
     }
 
     /**
-     * Función para saber el tamaño máximo de la parte izquierda cuando la queremos de fichas del atril
-     * @param tablero
-     * @param x
-     * @param y
-     * @return
+     * Calcula la longitud máxima posible para la parte izquierda de una palabra usando solo letras del atril.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param x Fila de la posición ancla.
+     * @param y Columna de la posición ancla.
+     * @return Longitud máxima permitida para la parte izquierda con letras del atril.
+     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @author Arnau Miret Barrull
      */
-    private int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) {
+    private int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
         // Mientras las casillas a la izquierda sean correctas y no esten ocupadas, sumar uno a size
@@ -577,13 +653,17 @@ public class Algoritmo {
     }
 
     /**
-     * Función para saber el tamaño máximo de la parte izquierda cuando la queremos de fichas que ya estan colocadas
-     * @param tablero
-     * @param x
-     * @param y
-     * @return
+     * Calcula la longitud máxima posible para la parte izquierda de una palabra usando letras existentes en el tablero.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param x Fila de la posición ancla.
+     * @param y Columna de la posición ancla.
+     * @return Longitud máxima de letras consecutivas existentes a la izquierda del ancla.
+     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @author Arnau Miret Barrull
      */
-    private int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) {
+    private int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
         // Mientras las casillas a la izquierda sean correctas y esten ocupadas, sumar uno a size
@@ -592,257 +672,5 @@ public class Algoritmo {
         }
 
         return size;
-    }
-
-    /**
-     * Función para dividir una palabra en String a una Lista de Strings con sus letras
-     * @param palabra
-     * @return
-     */
-    /*private List<String> dividirPalabra(String palabra) {
-        List<String> division = new ArrayList<>();
-        for(int i = 0; i < palabra.length(); ) {
-            boolean haydigrafo = false;
-
-            // Prioriza digrafos/trigrafos más largos
-            for(int l = 3; l >= 2; l--) {
-                if(i + l <= palabra.length()) {
-                    String sub = palabra.substring(i, i + l);
-                    if(Digrafos.contains(sub)) {
-                        division.add(sub);
-                        i += l;
-                        haydigrafo = true;
-                        break;
-                    }
-                }
-            }
-
-            // Si no se encontró digrafo, toma un solo carácter
-            if(!haydigrafo) {
-                division.add(String.valueOf(palabra.charAt(i)));
-                i++;
-            }
-        }
-
-        return division;
-    }*/
-
-    /**
-     * Función que comprueba que la palabra que se quiere colocar en el tablero sea correcta
-     * @param tablero
-     * @param palabra
-     * @param x
-     * @param y
-     * @param modo
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    public boolean comprobarPalabra(Dawg dawg, Tablero tablero, String palabra, int x, int y, String modo) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-        List<String> division = dawg.dividirPalabra(palabra);
-        int size = division.size();
-        if(!dawg.existePalabra(palabra)) return false;
-
-        // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
-        if(tablero.getFicha(x,y) == null) {
-            if(modo == "horizontal") {
-                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
-            }
-            else if(modo == "vertical") {
-                if(!cabePalabraVertical(tablero,division,x,y)) return false;
-
-            }
-            // Hay que mirar tanto arriba como abajo de la casilla para ver si se hacen nuevas palabras y si estas son correctas
-
-        }
-
-        // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
-        else {
-            if(modo == "horizontal"){
-                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
-                NodoDawg nodo = dawg.getRoot();
-                int pos_division = 0;
-
-                // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
-                for(int col = y; tablero.getFicha(x,col) != null && casillaCorrecta(x,col); col++) {
-                    nodo = nodo.getHijos().get(division.get(pos_division));
-                    pos_division++;
-                }
-
-                // Mirar por cada letra que le quede a division, que pueda extenderse
-                // Si la casilla es vacia, mirar si extiende palabras desde arriba o abajo
-                // Si la casilla esta ocupada, ver si esta es la misma que la letra que toca
-
-                for(int col = y + pos_division; col < y + size && casillaCorrecta(x,col); col++) {
-                    // En el caso de que no haya una ficha en esa nueva posicion
-                    if(tablero.getFicha(x,col) == null) {
-                        // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasHorizontal(dawg,tablero,division.get(pos_division),x,col)) return false;
-                        pos_division++;
-                    }
-
-                    // En el caso de que ya haya una ficha en esa nueva posicion
-                    else {
-                        // Si la letra del tablero coincide con la letra de la palabra
-                        String letra = tablero.getFicha(x,col).getLetra();
-                        if(letra != division.get(pos_division)) return false;
-                        else {
-                            nodo = nodo.getHijos().get(division.get(pos_division));
-                            pos_division++;
-                        }
-                    }
-                }
-
-            }
-
-            else if(modo == "vertical") {
-                if(!cabePalabraVertical(tablero,division,x,y)) return false;
-                NodoDawg nodo = dawg.getRoot();
-                int pos_tablero = 0;
-
-                // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
-                for(int fil = x; tablero.getFicha(fil,y) != null && casillaCorrecta(fil,y); fil++) {
-                    nodo = nodo.getHijos().get(division.get(pos_tablero));
-                    pos_tablero++;
-                }
-
-                // Mirar por cada letra que le quede a division, que pueda extenderse
-                // Si la casilla es vacia, mirar si extiende palabras desde arriba o abajo
-                // Si la casilla esta ocupada, ver si esta es la misma que la letra que toca
-
-                int pos_division = 0;
-                for(int i = pos_tablero; i < pos_tablero+size; i++) {
-
-                }
-            }
-        }
-    }
-
-    /**
-     * Función que comprueba que la colocación (en horizontal) de la letra en una posición del tablero es correcta
-     * @param dawg
-     * @param tablero
-     * @param letra
-     * @param x
-     * @param y
-     * @return
-     * @author Arnau Miret Barrull
-     */
-    private boolean mirarNuevasPalabrasHorizontal(Dawg dawg, Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        // En el caso de que la casilla de arriba esté ocupada, ver si se crea una palaba correcta
-        if(tablero.getFicha(x-1,y) != null) {
-            // Ir hacia arriba hasta el principio de la palabra y mirar que sea correcta
-            int fil = x;
-            while(tablero.getFicha(fil-1,y) != null && casillaCorrecta(fil-1,y)) fil--;
-
-            if(!palabraVerticalCorrecta(dawg,tablero,fil,y,x,letra)) return false;
-            else return true;
-        }
-
-        // En el caso de que solo la casilla de abajo esté ocupada, ver si crea una palabra correcta
-        else if(tablero.getFicha(x+1,y) != null && tablero.getFicha(x-1,y) == null) {
-            // Ir hacia abajo para comprobar que la palabra existe
-            if(!palabraVerticalCorrecta(dawg,tablero,x,y,x,letra)) return false;
-            else return true;
-        }
-
-        else return true;
-    }
-
-    /**
-     *  Función que comprueba que la colocación (en vertical) de la letra en una posición del tablero es correcta
-     * @param dawg
-     * @param tablero
-     * @param letra
-     * @param x
-     * @param y
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    private boolean mirarNuevasPalabrasVertical(Dawg dawg, Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        // En el caso de que la casilla de la izquierda esté ocupada, ver si se crea una palabra correcta
-        if(tablero.getFicha(x,y-1) != null) {
-            int col = y;
-            while(tablero.getFicha(x,col-1) != null && casillaCorrecta(x,col-1)) col--;
-
-            if(!palabraHorizontalCorrecta(dawg,tablero,x,col,y,letra)) return false;
-            else return true;
-        }
-
-        else if(tablero.getFicha(x,y+1) != null && tablero.getFicha(x,y-1) == null) {
-            // Ir hacia la derecha para comprobar que la palabra existe
-            if(!palabraHorizontalCorrecta(dawg,tablero,x,y,y,letra)) return false;
-            else return true;
-        }
-
-        else return true;
-    }
-
-    /**
-     *  Función que comprueba si la palabra que se forma verticalmente en el tablero con la nueva letra es correcta
-     * @param dawg
-     * @param tablero
-     * @param x
-     * @param y
-     * @param xletra
-     * @param letra
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    private boolean palabraVerticalCorrecta(Dawg dawg, Tablero tablero, int x, int y, int xletra, String letra) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        NodoDawg nodo = dawg.getRoot();
-        for(int fil = x; tablero.getFicha(fil,y) != null && casillaCorrecta(fil,y); fil++) {
-            if(fil == xletra) {
-                nodo = nodo.getHijos().get(letra);
-            }
-            else nodo = nodo.getHijos().get(tablero.getFicha(fil,y).getLetra());
-
-            if(nodo == null) return false;
-        }
-        return true;
-    }
-
-    /**
-     *  Función que comprueba si la palabra que se forma horizontalmente en el tablero con la nueva letra es correcta
-     * @param dawg
-     * @param tablero
-     * @param x
-     * @param y
-     * @param yletra
-     * @param letra
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-    private boolean palabraHorizontalCorrecta(Dawg dawg, Tablero tablero, int x, int y, int yletra, String letra) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-
-        NodoDawg nodo = dawg.getRoot();
-        for(int col = y; tablero.getFicha(x,col) != null && casillaCorrecta(x,col); col++) {
-            if(col == yletra) {
-                nodo = nodo.getHijos().get(letra);
-            }
-            else nodo = nodo.getHijos().get(tablero.getFicha(x,col).getLetra());
-
-            if(nodo == null) return false;
-        }
-        return true;
-    }
-
-    private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y) {
-
-    }
-
-    private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y) {
-
     }
 }
