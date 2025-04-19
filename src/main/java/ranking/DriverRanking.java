@@ -34,12 +34,12 @@ public class DriverRanking {
      * Construye un controlador de rankings vinculado a un sistema de rankings existente.
      *
      * @param rkg Sistema de rankings que contiene los datos a mostrar
-     * @param inputStream Fuente de entrada para interactuar con el usuario
+     * @param scanner Fuente de entrada para interactuar con el usuario
      */
-    public DriverRanking(Ranking rkg, InputStream inputStream)
+    public DriverRanking(Ranking rkg, Scanner scanner)
     {
         ranking = rkg;
-        lector = new Scanner(inputStream);
+        lector = scanner;
     }
 
     /**

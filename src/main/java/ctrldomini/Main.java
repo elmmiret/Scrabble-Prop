@@ -18,9 +18,9 @@ public class Main {
     Scanner scanner = new Scanner(System.in);
     Ranking ranking = new Ranking();
     GestorDePerfil gestorDePerfil = new GestorDePerfil(ranking);
-    DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, System.in);
-    DriverRanking driverRanking = new DriverRanking(ranking, System.in);
-    DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, System.in);
+    DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, scanner);
+    DriverRanking driverRanking = new DriverRanking(ranking, scanner);
+    DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, scanner);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 

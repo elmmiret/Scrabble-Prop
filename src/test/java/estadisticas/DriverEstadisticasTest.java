@@ -1,5 +1,6 @@
 package estadisticas;
 
+import gestordeperfil.DriverPerfil;
 import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 import ranking.Ranking;
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 import java.io.*;
+import java.util.Scanner;
 
 /**
  * Clase de pruebas para el sistema de gestión de estadísticas mediante consola.
@@ -48,10 +50,9 @@ public class DriverEstadisticasTest {
     }
 
     private DriverEstadisticas createDriver(String input) {
-        return new DriverEstadisticas(
-                gestor,
-                new ByteArrayInputStream(input.getBytes())
-        );
+        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        Scanner testScanner = new Scanner(inputStream);
+        return new DriverEstadisticas(gestor, testScanner);
     }
 
     /**

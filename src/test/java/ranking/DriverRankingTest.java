@@ -1,11 +1,13 @@
 package ranking;
 
+import gestordeperfil.DriverPerfil;
 import gestordeperfil.Perfil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.io.*;
+import java.util.Scanner;
 import java.util.TreeSet;
 
 /**
@@ -80,10 +82,9 @@ public class DriverRankingTest {
      * @return Instancia configurada de DriverRanking
      */
     private DriverRanking createDriverWithInput(String input) {
-        return new DriverRanking(
-                ranking,
-                new ByteArrayInputStream(input.getBytes())
-        );
+        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        Scanner testScanner = new Scanner(inputStream);
+        return new DriverRanking(ranking, testScanner);
     }
 
     /**
@@ -215,10 +216,9 @@ public class DriverRankingTest {
     @Test
     public void testRankingManagementSinJugadores() {
         Ranking rankingVacio = new Ranking();
-        DriverRanking driver = new DriverRanking(
-                rankingVacio,
-                new ByteArrayInputStream("".getBytes())
-        );
+        InputStream inputStream = new ByteArrayInputStream("".getBytes());
+        Scanner testScanner = new Scanner(inputStream);
+        DriverRanking driver = new DriverRanking(rankingVacio, testScanner);
         driver.rankingManagement();
         assertTrue(getConsoleOutput().contains("No hay ningún jugador en el sistema"));
     }
