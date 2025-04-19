@@ -171,10 +171,8 @@ public class Turno {
      * @param y La coordenada Y de la ficha a retirar.
      */
     public void retirarFicha(int x, int y) throws CoordenadaFueraDeRangoException{
-        if (partida.getTablero().getFicha(x, y) == null) ;// error
-        else {
-            //Tablero[x][y] que sea null
-        }
+        if (partida.getTablero().getFicha(x, y) == null);
+        else partida.getTablero().serFicha(null, 'A'+x, y+1);
     }
 
     /**

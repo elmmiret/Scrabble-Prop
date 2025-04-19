@@ -26,7 +26,6 @@ public class Tablero {
     // que por 0 solo sea cuando se necesitan bucles
     // depende de la implementacion final
 
-    // TODO: para @test  que no puedas setear una ficha que no existe en el diccionario o eso es mas bien de partida?
 
     // CONSTRUCTORA
 
@@ -41,7 +40,6 @@ public class Tablero {
         montarTablero();
     }
 
-    // TODO: pensar como añadiria el abecedario pq de momento está vacio
     /**
      * Monta el Tablero.
      *
@@ -87,28 +85,6 @@ public class Tablero {
         }
     }
 
-    /**
-    *Transpone el tablero intercambiando filas por columnas, convirtiendo la posición (x, y) en (y, x).
-    * Este método modifica la estructura interna del tablero para reorganizar las casillas.
-    *
-    * @pre El tablero debe ser cuadrado
-    *
-    * @author Albert Aulet Niubó
-    */
-    public void transponerTablero() {
-        List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);
-        for (int y = 0; y < COLUMNAS; y++) {
-            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>(FILAS);
-            for (int x = 0; x < FILAS; x++) {
-                fila.add(tablero.get(x).get(y));
-            }
-            nuevo.add(fila);
-        }
-
-        this.tablero = nuevo;
-
-    }
-
     // MÉTODOS
 
     /**
@@ -147,6 +123,7 @@ public class Tablero {
         return tablero.get(x).get(y).getValue();
     }
 
+    // TODO: que no puedas setear una ficha que no existe en el diccionario o eso es mas bien de partida?
     /**
      * Coloca una ficha en la posicion (x, y) del tablero.
      * Si ya hay una ficha, lanza error ya que el juego no permite cambiar fichas una vez están bien colocadas.
@@ -232,6 +209,25 @@ public class Tablero {
             }
         }
         return true;
+    }
+
+    /**
+     * Transpone el tablero intercambiando filas por columnas, convirtiendo la posición (x, y) en (y, x).
+     * Este método modifica la estructura interna del tablero para reorganizar las casillas.
+     *
+     * @pre El tablero debe ser cuadrado
+     * @author Albert Aulet Niubó (excepcionalmente en esta clase)
+     */
+    public void transponerTablero() {
+        Tablero nuevo = new ArrayList<>(COLUMNAS);
+        for (int y = 0; y < COLUMNAS; y++) {
+            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>(FILAS);
+            for (int x = 0; x < FILAS; x++) {
+                fila.add(tablero.get(x).get(y));
+            }
+            nuevo.add(fila);
+        }
+        this.tablero = nuevo;
     }
 
     //  ESCRITURA
@@ -343,7 +339,5 @@ public class Tablero {
             default:
                 break;
         }
-
-
     }
 }
