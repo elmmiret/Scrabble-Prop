@@ -305,6 +305,7 @@ public class Dawg {
                     else {
                         if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
                         nodo = nodo.getHijos().get(division.get(pos_division));
+                        if(nodo == null) return false;
                         ++pos_division;
                     }
                 }
@@ -342,6 +343,7 @@ public class Dawg {
                         // Mirar por posibles nuevas palabras arriba y abajo
                         if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
                         nodo = nodo.getHijos().get(division.get(pos_division));
+                        if(nodo == null) return false;
                         pos_division++;
                     }
 
@@ -352,6 +354,7 @@ public class Dawg {
                         if(letra != division.get(pos_division)) return false;
                         else {
                             nodo = nodo.getHijos().get(letra);
+                            if(nodo == null) return false;
                             pos_division++;
                         }
                     }
@@ -387,6 +390,7 @@ public class Dawg {
                         // Mirar por posibles nuevas palabras arriba y abajo
                         if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
                         nodo = nodo.getHijos().get(division.get(pos_division));
+                        if(nodo == null) return false;
                         ++pos_division;
                     }
 
@@ -397,6 +401,7 @@ public class Dawg {
                         if(letra != division.get(pos_division)) return false;
                         else {
                             nodo = nodo.getHijos().get(letra);
+                            if(nodo == null) return false;
                             ++pos_division;
                         }
                     }
