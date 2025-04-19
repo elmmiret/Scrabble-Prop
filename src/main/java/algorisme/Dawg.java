@@ -254,7 +254,7 @@ public class Dawg {
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
             if(modo == "horizontal") {
-                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
+                if(!cabePalabraHorizontal(division,x,y)) return false;
 
                 // Desde la posición y ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
                 NodoDawg nodo = getRoot();
@@ -270,13 +270,13 @@ public class Dawg {
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
-                        if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
+                        if(!mirarNuevasPalabrasHorizontal(division.get(pos_division),x,col)) return false;
                         ++pos_division;
                     }
                 }
             }
             else if(modo == "vertical") {
-                if(!cabePalabraVertical(tablero,division,x,y)) return false;
+                if(!cabePalabraVertical(division,x,y)) return false;
 
                 // Desde esa posición ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
                 NodoDawg nodo = getRoot();
@@ -292,7 +292,7 @@ public class Dawg {
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
-                        if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
+                        if(!mirarNuevasPalabrasVertical(division.get(pos_division),fil,y)) return false;
                         ++pos_division;
                     }
                 }
@@ -302,7 +302,7 @@ public class Dawg {
         // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
         else {
             if(modo == "horizontal"){
-                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
+                if(!cabePalabraHorizontal(division,x,y)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
@@ -320,7 +320,7 @@ public class Dawg {
                     // En el caso de que no haya una ficha en esa nueva posicion
                     if(tablero.getFicha(x,col) == null) {
                         // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
+                        if(!mirarNuevasPalabrasHorizontal(division.get(pos_division),x,col)) return false;
                         pos_division++;
                     }
 
@@ -338,7 +338,7 @@ public class Dawg {
             }
 
             else if(modo == "vertical") {
-                if(!cabePalabraVertical(tablero,division,x,y)) return false;
+                if(!cabePalabraVertical(division,x,y)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
@@ -356,7 +356,7 @@ public class Dawg {
                     // En el caso de que no haya una ficha en esa nueva posición
                     if(tablero.getFicha(fil,y) == null) {
                         // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
+                        if(!mirarNuevasPalabrasVertical(division.get(pos_division),fil,y)) return false;
                         ++pos_division;
                     }
 
@@ -493,12 +493,20 @@ public class Dawg {
         return true;
     }
 
-    private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y) {
-
+    private boolean cabePalabraVertical(List<String> divisiones, int x, int y) {
+        int size = divisiones.size();
+        for(int fil = x; fil < size; fil++) {
+            if(!casillaCorrecta(fil,y)) return false;
+        }
+        return true;
     }
 
-    private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y) {
-
+    private boolean cabePalabraHorizontal(List<String> divisiones, int x, int y) {
+        int size = divisiones.size();
+        for(int col = y; col < size; col++) {
+            if(!casillaCorrecta(x,col)) return false;
+        }
+        return true;
     }
 
     /**

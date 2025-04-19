@@ -30,6 +30,7 @@ public class Partida {
     private String nombre;
     private Tablero tablero;
     // TODO: implementar comodines
+    private Map<Ficha,Integer> mapaFichas;
     private Queue<Ficha> bolsa;
     private List<Turno> rondas; // mirar de como gestionar esto en turno
     private LocalDateTime fechaHoraCreacion;
@@ -64,6 +65,7 @@ public class Partida {
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
         tablero = new Tablero(idiomaPartida);
+        mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
         rondas = new ArrayList<>();
@@ -87,6 +89,7 @@ public class Partida {
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
         tablero = new Tablero(idiomaPartida);
+        mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
         rondas = new ArrayList<>();
@@ -208,26 +211,25 @@ public class Partida {
      * Mezcla la bolsa de fichas para ganrantizar una partida correcta con su perteneciente parte de aleatoriedad.
      */
     public void setBolsa() {
-        Map<Ficha, Integer> mapaBolsa = new HashMap<>();
         switch (idiomaPartida) {
             case CAT:
                 AlfabetoCAT alfabetoCat = new AlfabetoCAT();
-                mapaBolsa = alfabetoCat.getMapaFichas();
+                mapaFichas = alfabetoCat.getMapaFichas();
                 break;
             case CAST:
                 AlfabetoCAST alfabetoCast = new AlfabetoCAST();
-                mapaBolsa = alfabetoCast.getMapaFichas();
+                mapaFichas = alfabetoCast.getMapaFichas();
                 break;
             case ENG:
                 AlfabetoING alfabetoING = new AlfabetoING();
-                mapaBolsa = alfabetoING.getMapaFichas();
+                mapaFichas = alfabetoING.getMapaFichas();
                 break;
             default:
                 break;
         }
 
         List<Ficha> listaTemporal = new ArrayList<>();
-        for (Map.Entry<Ficha, Integer> entry : mapaBolsa.entrySet()) {
+        for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
             Ficha ficha = entry.getKey();
             int cantidad = entry.getValue();
             for (int i = 0; i < cantidad; i++) listaTemporal.add(ficha);

@@ -5,6 +5,10 @@ import exceptions.*;
 import java.util.Map;
 import java.util.HashMap;
 
+// TODO: concretar lo de los puntos de colocarPalabra
+//       hacer que se llame a la IA para jugar
+//       repasar driver de partida para que llame a turno (hacer driver turno)
+
 /**
  * Esta clase representa un turno dentro de una partida de Scrabble.
  * Gestiona las acciones realizadas por los jugadores como cambiar fichas,
@@ -18,7 +22,6 @@ public class Turno {
     // private int numero; no cal pq lo podemos buscar en el indice ed la estructura rondas en partida
     // TODO: cambiar a solo id de jugador
     private Perfil jugador; // null si es la IA
-    // si el numero de turno es 0 que se inicialicen los atriles
     private Map<Ficha,Integer> atrilJ1; // creador
     private Map<Ficha,Integer> atrilJ2; // oponente oi IA
     private puntosJ1; // creador
@@ -97,18 +100,30 @@ public class Turno {
     }
 
     /**
-     * Cambia una ficha del atril por otra de la bolsa.
+     * Cambia un conjunto de fichas del atril por otras nuevas de la bolsa.
+     * Primero se apartan, luego se roba, y por último se vuelven a insertar en la bolsa.
      *
      * @param atril El atril del jugador.
-     * @param f La ficha a cambiar.
-     * @return debereia ser un void?  TODO: revisar lo q hice
+     * @param fichasParaCambiar Un mapa de fichas y la cantidad que desea cambiar.
      */
-    public int cambiarFichas(Map<Ficha,Integer> atril, Ficha f) {
-        if (atril.get(f) == 0) return 0;
-        else {
-            atril.put(f, atril.get(f) - 1);
-            return 1;
+    public void cambiarFichas(Map<Ficha,Integer> atril, Map<Ficha,Integer> FichasParaCambiar) {
+        Queue<Ficha> colaTemporal = new LinkedList<>();
+        // añadir las fichas a la cola temporal y restarlas del atril
+        for (Map.Entry<Ficha, Integer> entry : fichasParaCambiar.entrySet()) {
+            Ficha ficha = entry.getKey();
+            int cantidad = entry.getValue();
+
+            for (int i = 0; i < cantidad; i++) {
+                if (atril.containsKey(ficha) && atril.get(ficha) > 0) {
+                    colaTemporal.add(ficha);
+                    atril.put(ficha, atril.get(ficha) - 1);
+                    if (atril.get(ficha) == 0) atril.remove(ficha);
+                }
+            }
         }
+
+        robarFichas(atril);
+        partida.getBolsa().addAll(colaTemporal);
         setTipoJugada(TipoJugada.cambiar);
         avanzarTurno();
     }
@@ -145,18 +160,79 @@ public class Turno {
     }
 
     /**
-     * TODO: reformular pq antes estab ahecho para ficha por ficha
+     * Coloca una palabra en el tablero, calcula y asigna los puntos correspondientes.
      *
-     * Coloca una palabra en el tablero.
-     *
-     * @param f La ficha a colocar.
-     * @param x La coordenada X en el tablero.
-     * @param y La coordenada Y en el tablero.
+     * @param palabra La palabra que se quiere colocar.
+     * @param x_ini La coordenada X inicial en el tablero.
+     * @param y_ini La coordenada Y inicial en el tablero.
+     * @param orientacion La dirección en la que se colocará la palabra ("vertical" u "horizontal").
      */
-    public void colocarPalabra(Ficha f, int x, int y) {
-        // segun el algoritmo
-        // TODO: sumar puntos, tener en cuenta de que si ya habia algo puestom se cuentan los puntos
-        //  que ya habia pero no se cuentan los modificadores
+    public void colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) {
+        // existe la palabra, cabe en el tablero y coincide bien con todas las otras fichas
+        int puntosPorSumar = 0;
+        int modificadorPalabra = 1;
+        if (partida.dawg.comprovarPalabra(partida.getTablero, palabra, x_ini , y_ini , orientacion)) {
+            List<String> fichas = dividirPalabra(String palabra);
+            if (orientacion == "vertical") {
+                for (int i = 0; i < fichas.size(); ++i) {
+                    String letraBuscada = fichas.get(i);
+                    Ficha fichaencontrada = null;
+                    for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
+                        if (entry.getKey().getLetra().equals(letraBuscada)) {
+                            fichaEncontrada = entry.getKey();
+                            break;
+                        }
+                    }
+
+                    if (fichaEncontrada == null); // TODO: no existe en el diccionario y habria que retornar algun tipo de error
+
+                    Ficha f = fichaEncontrada;
+                    partida.tablero.setFicha( f, 'A' + x_ini + i, y_ini);
+                        if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
+                        else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == tripleTantoDePalabra) modificadorPalabra = 3;
+                        else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3
+                        else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2
+                        else puntosPorSumar += f.getPuntuacion()
+
+                }
+                if (modificadorPalabra != 1) puntosPorSumar *= modificadorPalabra;
+                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
+                else puntosJ2 += puntosPorSumar;
+                // TODO MUY IMPORTANTE: si se juntan otras palabras que ya habian puestas,
+                // se tiene que sumar esa puntuacion pero SIN CONTAR MODIFICADORES, solo puntuacion de las fichas
+
+            }
+            else {
+                for (int i = 0; i < fichas.size(); ++i) {
+                    String letraBuscada = fichas.get(i);
+                    Ficha fichaencontrada = null;
+                    for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
+                        if (entry.getKey().getLetra().equals(letraBuscada)) {
+                            fichaEncontrada = entry.getKey();
+                            break;
+                        }
+                    }
+
+                    if (fichaEncontrada == null); // TODO: no existe en el diccionario y habria que retornar algun tipo de error
+
+                    Ficha f = fichaEncontrada;
+                    partida.tablero.setFicha( f, 'A' + x_ini, y_ini + i);
+                    if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
+                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == tripleTantoDePalabra) modificadorPalabra = 3;
+                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3
+                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2
+                    else puntosPorSumar += f.getPuntuacion()
+
+                }
+                if (modificadorPalabra != 1) puntosPorSumar *= modificadorPalabra;
+                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
+                else puntosJ2 += puntosPorSumar;
+                // TODO MUY IMPORTANTE: si se juntan otras palabras que ya habian puestas,
+                // se tiene que sumar esa puntuacion pero SIN CONTAR MODIFICADORES, solo puntuacion de las fichas
+
+            }
+        }
+
         setTipoJugada(TipoJugada.colocar);
         if (jugador == partida.getCreador()) robarFichas(atrilJ1);
         else robarFichas(atrilJ2);
