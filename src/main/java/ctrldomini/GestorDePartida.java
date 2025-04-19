@@ -12,7 +12,6 @@ import gestordeperfil.GestorDePerfil;
  * Proporciona funcionalidades para interactuar con múltiples partidas y usuarios, como:
  *
  * @author Albert Aulet Niubó
- * @author Arnau Miret Barrull
  */
 public class GestorDePartida {
     private Map<Integer, Partida> partidas;
@@ -23,7 +22,7 @@ public class GestorDePartida {
      * Constructor que inicializa el gestor con un scanner para entrada de usuario
      * y un mapa vacío para almacenar partidas.
      *
-     * @author Arnau Miret Barrull
+     * @author Albert Aulet Niubó
      */
     public GestorDePartida(GestorDePerfil gDP) {
         scanner = new Scanner(System.in);
@@ -271,7 +270,7 @@ public class GestorDePartida {
                                 System.out.println("Introduce la nueva contraseña\n");
                                 String nuevaContraseña = scanner.nextLine();
                                 while (!gestorDePerfil.esPasswordSegura(nuevaContraseña)) {
-                                    System.out.println("La contranseña no cumple con los requisitos de seguridad\n1- Volver a intentar\n2- Salir\n");
+                                    System.out.println("La contraseña no cumple con los requisitos de seguridad\n1- Volver a intentar\n2- Salir\n");
                                     int num = scanner.nextInt();
                                     if (num == 1) {
                                         System.out.println("Introduce la nueva contraseña\n");
@@ -283,6 +282,9 @@ public class GestorDePartida {
                                 gestorDePerfil.cambiarPassword(nombreprincipal, nuevaContraseña);
                                 System.out.println("Contraseña cambiada correctamente!");
 
+                            }
+                            if (opcion == 3) {
+                                return null;
                             }
                         }
                     } else System.out.println("\nEl nombre de perfil indicado no existe\n");
@@ -383,7 +385,7 @@ public class GestorDePartida {
                         if (gestorDePerfil.esPasswordCorrecta(nombresecundario, contraseñasecundaria)) {
                             System.out.println("---- PARTIDA INICIADA ----");
                             while (!partidaTerminada) {
-                                Turno turnoActual = partida.rondas.get(partida.rondas.size() - 1);
+                                Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
                                 Perfil jugadorActual = turnoActual.getJugador();
                                 System.out.println("\n--- TURNO DE " + jugadorActual.getUsername() + "---");
                                 System.out.println("Tablero actual: ");
@@ -391,9 +393,18 @@ public class GestorDePartida {
                                 System.out.println("\nTus fichas actuales son:");
                                 Map<Ficha, Integer> atril;
                                 if (jugadorActual == partida.getCreador()) {
+                                    System.out.println("Tu puntuación: " + turnoActual.getPuntuaciónJ1() + "\n Puntuación de tu rival: " + turnoActual.getPuntuaciónJ2());
                                     atril = turnoActual.getAtrilJ1();
+
                                 } else {
+                                    System.out.println("Tu puntuación: " + turnoActual.getPuntuaciónJ2() + "\n Puntuación de tu rival: " + turnoActual.getPuntuaciónJ1());
                                     atril = turnoActual.getAtrilJ2();
+                                }
+                                if (atril == null) {
+                                    partidaTerminada = true;
+                                    //indicar que la partida ha finalizado
+                                    System.out.println("Partida finalizada: Un jugador no tiene fichas en su atril y la bolsa está vacía");
+                                    System.out.println("Puntuación J1: " + getPuntuaciónJ1() + "\nPuntuación J2: " + getPuntuaciónJ2());
                                 }
                                 atril.forEach((ficha, cantidad) -> System.out.print(ficha.getLetra() + " (" + cantidad + ") "));
                                 System.out.println("\nOpciones a jugar:\n 1.Colocar palabra \n 2.Cambiar fichas \n 3.Pasar Turno \n 4.Salir de la partida\n\n Selecciona una opción:");
@@ -440,6 +451,15 @@ public class GestorDePartida {
                                         break;
                                     case 3:
                                         turnoActual.pasarTurno();
+                                        if (partida.getRondas().get(partidas.getRondas().size()) > 1) {
+                                            Turno turnoAnterior = partida.getRondas().get(partidas.getRondas().size() - 2);
+                                            if (turnoAnterior.getTipoJugada() == Turno.TipoJugada.pasar) {
+                                                partidaTerminada = true;
+                                                //indicar que la partida esta finalizada
+                                                System.out.println("Partida finalizada: Ningún jugador puede formar más palabras");
+                                                System.out.println("Puntuación J1: " + getPuntuaciónJ1() + "\nPuntuación J2: " + getPuntuaciónJ2());
+                                            }
+                                        }
                                         break;
                                     case 4:
                                         partidaTerminada = true;
@@ -539,6 +559,7 @@ public class GestorDePartida {
         }
     }
 
+    private void
 
     /**
      * Elimina una partida del gestor.
