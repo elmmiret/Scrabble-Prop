@@ -11,6 +11,11 @@ import java.util.HashMap;
 import java.util.Collections;
 import algorisme.*;
 
+// TODO: la partida acaba cuando se pasa en 2 turnos consecutivos
+//  o cuando uno de los jugadores se queda sin fichas en le atril y en la bolsa no quedan mas
+
+// TODO: en el driver de turno o partida poner si jugar o ir al menu para guardar, salir, etc
+
 /**
  * Esta clase representa una Partida de Scrabble.
  * La Partida puede jugadase entre dos jugadores (PvP) o entre un jugador y una inteligencia artificial (PvIA).
@@ -24,6 +29,8 @@ public class Partida {
     private Perfil oponente;
     private String nombre;
     private Tablero tablero;
+    // TODO: implementar comodines
+    private Map<Ficha,Integer> mapaFichas;
     private Queue<Ficha> bolsa;
     private List<Turno> rondas; // mirar de como gestionar esto en turno
     private LocalDateTime fechaHoraCreacion;
@@ -58,9 +65,11 @@ public class Partida {
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
         tablero = new Tablero(idiomaPartida);
+        mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
         rondas = new ArrayList<>();
+        inicializarPrimerTurno();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         dificultad = 0;
@@ -80,9 +89,11 @@ public class Partida {
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
         tablero = new Tablero(idiomaPartida);
+        mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
         rondas = new ArrayList<>();
+        inicializarPrimerTurno();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         this.dificultad = dificultad;
@@ -175,9 +186,24 @@ public class Partida {
     /**
      * Crea un nuevo turno en la partida y lo añade a la lista de rondas.
      */
-    public void nuevoTurno() {
-        //Turno turno = new Turno(this,...); // mirar de concretar
-        //rondas.add(turno);
+    public void nuevoTurno(Perfil jugador) {
+        Turno turno = new Turno(this, jugador);
+        rondas.add(turno);
+    }
+
+    public SimpleEntry<Ficha, Ficha> sortearPrimerTurno() {
+        Ficha fichaj1 = partida.getBolsa();
+        Ficha fichaj2 = partida.getBolsa();
+        return {fichaj1, fichaj2};
+    }
+
+    public void inicializarPrimerTurno() {
+        Perfil primerJugador;
+        SimpleEntry<Ficha, Ficha> sorteo = sortearPrimerTurno();
+        if (sorteo.getKey().getLetra() <= sorteo.getValue().getLetra()) primerJugador = creador;
+        else primerJugador = oponente;
+        nuevoTurno(primerJugador);
+        rondas.get(0).inicializarAtriles();
     }
 
     /**
@@ -185,26 +211,25 @@ public class Partida {
      * Mezcla la bolsa de fichas para ganrantizar una partida correcta con su perteneciente parte de aleatoriedad.
      */
     public void setBolsa() {
-        Map<Ficha, Integer> mapaBolsa = new HashMap<>();
         switch (idiomaPartida) {
             case CAT:
                 AlfabetoCAT alfabetoCat = new AlfabetoCAT();
-                mapaBolsa = alfabetoCat.getMapaFichas();
+                mapaFichas = alfabetoCat.getMapaFichas();
                 break;
             case CAST:
                 AlfabetoCAST alfabetoCast = new AlfabetoCAST();
-                mapaBolsa = alfabetoCast.getMapaFichas();
+                mapaFichas = alfabetoCast.getMapaFichas();
                 break;
             case ENG:
                 AlfabetoING alfabetoING = new AlfabetoING();
-                mapaBolsa = alfabetoING.getMapaFichas();
+                mapaFichas = alfabetoING.getMapaFichas();
                 break;
             default:
                 break;
         }
 
         List<Ficha> listaTemporal = new ArrayList<>();
-        for (Map.Entry<Ficha, Integer> entry : mapaBolsa.entrySet()) {
+        for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
             Ficha ficha = entry.getKey();
             int cantidad = entry.getValue();
             for (int i = 0; i < cantidad; i++) listaTemporal.add(ficha);

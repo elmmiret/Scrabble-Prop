@@ -6,6 +6,10 @@ import java.util.Map;
 
 /**
  * Esta clase representa el Gestor de Partida
+ *
+ * Gestiona la creación, eliminación, consulta y ejecución de partidas de Scrabble.
+ * Proporciona funcionalidades para interactuar con múltiples partidas y usuarios, como:
+ *
  * @author Albert Aulet Niubó
  * @author Arnau Miret Barrull
  */
@@ -14,6 +18,9 @@ public class GestorDePartida {
     Scanner scanner;
 
     /**
+     * Constructor que inicializa el gestor con un scanner para entrada de usuario
+     * y un mapa vacío para almacenar partidas.
+     *
      * @author Arnau Miret Barrull
      */
     public GestorDePartida() {
@@ -22,6 +29,10 @@ public class GestorDePartida {
     }
 
     /**
+     * Crea una nueva partida interactuando con el usuario para recoger los parámetros necesarios.
+     * Valida identificadores únicos, credenciales de jugadores y configura el modo de juego.
+     *
+     * @return Partida creada o null si hubo errores en el proceso.
      * @author Arnau Miret Barrull
      */
     // TODO: acabar esta clase
@@ -118,29 +129,85 @@ public class GestorDePartida {
     }
 
     // si no existe nada, que imprima un mensaje informativo
+
+    /**
+     * Muestra todas las partidas asociadas a un jugador (como creador u oponente).
+     * Incluye detalles como ID, nombre, fecha de creación y modo de juego.
+     *
+     * @param jugador Perfil del jugador cuyas partidas se quieren consultar.
+     * @author Albert Aulet Niubó
+     */
     public void consultarPartidasJugador(Perfil jugador) {
-
-    }
-
-    public boolean existePartidaJugador(Perfil jugador, int id_partida) {  // haria falta pasarle el id de la partida ?
-        if (partidas.containsKey(id_partida)) {
-            return partidas.get(id_partida).getCreador().equals(jugador) || partidas.get(id_partida).getOponente().equals(jugador);
+        if (jugador == null) {
+            System.out.println("\nEl jugador no es válido.\n");
+            return;
         }
-        return false;
+
+        List<Partida> partidasJugador = new ArrayList<>();
+
+        for (Map.Entry<Integer, Partida> entry : partidas.entrySet()) {
+            Partida partida = entry.getValue();
+            if (partida.getCreador().equals(jugador) || (partida.getOponente() != null && partida.getOponente().equals(jugador))) {
+                partidasJugador.add(partida);
+            }
+        }
+
+        if (partidasJugador.isEmpty()) {
+            System.out.println("\nEl jugador " + jugador.getUsername() + " no participa en ninguna partida.\n");
+        }
+
+        else {
+            System.out.println("\nPartidas de " + jugador.Username() + ":");
+            System.out.println("-------------------------------------------------");
+            for (Partida p : partidasJugador) {
+
+
+                System.out.println("ID: " + p.getId());
+                System.out.println("Nombre: " + p.getNombre());
+                System.out.println("Data de creación: " + p.getFechaHoraCreacion());
+                System.out.println("Modo: " + p.getModoPartida());
+                if (p.getModoPartida() == Partida.Modo.PvP) {
+                    System.out.println("Oponente: " + p.getOponente());
+                }
+                else {
+                    System.out.println("Dificultad: " + p.getDificultad());
+                }
+                System.out.println("-------------------------------------------------");
+            }
+            System.out.println();
+        }
     }
 
     /**
-     * public boolean existePartidaJugador(Perfil jugador) {  // haria falta pasarle el id de la partida ?
+     * Verifica si un jugador participa en una partida específica.
      *
-     *     }
+     * @param jugador Perfil del jugador a verificar.
+     * @param idpartida Identificador de la partida.
+     * @return true si el jugador es creador u oponente de la partida, false en caso contrario.
+     * @author Albert Aulet Niubó
      */
+    public boolean existePartidaJugador(Perfil jugador, int idpartida) {
+        return partidas.get(idpartida).getCreador().equals(jugador) || partidas.get(idpartida).getOponente().equals(jugador);
+    }
 
+    /**
+     * Inicia la ejecución de una partida existente.
+     *
+     * @param idpartida Identificador de la partida a jugar.
+     * @author Albert Aulet Niubó
+     */
     public void jugar(int idpartida) {
 
     }
 
+    /**
+     * Elimina una partida del gestor.
+     *
+     * @param idpartida Identificador de la partida a borrar.
+     * @author Albert Aulet Niubó
+     */
     public void borrar(int idpartida) {
-        if (partidas.containsKey((idpartida))) {
+        if (partidas.containsKey(idpartida)) {
             partidas.remove(idpartida);
             System.out.println("La partida con identificador " + idpartida + " ha sido borrada correctamente.\n");
         }

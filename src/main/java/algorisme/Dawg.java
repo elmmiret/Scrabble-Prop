@@ -270,7 +270,7 @@ public class Dawg {
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
-                        if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
+                        if(!mirarNuevasPalabrasHorizontal(division.get(pos_division),x,col)) return false;
                         ++pos_division;
                     }
 
@@ -295,7 +295,7 @@ public class Dawg {
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
-                        if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
+                        if(!mirarNuevasPalabrasVertical(division.get(pos_division),fil,y)) return false;
                         ++pos_division;
                     }
 
@@ -326,7 +326,7 @@ public class Dawg {
                     // En el caso de que no haya una ficha en esa nueva posicion
                     if(tablero.getFicha(x,col) == null) {
                         // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
+                        if(!mirarNuevasPalabrasHorizontal(division.get(pos_division),x,col)) return false;
                         pos_division++;
                     }
 
@@ -362,7 +362,7 @@ public class Dawg {
                     // En el caso de que no haya una ficha en esa nueva posición
                     if(tablero.getFicha(fil,y) == null) {
                         // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
+                        if(!mirarNuevasPalabrasVertical(division.get(pos_division),fil,y)) return false;
                         ++pos_division;
                     }
 

@@ -66,8 +66,11 @@ public class DriverPartida {
                         System.out.println("formato de id erroneo, pulsa 3 y posteriormente vuelve a intentarlo");
                         break;
                     }
+
+                    // TODO: pasar el id tambien
                     if (!gestor.existePartidaJugador(jugador)) System.out.println("No existe ninguna partida con este id para tu perfil.");
                     else gestor.jugar(input);
+                    // que esa funcion llame al driver de turno y que de alguna manera
                     break;
 
                 case 3:

@@ -18,6 +18,8 @@ public class Tablero {
     private static final int COLUMNAS = 15;
     private Partida.Idioma idiomaPartida;
 
+    private Map<String> letras;
+
     public enum TipoModificador {   // si esta null es que no hay ningun bonificador en esa casilla
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
     }
@@ -38,131 +40,147 @@ public class Tablero {
     public Tablero(Partida.Idioma idiomaPartida) {
         tablero = new ArrayList<>();
         this.idiomaPartida = idiomaPartida;
+        letras = new HashMap<>();
+        switch (partida.idiomaPartida) {
+            case CAT:
+                AlfabetoCAT alfabetoCat = new AlfabetoCAT();
+                mapaFichas = alfabetoCat.getMapaFichas();
+                setLetras(mapaFichas);
+                break;
+            case CAST:
+                AlfabetoCAST alfabetoCast = new AlfabetoCAST();
+                mapaFichas = alfabetoCast.getMapaFichas();
+                setLetras(mapaFichas);
+                break;
+            case ENG:
+                AlfabetoING alfabetoING = new AlfabetoING();
+                mapaFichas = alfabetoING.getMapaFichas();
+                setLetras(mapaFichas);
+                break;
+            default:
+                break;
+        }
+
         montarTablero();
     }
 
-    // TODO: pensar como añadiria el abecedario pq de momento está vacio
-    /**
-     * Monta el Tablero.
-     *
-     * Lo inicializa vacío y con los modificadores en sus respectivas casillas segun las reglas del juego de un Tablero 15x15.
-     */
-    public void montarTablero () {
-        TipoModificador m;
-        for (int i = 0; i < FILAS; i++) {
-            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>();
-            for (int j = 0; j < COLUMNAS; j++) {
-                m = null;
-                // triple palabra
-                if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 7 || j == 14)) {
-                    m = TipoModificador.tripleTantoDePalabra;
-                }
-                // doble palabra
-                else if ((i == j || i + j == 14) && i != 0 && i != 7 && i != 14) {
-                    m = TipoModificador.dobleTantoDePalabra;
-                }
-                // triple letra
-                else if ((i == 5 || i == 9) && (j == 1 || j == 5 || j == 9 || j == 13) ||
-                        (i == 1 || i == 5 || i == 9 || i == 13) && (j == 5 || j == 9)) {
-                    m = TipoModificador.tripleTantoDeLetra;
-                }
-                // doble letra
-                else if ((i == 0 && (j == 3 || j == 11)) ||
-                        (i == 2 && (j == 6 || j == 8)) ||
-                        (i == 3 && (j == 0 || j == 7 || j == 14)) ||
-                        (i == 6 && (j == 2 || j == 6 || j == 8 || j == 12)) ||
-                        (i == 7 && (j == 3 || j == 11)) ||
-                        (i == 8 && (j == 2 || j == 6 || j == 8 || j == 12)) ||
-                        (i == 11 && (j == 0 || j == 7 || j == 14)) ||
-                        (i == 12 && (j == 6 || j == 8)) ||
-                        (i == 14 && (j == 3 || j == 11))) {
-                    m = TipoModificador.dobleTantoDeLetra;
-                }
 
-                SimpleEntry<Ficha, TipoModificador> fichaYModificador = new SimpleEntry<>(null, m);
-                Set<String> abecedario = new HashSet<>();
-                fila.add(new SimpleEntry<>(fichaYModificador, abecedario));
-            }
-            tablero.add(fila);
+    /**
+     * Monta el set de Letras.
+     *
+     * @param mapaFichas Mapa de Fichas que tiene el alfabeto del idioma seleccionado
+     */
+    public void setLetras(Map<Ficha, Integer> mapaFichas) {
+        for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
+            Ficha ficha = entry.getKey();
+            String letra = ficha.getLetra();
+            letras.put(letra);
         }
-    }
 
-    /**
-     * Transpone el tablero intercambiando filas por columnas, convirtiendo la posición (x, y) en (y, x).
-     * Este metodo modifica la estructura interna del tablero para reorganizar las casillas.
-     *
-     * @pre El tablero debe ser cuadrado
-     *
-     * @author Albert Aulet Niubó
-     */
-    public void transponerTablero() {
-        List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);
-        for (int y = 0; y < COLUMNAS; y++) {
-            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>(FILAS);
-            for (int x = 0; x < FILAS; x++) {
-                fila.add(tablero.get(x).get(y));
+        /**
+         * Monta el Tablero.
+         *
+         * Lo inicializa vacío y con los modificadores en sus respectivas casillas segun las reglas del juego de un Tablero 15x15.
+         */
+        public void montarTablero () {
+            TipoModificador m;
+            for (int i = 0; i < FILAS; i++) {
+                List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>();
+                for (int j = 0; j < COLUMNAS; j++) {
+                    m = null;
+                    // triple palabra
+                    if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 7 || j == 14)) {
+                        m = TipoModificador.tripleTantoDePalabra;
+                    }
+                    // doble palabra
+                    else if ((i == j || i + j == 14) && i != 0 && i != 7 && i != 14) {
+                        m = TipoModificador.dobleTantoDePalabra;
+                    }
+                    // triple letra
+                    else if ((i == 5 || i == 9) && (j == 1 || j == 5 || j == 9 || j == 13) ||
+                            (i == 1 || i == 5 || i == 9 || i == 13) && (j == 5 || j == 9)) {
+                        m = TipoModificador.tripleTantoDeLetra;
+                    }
+                    // doble letra
+                    else if ((i == 0 && (j == 3 || j == 11)) ||
+                            (i == 2 && (j == 6 || j == 8)) ||
+                            (i == 3 && (j == 0 || j == 7 || j == 14)) ||
+                            (i == 6 && (j == 2 || j == 6 || j == 8 || j == 12)) ||
+                            (i == 7 && (j == 3 || j == 11)) ||
+                            (i == 8 && (j == 2 || j == 6 || j == 8 || j == 12)) ||
+                            (i == 11 && (j == 0 || j == 7 || j == 14)) ||
+                            (i == 12 && (j == 6 || j == 8)) ||
+                            (i == 14 && (j == 3 || j == 11))) {
+                        m = TipoModificador.dobleTantoDeLetra;
+                    }
+
+                    SimpleEntry<Ficha, TipoModificador> fichaYModificador = new SimpleEntry<>(null, m);
+                    Set<String> abecedario = new HashSet<>();
+                    fila.add(new SimpleEntry<>(fichaYModificador, abecedario));
+                }
+                tablero.add(fila);
             }
-            nuevo.add(fila);
         }
-        this.tablero = nuevo;
-    }
 
-    // MÉTODOS
+        // MÉTODOS
 
-    /**
-     * Obtiene la ficha que se encuentra en la posición (x, y) del tablero.
-     *
-     * @param x Fila de la ficha.
-     * @param y Columna de la ficha.
-     * @return La ficha situada en la posición (x, y) o null si no hay ficha.
-     */
-    public Ficha getFicha(int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-        return tablero.get(x).get(y).getKey().getKey();
-    }
+        /**
+         * Obtiene la ficha que se encuentra en la posición (x, y) del tablero.
+         *
+         * @param x Fila de la ficha.
+         * @param y Columna de la ficha.
+         * @return La ficha situada en la posición (x, y) o null si no hay ficha.
+         */
+        public Ficha getFicha ( int x, int y) throws CoordenadaFueraDeRangoException {
+            if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+            return tablero.get(x).get(y).getKey().getKey();
+        }
 
-    /**
-     * Obtiene el modificador de la casilla del tablero especificada.
-     *
-     * @param x Fila de la casilla.
-     * @param y Columna de la casilla.
-     * @return Tipo de modificador asignado a la posición, o null si no tiene.
-     */
-    public TipoModificador getTipoModificador(int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-        return tablero.get(x).get(y).getKey().getValue();
-    }
+        /**
+         * Obtiene el modificador de la casilla del tablero especificada.
+         *
+         * @param x Fila de la casilla.
+         * @param y Columna de la casilla.
+         * @return Tipo de modificador asignado a la posición, o null si no tiene.
+         */
+        public TipoModificador getTipoModificador ( int x, int y) throws CoordenadaFueraDeRangoException {
+            if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+            return tablero.get(x).get(y).getKey().getValue();
+        }
 
-    /**
-     * Obtiene el set de letras que se encuentra en la posición (x, y) del tablero.
-     *
-     * @param x Fila del abecedario.
-     * @param y Columna del abeceadrio.
-     * @return Set de letras situado en la posición (x, y) o null si no hay abecedario.
-     */
-    public Set getAbecedario(int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-        return tablero.get(x).get(y).getValue();
-    }
+        /**
+         * Obtiene el set de letras que se encuentra en la posición (x, y) del tablero.
+         *
+         * @param x Fila del abecedario.
+         * @param y Columna del abeceadrio.
+         * @return Set de letras situado en la posición (x, y) o null si no hay abecedario.
+         */
+        public Set getAbecedario ( int x, int y) throws CoordenadaFueraDeRangoException {
+            if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+            return tablero.get(x).get(y).getValue();
+        }
 
-    /**
-     * Coloca una ficha en la posicion (x, y) del tablero.
-     * Si ya hay una ficha, lanza error ya que el juego no permite cambiar fichas una vez están bien colocadas.
-     *
-     * @pre x Está en mayúscula y pertenece al rango de letras del tablero
-     *
-     * @param f Ficha que se desea colocar.
-     * @param x_char Fila donde colocar la ficha.
-     * @param y Columna donde colocar la ficha.
-     */
-    public void setFicha(Ficha f, char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        int x = x_char - 'A';
-        --y;
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
-        if (getFicha(x, y) != null) throw new CasillaOcupadaException(x, y);
-
-        SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
-        tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));    }
+        /**
+         * Coloca una ficha en la posicion (x, y) del tablero.
+         * Si ya hay una ficha, lanza error ya que el juego no permite cambiar fichas una vez están bien colocadas.
+         *
+         * @pre x Está en mayúscula y pertenece al rango de letras del tablero
+         *
+         * @param f Ficha que se desea colocar.
+         * @param x Fila donde colocar la ficha.
+         * @param c Columna donde colocar la ficha.
+         */
+        public void setFicha (Ficha f,char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+            int x = x_char - 'A';
+            --y;
+            if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+            if (getFicha(x, y) != null) throw new CasillaOcupadaException(x, y);
+            // ? pongo otra excepcion de que esa letra no existe en el abecedario?
+            if (letras.containsKey(f.getLetra())) {
+                SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
+                tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));
+            }
+        }
 
     /**
      * Coloca una letra en la posicion (x, y) del abecedario del tablero.
@@ -230,6 +248,25 @@ public class Tablero {
             }
         }
         return true;
+    }
+
+    /**
+     * Transpone el tablero intercambiando filas por columnas, convirtiendo la posición (x, y) en (y, x).
+     * Este método modifica la estructura interna del tablero para reorganizar las casillas.
+     *
+     * @pre El tablero debe ser cuadrado
+     * @author Albert Aulet Niubó (excepcionalmente en esta clase)
+     */
+    public void transponerTablero() {
+        Tablero nuevo = new ArrayList<>(COLUMNAS);
+        for (int y = 0; y < COLUMNAS; y++) {
+            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>(FILAS);
+            for (int x = 0; x < FILAS; x++) {
+                fila.add(tablero.get(x).get(y));
+            }
+            nuevo.add(fila);
+        }
+        this.tablero = nuevo;
     }
 
     //  ESCRITURA
