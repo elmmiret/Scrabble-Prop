@@ -471,13 +471,7 @@ public class GestorDePartida {
                         }
                     }
                 } else {
-                    System.out.println("\nLa contraseña no es correcta\n");
-                    System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n");
-                    int opcion = scanner.nextInt();
-                    scanner.nextLine();
-                    if (opcion == 2) {
-
-                    }
+                    // falta volver a intentar o cambiar contraseña (funcion auxiliar)
                 }
             }
         } else {
@@ -555,11 +549,13 @@ public class GestorDePartida {
                         }
                     }
                 }
+                else {
+                    // falta volver a intentar contra/cambiarla (funcion auxiliar)
+                }
             }
         }
     }
 
-    private void
 
     /**
      * Elimina una partida del gestor.
