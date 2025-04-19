@@ -27,4 +27,4 @@ rojo
 Este juego de pruebas es para ver si funciona correctamente el caso
 en el que se intenta crear un perfil con un username en uso. Después se
 cambia el username y vemos si ahora podemos crear un nuevo perfil con el
-username antiguo (sí se puede).
+username antiguo (se puede).
