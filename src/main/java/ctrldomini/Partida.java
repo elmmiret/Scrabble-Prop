@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import algorisme.*;
 
@@ -147,6 +148,19 @@ public class Partida {
         return dificultad;
     }
 
+    public Idioma getIdioma() {
+        return idiomaPartida;
+    }
+
+    /**
+     * Obtiene
+     *
+     * @return
+     */
+    public Dawg getDawg() {
+        return dawg;
+    }
+
     /**
      * Obtiene el tablero asociado a la partida.
      *
@@ -163,6 +177,15 @@ public class Partida {
      */
     public Queue<Ficha> getBolsa() {
         return bolsa;
+    }
+
+    /**
+     * Obtiene
+     *
+     * @return
+     */
+    public List<Turno> getRondas() {
+        return rondas;
     }
 
     /**
@@ -192,15 +215,18 @@ public class Partida {
     }
 
     public SimpleEntry<Ficha, Ficha> sortearPrimerTurno() {
-        Ficha fichaj1 = partida.getBolsa();
-        Ficha fichaj2 = partida.getBolsa();
-        return {fichaj1, fichaj2};
+        Ficha fichaj1 = getBolsa().poll();
+        Ficha fichaj2 = getBolsa().poll();
+        SimpleEntry<Ficha, Ficha> resultado = new SimpleEntry<>(fichaj1, fichaj2);
+        getBolsa().add(fichaj2);
+        getBolsa().add(fichaj1);
+        return resultado;
     }
 
     public void inicializarPrimerTurno() {
         Perfil primerJugador;
         SimpleEntry<Ficha, Ficha> sorteo = sortearPrimerTurno();
-        if (sorteo.getKey().getLetra() <= sorteo.getValue().getLetra()) primerJugador = creador;
+        if (sorteo.getKey().getLetra() == sorteo.getValue().getLetra()) primerJugador = creador;
         else primerJugador = oponente;
         nuevoTurno(primerJugador);
         rondas.get(0).inicializarAtriles();

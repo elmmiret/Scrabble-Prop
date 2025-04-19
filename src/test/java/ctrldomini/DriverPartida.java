@@ -68,8 +68,8 @@ public class DriverPartida {
                     }
 
                     // TODO: pasar el id tambien
-                    if (!gestor.existePartidaJugador(jugador)) System.out.println("No existe ninguna partida con este id para tu perfil.");
-                    else gestor.jugar(input);
+                    if (!gestor.existePartidaJugador(jugador, num)) System.out.println("No existe ninguna partida con este id para tu perfil.");
+                    else gestor.jugar(num);
                     // que esa funcion llame al driver de turno y que de alguna manera
                     break;
 
@@ -93,15 +93,16 @@ public class DriverPartida {
                         System.out.println("formato de id erroneo, pulsa 3 y posteriormente vuelve a intentarlo");
                         break;
                     }
-                    if (!gestor.existePartidaJugador(jugador)) System.out.println("No existe ninguna partida con este id para tu perfil.");
-                    else gestor.borrar(input);
+                    if (!gestor.existePartidaJugador(jugador, num)) System.out.println("No existe ninguna partida con este id para tu perfil.");
+                    else gestor.borrar(num);
                     break;
 
                 case 4:
+                    // TODO: login que paso el marc x whats
                     // el jugador tiene que logguearse para verificar que es el y entonces poder consultar sus partidas
                     // tiene que imprimir los ids de sus partidas, el nombre, el tipo y si es PvP su oponente
                     Perfil jugador = gestorPerfil.login();
-                    gestor.consultarPartidasJugador(perfil.getUsername());
+                    gestor.consultarPartidasJugador(jugador);
                     break;
 
                 default:
