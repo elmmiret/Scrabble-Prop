@@ -260,23 +260,31 @@ public class Dawg {
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-                for(int col = y; col < size && casillaCorrecta(x,col); col++) {
+                for(int col = y; col < y + size && casillaCorrecta(x,col); col++) {
                     // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(x,col) != null) {
-                        nodo = nodo.getHijos().get(division.get(pos_division));
+                        nodo = nodo.getHijos().get(tablero.getFicha(x,col).getLetra());
                         if(nodo == null) return false;
                         ++pos_division;
                     }
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
-                        if(!mirarNuevasPalabrasHorizontal(division.get(pos_division),x,col)) return false;
+                        if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
+                        nodo = nodo.getHijos().get(division.get(pos_division));
+                        if(nodo == null) return false;
                         ++pos_division;
                     }
-
-                    //FUNCION PARA VER EL INCIO DE LA PALABRA, si es correcto
-                    //FUNCION PARA VER EL FINAL DE LA PALABRA, si es correcto
                 }
+
+                // ver si el final de la palabra es correcto
+                int col = y+size;
+                while(casillaCorrecta(x,col) && tablero.getFicha(x,col) != null) {
+                    nodo = nodo.getHijos().get(tablero.getFicha(x,col).getLetra());
+                    if(nodo == null) return false;
+                    ++col;
+                }
+
             }
             else if(modo == "vertical") {
                 if(!cabePalabraVertical(division,x,y)) return false;
@@ -285,22 +293,28 @@ public class Dawg {
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-                for(int fil = x; fil < size && casillaCorrecta(fil,y); fil++) {
+                for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
                     // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(fil,y) != null) {
-                        nodo = nodo.getHijos().get(division.get(pos_division));
+                        nodo = nodo.getHijos().get(tablero.getFicha(fil,y).getLetra());
                         if(nodo == null) return false;
                         ++pos_division;
                     }
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
-                        if(!mirarNuevasPalabrasVertical(division.get(pos_division),fil,y)) return false;
+                        if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
+                        nodo = nodo.getHijos().get(division.get(pos_division));
                         ++pos_division;
                     }
+                }
 
-                    //FUNCION PARA VER EL INCIO DE LA PALABRA, si es correcto
-                    //FUNCION PARA VER EL FINAL DE LA PALABRA, si es correcto
+                // ver si el final de la palabra es correcto
+                int fil = x+size;
+                while(casillaCorrecta(fil,y) && tablero.getFicha(fil,y) != null) {
+                    nodo = nodo.getHijos().get(tablero.getFicha(fil,y).getLetra());
+                    if(nodo == null) return false;
+                    ++fil;
                 }
             }
         }
@@ -326,7 +340,8 @@ public class Dawg {
                     // En el caso de que no haya una ficha en esa nueva posicion
                     if(tablero.getFicha(x,col) == null) {
                         // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasHorizontal(division.get(pos_division),x,col)) return false;
+                        if(!mirarNuevasPalabrasHorizontal(tablero,division.get(pos_division),x,col)) return false;
+                        nodo = nodo.getHijos().get(division.get(pos_division));
                         pos_division++;
                     }
 
@@ -336,10 +351,18 @@ public class Dawg {
                         String letra = tablero.getFicha(x,col).getLetra();
                         if(letra != division.get(pos_division)) return false;
                         else {
-                            nodo = nodo.getHijos().get(division.get(pos_division));
+                            nodo = nodo.getHijos().get(letra);
                             pos_division++;
                         }
                     }
+                }
+
+                // ver si el final de la palabra es correcto
+                int col = y+size;
+                while(casillaCorrecta(x,col) && tablero.getFicha(x,col) != null) {
+                    nodo = nodo.getHijos().get(tablero.getFicha(x,col).getLetra());
+                    if(nodo == null) return false;
+                    ++col;
                 }
             }
 
@@ -362,7 +385,8 @@ public class Dawg {
                     // En el caso de que no haya una ficha en esa nueva posición
                     if(tablero.getFicha(fil,y) == null) {
                         // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasVertical(division.get(pos_division),fil,y)) return false;
+                        if(!mirarNuevasPalabrasVertical(tablero,division.get(pos_division),fil,y)) return false;
+                        nodo = nodo.getHijos().get(division.get(pos_division));
                         ++pos_division;
                     }
 
@@ -372,10 +396,18 @@ public class Dawg {
                         String letra = tablero.getFicha(fil,y).getLetra();
                         if(letra != division.get(pos_division)) return false;
                         else {
-                            nodo = nodo.getHijos().get(division.get(pos_division));
+                            nodo = nodo.getHijos().get(letra);
                             ++pos_division;
                         }
                     }
+                }
+
+                // ver si el final de la palabra es correcto
+                int fil = x+size;
+                while(casillaCorrecta(fil,y) && tablero.getFicha(fil,y) != null) {
+                    nodo = nodo.getHijos().get(tablero.getFicha(fil,y).getLetra());
+                    if(nodo == null) return false;
+                    ++fil;
                 }
             }
         }

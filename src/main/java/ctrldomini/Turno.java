@@ -4,6 +4,8 @@ import algorisme.*;
 import exceptions.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.*;
 
 // TODO: concretar lo de los puntos de colocarPalabra
 //       hacer que se llame a la IA para jugar
@@ -167,12 +169,12 @@ public class Turno {
      * @param y_ini La coordenada Y inicial en el tablero.
      * @param orientacion La dirección en la que se colocará la palabra ("vertical" u "horizontal").
      */
-    public void colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) {
+    public void colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException{
         // existe la palabra, cabe en el tablero y coincide bien con todas las otras fichas
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
-        if (partida.dawg.comprovarPalabra(partida.getTablero, palabra, x_ini , y_ini , orientacion)) {
-            List<String> fichas = dividirPalabra(String palabra);
+        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion)) {
+            List<String> fichas = dawg.dividirPalabra(String palabra);
             if (orientacion == "vertical") {
                 for (int i = 0; i < fichas.size(); ++i) {
                     String letraBuscada = fichas.get(i);

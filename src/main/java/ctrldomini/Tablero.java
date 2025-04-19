@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
+import java.lang.String;
 
 /**
  * Esta clase representa el tablero de Scrabble.
@@ -18,7 +20,8 @@ public class Tablero {
     private static final int COLUMNAS = 15;
     private Partida.Idioma idiomaPartida;
 
-    private Map<String> letras;
+    // MAP TIENE QUE SER DE CLAVE / VALOR
+    private Set<String> letras;
 
     public enum TipoModificador {   // si esta null es que no hay ningun bonificador en esa casilla
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
@@ -40,7 +43,8 @@ public class Tablero {
     public Tablero(Partida.Idioma idiomaPartida) {
         tablero = new ArrayList<>();
         this.idiomaPartida = idiomaPartida;
-        letras = new HashMap<>();
+        letras = new HashSet<>() {
+        };
         switch (partida.idiomaPartida) {
             case CAT:
                 AlfabetoCAT alfabetoCat = new AlfabetoCAT();
@@ -76,13 +80,14 @@ public class Tablero {
             String letra = ficha.getLetra();
             letras.put(letra);
         }
+    }
 
         /**
          * Monta el Tablero.
          *
          * Lo inicializa vacío y con los modificadores en sus respectivas casillas segun las reglas del juego de un Tablero 15x15.
          */
-        public void montarTablero () {
+        public void montarTablero() {
             TipoModificador m;
             for (int i = 0; i < FILAS; i++) {
                 List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>();
@@ -131,7 +136,7 @@ public class Tablero {
          * @param y Columna de la ficha.
          * @return La ficha situada en la posición (x, y) o null si no hay ficha.
          */
-        public Ficha getFicha ( int x, int y) throws CoordenadaFueraDeRangoException {
+        public Ficha getFicha( int x, int y) throws CoordenadaFueraDeRangoException {
             if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
             return tablero.get(x).get(y).getKey().getKey();
         }
