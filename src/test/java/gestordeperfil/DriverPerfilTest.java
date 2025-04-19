@@ -110,13 +110,13 @@ public class DriverPerfilTest
      * - Actualización segura de credenciales
      */
     @Test
-    public void testReestablecerPassword()
+    public void testRestablecerPassword()
     {
         gestor.crearPerfil("user1", "Password123", "blue");
         String input = "user1\nblue\nPassword12345\nPassword12345";
         driver = createDriverWithInput(input);
 
-        assertTrue(driver.reestablecerPassword());
+        assertTrue(driver.restablecerPassword());
         assertEquals("Password", "Password12345", gestor.getPerfil("user1").getPassword());
     }
 

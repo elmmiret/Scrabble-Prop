@@ -82,7 +82,7 @@ public class DriverPerfil {
             }
             else {
                 System.out.println("\nPassword incorrecta\n");
-                return ofrecerReestablecer();
+                return ofrecerRestablecer();
             }
         } else System.out.println("\nNo existe ningún perfil con este username\n");
         return false;
@@ -118,7 +118,7 @@ public class DriverPerfil {
                 } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
             } else {
                 System.out.println("\nPassword incorrecta\n");
-                return ofrecerReestablecer();
+                return ofrecerRestablecer();
             }
         } else System.out.println("\nNo existe ningún perfil con este username\n");
         return false;
@@ -129,7 +129,7 @@ public class DriverPerfil {
      *
      * @return true si la password fue restablecida exitosamente, false en caso contrario
      */
-    public boolean reestablecerPassword() {
+    public boolean restablecerPassword() {
         System.out.print("\n");
         System.out.print("Username: ");
         String username = lector.nextLine();
@@ -137,14 +137,14 @@ public class DriverPerfil {
             System.out.print("Cuál es tu color favorito? (Frase de recuperación): ");
             String recoveryPhrase = lector.nextLine();
             if (gestorDePerfil.esFraseRecuperacionCorrecta(username, recoveryPhrase)) {
-                System.out.print("Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número):");
+                System.out.print("Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número): ");
                 String newPassword = lector.nextLine();
                 if (gestorDePerfil.esPasswordSegura(newPassword)) {
                     System.out.print("New password otra vez: ");
                     String newPassword2 = lector.nextLine();
                     if (newPassword.equals(newPassword2)) {
                         gestorDePerfil.cambiarPassword(username, newPassword);
-                        System.out.println("\nPassword reestablecida correctamente\n");
+                        System.out.println("\nPassword restablecida correctamente\n");
                         return true;
                     } else System.out.println("\nLas passwords no coinciden\n");
                 } else System.out.println("\nLa password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)\n");
@@ -158,13 +158,13 @@ public class DriverPerfil {
      *
      * @return true si se inicia el proceso de restablecimiento, false en caso contrario
      */
-    public boolean ofrecerReestablecer() {
-        System.out.println("Reestablecer password?");
+    public boolean ofrecerRestablecer() {
+        System.out.println("Restablecer password?");
         System.out.println("1- Sí\n2- No");
         System.out.print("\n");
         int chosenOption = lector.nextInt();
         lector.nextLine(); // Limpiar buffer
-        return (chosenOption == 1) ? reestablecerPassword() : false;
+        return (chosenOption == 1) ? restablecerPassword() : false;
     }
 
     /**
@@ -192,7 +192,7 @@ public class DriverPerfil {
                 } else System.out.println("\nEl username antiguo y el nuevo son el mismo\n");
             } else {
                 System.out.println("\nPassword incorrecta\n");
-                return ofrecerReestablecer();
+                return ofrecerRestablecer();
             }
         } else System.out.println("\nNo existe ningún perfil con este username\n");
         return false;
@@ -208,7 +208,7 @@ public class DriverPerfil {
         System.out.println("1- Crear un nuevo perfil");
         System.out.println("2- Eliminar un perfil");
         System.out.println("3- Cambiar password");
-        System.out.println("4- Reestablecer password");
+        System.out.println("4- Restablecer password");
         System.out.println("5- Cambiar username");
         System.out.println("6- Atrás");
         System.out.print("\n");
@@ -263,7 +263,7 @@ public class DriverPerfil {
 
             case 4: // Restablecer password
                 while (!operationDone) {
-                    operationDone = reestablecerPassword();
+                    operationDone = restablecerPassword();
                     if (!operationDone) {
                         System.out.println("Quieres intentarlo otra vez?");
                         System.out.println("1- Sí");
