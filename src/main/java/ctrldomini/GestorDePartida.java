@@ -3,6 +3,9 @@ package ctrldomini;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import gestordeperfil.GestorDePerfil;
 
 /**
  * Gestiona la creación, eliminación, consulta y ejecución de partidas de Scrabble.
@@ -13,6 +16,7 @@ import java.util.Map;
  */
 public class GestorDePartida {
     private Map<Integer, Partida> partidas;
+    private GestorDePerfil gestorDePerfil;
     Scanner scanner;
 
     /**
@@ -21,9 +25,10 @@ public class GestorDePartida {
      *
      * @author Arnau Miret Barrull
      */
-    public GestorDePartida() {
+    public GestorDePartida(GestorDePerfil gDP) {
         scanner = new Scanner(System.in);
         partidas = new HashMap<>();
+        gestorDePerfil = gDP;
     }
 
     /**
@@ -31,102 +36,265 @@ public class GestorDePartida {
      * Valida identificadores únicos, credenciales de jugadores y configura el modo de juego.
      *
      * @return Partida creada o null si hubo errores en el proceso.
+     * @author Albert Aulet Niubó
      * @author Arnau Miret Barrull
      */
     // TODO: acabar esta clase
     public Partida crearPartida() {
-        Partida partida = null;
+        Partida nuevaPartida = null;
         System.out.print("Identificador de la partida: ");
         int idpartida = scanner.nextInt();
-        if(!partidas.containsKey(idpartida)) {
+        if (!partidas.containsKey(idpartida)) {
             System.out.print("Nombre de la partida: ");
             String nombrepartida = scanner.nextLine();
             System.out.println("Escoge un diccionario: \n1- Català\n2- Castellano\n3- English");
             // funcion para cargar el diccionario en la partida (llenar la bolsa)
             int diccionario = scanner.nextInt();
-            if(diccionario == 1 || diccionario == 2 || diccionario == 3) {
+
+            if (diccionario == 1 || diccionario == 2 || diccionario == 3) {
+                Partida.Idioma idioma;
+                switch (diccionario) {
+                    case 1 -> idioma = Partida.Idioma.CAT;
+                    case 2 -> idioma = Partida.Idioma.CAST;
+                    case 3 -> idioma = Partida.Idioma.ENG;
+                }
                 System.out.println("\n\"Modo de juego: \\n1- PvP\\n2- PvIA\n");
                 int mododejuego = scanner.nextInt();
-                if(mododejuego == 1) {
+                if (mododejuego == 1) {
                     // PvP
                     // logear jugador principal y secundario (2 funciones)
                     System.out.println("Logguear jugador principal:\n");
                     System.out.println("Introduce el nombre de usuario principal: ");
                     String nombreprincipal = scanner.nextLine();
-                    if(players.containsKey(nombreprincipal)) {
+                    if (gestorDePerfil.existeJugador(nombreprincipal)) {
                         System.out.println("Introduce la contraseña: ");
                         String contraseñaprincipal = scanner.nextLine();
-                        if(players.get(nombreprincipal).getPassword() == contraseñaprincipal) {
+                        if (gestorDePerfil.esPasswordCorrecta(nombreprincipal, contraseñaprincipal)) {
                             System.out.println("Introduce el nombre de usuario secundario: ");
                             String nombresecundario = scanner.nextLine();
-                            if(players.containsKey(nombresecundario)) {
+                            if (gestorDePerfil.existeJugador(nombresecundario)) {
                                 System.out.println("Introduce la contraseña: ");
                                 String contraseñasecundario = scanner.nextLine();
-                                if(players.get(nombresecundario).getPassword() == contraseñasecundario) {
-                                    // ya tenemos todos los parametros
-                                    //funcion de crear la partida
-
-                                }
-                                else {
+                                if (gestorDePerfil.esPasswordCorrecta(nombresecundario, contraseñasecundario)) {
+                                    nuevaPartida = new Partida(gestorDePerfil.getPerfil(nombreprincipal), gestorDePerfil.getPerfil(nombresecundario), idpartida, nombrepartida, Partida.Modo.PvP, idioma);
+                                    partidas.put(idpartida, nuevaPartida);
+                                    System.out.println("\nPartida creada exitosamente!\n");
+                                } else {
                                     System.out.println("\nLa contraseña no es correcta\n");
-                                    System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n");
+                                    System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n3- Salir");
                                     int opcion = scanner.nextInt();
-                                    if(opcion == 2) {
-                                        //funcion de cambiar el password
+                                    if (opcion == 1) {
+                                        boolean salir = false;
+                                        while (!salir) {
+                                            System.out.println("Introduce la contraseña");
+                                            contraseñaprincipal = scanner.nextLine();
+                                            if (gestorDePerfil.esPasswordCorrecta(nombresecundario, contraseñaprincipal)) {
+                                                crearPartida();
+                                            } else {
+                                                System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n3- Salir");
+                                                int num = scanner.nextInt();
+                                                scanner.nextLine();
+                                                if (num == 2) {
+                                                    opcion = 2;
+                                                    salir = true;
+                                                } else if (num == 3) {
+                                                    return null;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (opcion == 2) {
+                                        System.out.println("Introduce la frase de recuperación: ");
+                                        String frase = scanner.nextLine();
+                                        while (!gestorDePerfil.esFraseRecuperacionCorrecta(nombreprincipal, frase))
+                                        {
+                                            System.out.println("La frase de recuperación no es correcta");
+                                            System.out.println("1- Volver a intentar\n 2- Salir\n");
+                                            int num = scanner.nextInt();
+                                            scanner.nextLine();
+                                            if (num == 1) {
+                                                System.out.println("Introduce la frase de recuperación: ");
+                                                frase = scanner.nextLine();
+                                            } else {
+                                                return null;
+                                            }
+                                        }
+
+                                        System.out.println("Introduce la nueva contraseña\n");
+                                        String nuevaContraseña = scanner.nextLine();
+                                        while (!gestorDePerfil.esPasswordSegura(nuevaContraseña)) {
+                                            System.out.println("La contraseña no cumple los requisitos de seguridad\n");
+                                            System.out.println("1- Volver a intentar\n 2- Salir\n");
+                                            int num = scanner.nextInt();
+                                            scanner.nextLine();
+                                            if (num == 1) {
+                                                nuevaContraseña = scanner.nextLine();
+                                            } else {
+                                                return null;
+                                            }
+
+                                        }
+                                        gestorDePerfil.cambiarPassword(nombreprincipal, nuevaContraseña);
+                                        System.out.println("Contraseña cambiada correctamente!");
+                                        crearPartida();
+
+                                    }
+                                    if (opcion == 3) {
+                                        return null;
                                     }
 
                                 }
-                            }
-                            else System.out.println("\nEl nombre de perfil indicado no existe\n");
-                        }
-                        else {
+                            } else System.out.println("\nEl nombre de perfil indicado no existe\n");
+                        } else {
                             System.out.println("\nLa contraseña no es correcta\n");
-                            System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n");
+                            System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n3- Salir");
                             int opcion = scanner.nextInt();
-                            if(opcion == 2) {
-                                //funcion de cambiar el password
+                            if (opcion == 1) {
+                                boolean salir = false;
+                                while (!salir) {
+                                    System.out.println("Introduce la contraseña");
+                                    contraseñaprincipal = scanner.nextLine();
+                                    if (gestorDePerfil.esPasswordCorrecta(nombreprincipal, contraseñaprincipal)) {
+                                        System.out.println("Contraseña correcta!");
+                                        crearPartida();
+                                    } else {
+                                        System.out.println("1- Volver a intentarlo\n2- Cambiar contraseña\n3- Salir") {
+                                            int num = scanner.nextInt();
+                                            scanner.nextLine();
+                                            if (num == 2) {
+                                                opcion = 2;
+                                                salir = true;
+                                            } else if (opcion == 3) {
+                                                return null;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (opcion == 2) {
+                                System.out.println("Introduce la frase de recuperación: ");
+                                String frase = scanner.nextLine();
+                                while (!gestorDePerfil.esFraseRecuperacionCorrecta(nombreprincipal, frase))
+                                {
+                                    System.out.println("La frase de recuperación no es correcta");
+                                    System.out.println("1- Volver a intentar\n 2- Salir\n");
+                                    int num = scanner.nextInt();
+                                    scanner.nextLine();
+                                    if (num == 1) {
+                                        System.out.println("Introduce la frase de recuperación: ");
+                                        frase = scanner.nextLine();
+                                    } else {
+                                        return null;
+                                    }
+                                }
+
+                                System.out.println("Introduce la nueva contraseña\n");
+                                String nuevaContraseña = scanner.nextLine();
+                                while (!gestorDePerfil.esPasswordSegura(nuevaContraseña)) {
+                                    System.out.println("La contraseña no cumple los requisitos de seguridad\n");
+                                    System.out.println("1- Volver a intentar\n 2- Salir\n");
+                                    int num = scanner.nextInt();
+                                    scanner.nextLine();
+                                    if (num == 1) {
+                                        nuevaContraseña = scanner.nextLine();
+                                    } else {
+                                        return null;
+                                    }
+
+                                }
+                                gestorDePerfil.cambiarPassword(nombreprincipal, nuevaContraseña);
+                                System.out.println("Contraseña cambiada correctamente!");
+                                crearPartida();
+
+
+
+                            }
+                            if (opcion == 3) {
+                                return null;
                             }
 
                         }
-                    }
-                    else System.out.println("\nEl nombre de perfil indicado no existe\n");
+                    } else System.out.println("\nEl nombre de perfil indicado no existe\n");
 
-                }
-                else if(mododejuego == 2) {
+                } else if (mododejuego == 2) {
                     //PvIA
                     System.out.println("Logguear jugador principal:\n");
                     System.out.println("Introduce el nombre de usuario principal: ");
                     String nombreprincipal = scanner.nextLine();
-                    if(players.containsKey(nombreprincipal)) {
+                    if (gestorDePerfil.existeJugador(nombreprincipal)) {
                         System.out.println("Introduce la contraseña: ");
                         String contraseñaprincipal = scanner.nextLine();
-                        if(players.get(nombreprincipal).getPassword() == contraseñaprincipal) {
-
-                        }
-                        else {
+                        if (gestorDePerfil.esPasswordCorrecta(nombreprincipal, contraseñaprincipal)) {
+                            nuevaPartida = new Partida(gestorDePerfil.getPerfil(nombreprincipal), idpartida, nombrepartida, Partida.Modo.PvIA, idioma, 1);
+                            partidas.put(idpartida, nuevaPartida);
+                        } else {
                             System.out.println("\nLa contraseña no es correcta\n");
-                            System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n");
+                            System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n3- Salir\n");
                             int opcion = scanner.nextInt();
-                            if(opcion == 2) {
-                                //funcion de cambiar el password
+                            scanner.nextLine();
+                            if (opcion == 1) {
+                                boolean salir = false;
+                                while (!salir) {
+                                    System.out.println("Introduce la contraseña:");
+                                    contraseñaprincipal = scanner.nextLine();
+                                    if (gestorDePerfil.esPasswordCorrecta(nombreprincipal, contraseñaprincipal)) {
+                                        System.out.println("Contraseña correcta!");
+                                        crearPartida();
+                                    } else {
+                                        System.out.println("Contraseña incorrecta.\n1- Volver a intentar\n2- Cambiar contraseña\n3- Salir");
+                                        int num = scanner.nextInt();
+                                        scanner.nextLine();
+                                        if (num == 2) {
+                                            opcion = 2;
+                                            salir = true;
+                                        } else if (num == 3) {
+                                            return null;
+                                        }
+                                    }
+                                }
+                            }
+                            if (opcion == 2) {
+                                System.out.println("Introduce la frase de recuperación: ");
+                                String frase = scanner.nextLine();
+                                while (!gestorDePerfil.esFraseRecuperacionCorrecta(nombreprincipal, frase)) {
+                                    System.out.println("La frase de recuperación no es correcta\n1- Volver a intentar\n3- Salir\n");
+                                    int num = scanner.nextInt();
+                                    scanner.nextLine();
+                                    if (num == 1) {
+                                        System.out.println("Introduce la frase de recuperación: ");
+                                        frase = scanner.nextLine();
+                                    } else {
+                                        return null;
+                                    }
+
+                                }
+                                System.out.println("Introduce la nueva contraseña\n");
+                                String nuevaContraseña = scanner.nextLine();
+                                while (!gestorDePerfil.esPasswordSegura(nuevaContraseña)) {
+                                    System.out.println("La contranseña no cumple con los requisitos de seguridad\n1- Volver a intentar\n2- Salir\n");
+                                    int num = scanner.nextInt();
+                                    if (num == 1) {
+                                        System.out.println("Introduce la nueva contraseña\n");
+                                        nuevaContraseña = scanner.nextLine();
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                                gestorDePerfil.cambiarPassword(nombreprincipal, nuevaContraseña);
+                                System.out.println("Contraseña cambiada correctamente!");
+
                             }
                         }
-                    }
-                    else System.out.println("\nEl nombre de perfil indicado no existe\n");
+                    } else System.out.println("\nEl nombre de perfil indicado no existe\n");
 
-                }
-                else System.out.println("\nEl modo de juego no es correcto\n");
+                } else System.out.println("\nEl modo de juego no es correcto\n");
 
-            }
-            else System.out.println("\nEl diccionario seleccionado no existe\n");
+            } else System.out.println("\nEl diccionario seleccionado no existe\n");
 
-        }
-        else System.out.println("\nEste identificador ya está en uso\n");
+        } else System.out.println("\nEste identificador ya está en uso\n");
 
-        return partida;
+        return nuevaPartida;
     }
-
-    // si no existe nada, que imprima un mensaje informativo
 
     /**
      * Muestra todas las partidas asociadas a un jugador (como creador u oponente).
@@ -152,10 +320,8 @@ public class GestorDePartida {
 
         if (partidasJugador.isEmpty()) {
             System.out.println("\nEl jugador " + jugador.getUsername() + " no participa en ninguna partida.\n");
-        }
-
-        else {
-            System.out.println("\nPartidas de " + jugador.Username() + ":");
+        } else {
+            System.out.println("\nPartidas de " + jugador.getUsername() + ":");
             System.out.println("-------------------------------------------------");
             for (Partida p : partidasJugador) {
 
@@ -166,8 +332,7 @@ public class GestorDePartida {
                 System.out.println("Modo: " + p.getModoPartida());
                 if (p.getModoPartida() == Partida.Modo.PvP) {
                     System.out.println("Oponente: " + p.getOponente());
-                }
-                else {
+                } else {
                     System.out.println("Dificultad: " + p.getDificultad());
                 }
                 System.out.println("-------------------------------------------------");
@@ -179,14 +344,16 @@ public class GestorDePartida {
     /**
      * Verifica si un jugador participa en una partida específica.
      *
-     * @param jugador Perfil del jugador a verificar.
+     * @param jugador   Perfil del jugador a verificar.
      * @param idpartida Identificador de la partida.
      * @return true si el jugador es creador u oponente de la partida, false en caso contrario.
      * @author Albert Aulet Niubó
      */
     public boolean existePartidaJugador(Perfil jugador, int idpartida) {
-        return partidas.get(idpartida).getCreador().equals(jugador) || partidas.get(idpartida).getOponente().equals(jugador);
+        Partida p = partidas.get(idpartida);
+        return p != null && (p.getCreador().equals(jugador) || (p.getOponente() != null && p.getOponente().equals(jugador)));
     }
+
 
     /**
      * Inicia la ejecución de una partida existente.
@@ -195,8 +362,183 @@ public class GestorDePartida {
      * @author Albert Aulet Niubó
      */
     public void jugar(int idpartida) {
+        if (!partidas.containsKey(idpartida)) {
+            System.out.println("No existe ninguna partida con identificador " + idpartida + ".\n");
+            return;
+        }
+        Partida partida = partidas.get(idpartida);
+        boolean partidaTerminada = false;
+        if (partida.getModoPartida() == Partida.Modo.PvP) {
+            System.out.println("Logguear jugador principal:\n");
+            System.out.println("Introduce el nombre de usuario principal: ");
+            String nombreprincipal = scanner.nextLine();
+            if (gestorDePerfil.existeJugador(nombreprincipal)) {
+                System.out.println("Introduce la contraseña: ");
+                String contraseñaPrincipal = scanner.nextLine();
+                if (gestorDePerfil.esPasswordCorrecta(nombreprincipal, contraseñaPrincipal)) {
+                    System.out.println("Introduce el nombre del usuario secundario: ");
+                    String nombresecundario = scanner.nextLine();
+                    if (gestorDePerfil.existeJugador(nombresecundario)) {
+                        String contraseñasecundaria = scanner.nextLine();
+                        if (gestorDePerfil.esPasswordCorrecta(nombresecundario, contraseñasecundaria)) {
+                            System.out.println("---- PARTIDA INICIADA ----");
+                            while (!partidaTerminada) {
+                                Turno turnoActual = partida.rondas.get(partida.rondas.size() - 1);
+                                Perfil jugadorActual = turnoActual.getJugador();
+                                System.out.println("\n--- TURNO DE " + jugadorActual.getUsername() + "---");
+                                System.out.println("Tablero actual: ");
+                                partida.getTablero().imprimirTablero();
+                                System.out.println("\nTus fichas actuales son:");
+                                Map<Ficha, Integer> atril;
+                                if (jugadorActual == partida.getCreador()) {
+                                    atril = turnoActual.getAtrilJ1();
+                                } else {
+                                    atril = turnoActual.getAtrilJ2();
+                                }
+                                atril.forEach((ficha, cantidad) -> System.out.print(ficha.getLetra() + " (" + cantidad + ") "));
+                                System.out.println("\nOpciones a jugar:\n 1.Colocar palabra \n 2.Cambiar fichas \n 3.Pasar Turno \n 4.Salir de la partida\n\n Selecciona una opción:");
+                                int opcion = scanner.nextInt();
+                                scanner.nextLine();
+                                switch (opcion) {
+                                    case 1:
+                                        System.out.println("Indica la palabra que quieres colocar: ");
+                                        String palabra = scanner.nextLine();
+                                        System.out.println("Indica la posición inicial de la palabra (ejemplo: 5 3): ");
+                                        String[] posicion = scanner.nextLine().split(" ");
+                                        int x = Integer.parseInt(posicion[0]);
+                                        int y = Integer.parseInt(posicion[1]);
+                                        System.out.println("Indica la orientación de la palabra: vertical o horizontal");
+                                        String orientacion = scanner.nextLine();
+                                        if (!turnoActual.colocarPalabra(palabra, x, y, orientacion)) {
+                                            opcion = 1;
+                                        }
+                                        break;
 
+                                    case 2:
+                                        System.out.println("Introduce las fichas a cambiar: ");
+                                        String fichasInp = scanner.nextLine().toUpperCase();
+                                        String[] letras = fichasInp.split(" ");
+                                        Map<Ficha, Integer> fichasParaCambiar = new HashMap();
+                                        for (String letra : letras) {
+                                            if (letra.isEmpty()) continue;
+                                            Ficha f = new Ficha(letra, 0);
+                                            fichasParaCambiar.put(f, fichasParaCambiar.getOrDefault(f, 0) + 1);
+                                        }
+                                        boolean fichasValidas = true;
+                                        for (Ficha f : fichasParaCambiar.keySet()) {
+                                            if (!atril.containsKey(f) || atril.get(f) < fichasParaCambiar.get(f)) {
+                                                System.out.println("Error: No tienes suficientes fichas de " + f.getLetra());
+                                                fichasValidas = false;
+                                                opcion = 2;
+                                            }
+                                        }
+                                        if (fichasValidas) {
+                                            turnoActual.cambiarFichas(atril, fichasParaCambiar);
+                                            System.out.println("Fichas cambiadas exitosamente!");
+
+                                        }
+                                        break;
+                                    case 3:
+                                        turnoActual.pasarTurno();
+                                        break;
+                                    case 4:
+                                        partidaTerminada = true;
+                                        break;
+
+
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    System.out.println("\nLa contraseña no es correcta\n");
+                    System.out.println("1- Volver a intentar\n2- Cambiar contraseña\n");
+                    int opcion = scanner.nextInt();
+                    scanner.nextLine();
+                    if (opcion == 2) {
+
+                    }
+                }
+            }
+        } else {
+            System.out.println("Logguear jugador principal:\n");
+            System.out.println("Introduce el nombre de usuario principal: ");
+            String nombreprincipal = scanner.nextLine();
+            if (gestorDePerfil.existeJugador(nombreprincipal)) {
+                System.out.println("Introduce la contraseña: ");
+                String contraseñaPrincipal = scanner.nextLine();
+                if (gestorDePerfil.esPasswordCorrecta(nombreprincipal, contraseñaPrincipal)) {
+                    System.out.println("---- PARTIDA INICIADA ----");
+                    while (!partidaTerminada) {
+                        Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+                        Perfil jugadorActual = turnoActual.getJugador();
+                        System.out.println("\n--- TURNO DE " + jugadorActual.getUsername() + "---");
+                        System.out.println("Tablero actual: ");
+                        partida.getTablero().imprimirTablero();
+                        System.out.println("\nTus fichas actuales son:");
+                        Map<Ficha, Integer> atril;
+                        if (jugadorActual == partida.getCreador()) {
+                            atril = turnoActual.getAtrilJ1();
+
+                            atril.forEach((ficha, cantidad) -> System.out.print(ficha.getLetra() + " (" + cantidad + ") "));
+                            System.out.println("\nOpciones a jugar:\n 1.Colocar palabra \n 2.Cambiar fichas \n 3.Pasar Turno \n 4.Salir de la partida\n\n Selecciona una opción:");
+                            int opcion = scanner.nextInt();
+                            scanner.nextLine();
+                            switch (opcion) {
+                                case 1:
+                                    System.out.println("Indica la palabra que quieres colocar: ");
+                                    String palabra = scanner.nextLine();
+                                    System.out.println("Indica la posición inicial de la palabra (ejemplo: 5 3): ");
+                                    String[] posicion = scanner.nextLine().split(" ");
+                                    int x = Integer.parseInt(posicion[0]);
+                                    int y = Integer.parseInt(posicion[1]);
+                                    System.out.println("Indica la orientación de la palabra: vertical o horizontal");
+                                    String orientacion = scanner.nextLine();
+                                    turnoActual.colocarPalabra(palabra, x, y, orientacion);
+                                    break;
+
+                                case 2:
+                                    System.out.println("Introduce las fichas a cambiar: ");
+                                    String fichasInp = scanner.nextLine().toUpperCase();
+                                    String[] letras = fichasInp.split(" ");
+                                    Map<Ficha, Integer> fichasParaCambiar = new HashMap();
+                                    for (String letra : letras) {
+                                        if (letra.isEmpty()) continue;
+                                        Ficha f = new Ficha(letra, 0);
+                                        fichasParaCambiar.put(f, fichasParaCambiar.getOrDefault(f, 0) + 1);
+                                    }
+                                    boolean fichasValidas = true;
+                                    for (Ficha f : fichasParaCambiar.keySet()) {
+                                        if (!atril.containsKey(f) || atril.get(f) < fichasParaCambiar.get(f)) {
+                                            System.out.println("Error: No tienes suficientes fichas de " + f.getLetra());
+                                            fichasValidas = false;
+                                            break;
+                                        }
+                                    }
+                                    if (fichasValidas) {
+
+                                        turnoActual.cambiarFichas(atril, fichasParaCambiar);
+                                        System.out.println("Fichas cambiadas exitosamente!");
+
+                                    }
+                                case 3:
+                                    turnoActual.pasarTurno();
+                                    break;
+                                case 4:
+                                    partidaTerminada = true;
+                                    break;
+                            }
+
+                        }
+                        else {
+                            turnoActual.jugarIA();
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     /**
      * Elimina una partida del gestor.
