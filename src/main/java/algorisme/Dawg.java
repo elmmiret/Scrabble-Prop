@@ -494,11 +494,19 @@ public class Dawg {
     }
 
     private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y) {
-
+        int size = divisiones.size();
+        for(int fil = x; fil < size; fil++) {
+            if(!casillaCorrecta(fil,y)) return false;
+        }
+        return true;
     }
 
     private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y) {
-
+        int size = divisiones.size();
+        for(int col = y; col < size; col++) {
+            if(!casillaCorrecta(x,col)) return false;
+        }
+        return true;
     }
 
     /**
@@ -519,7 +527,7 @@ public class Dawg {
     public int getNumeroNodes() {
         Set<NodoDawg> visitados = new HashSet<>();
         Deque<NodoDawg> pila = new ArrayDeque<>();
-        pila.push(arrel);
+        pila.push(root);
         int contador = 0;
 
         while (!pila.isEmpty()) {

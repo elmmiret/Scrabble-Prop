@@ -85,7 +85,27 @@ public class Tablero {
             }
             tablero.add(fila);
         }
-    } 
+    }
+
+    /**
+     * Transpone el tablero intercambiando filas por columnas, convirtiendo la posición (x, y) en (y, x).
+     * Este metodo modifica la estructura interna del tablero para reorganizar las casillas.
+     *
+     * @pre El tablero debe ser cuadrado
+     *
+     * @author Albert Aulet Niubó
+     */
+    public void transponerTablero() {
+        List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);
+        for (int y = 0; y < COLUMNAS; y++) {
+            List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>(FILAS);
+            for (int x = 0; x < FILAS; x++) {
+                fila.add(tablero.get(x).get(y));
+            }
+            nuevo.add(fila);
+        }
+        this.tablero = nuevo;
+    }
 
     // MÉTODOS
 
@@ -132,8 +152,8 @@ public class Tablero {
      * @pre x Está en mayúscula y pertenece al rango de letras del tablero
      *
      * @param f Ficha que se desea colocar.
-     * @param x Fila donde colocar la ficha.
-     * @param c Columna donde colocar la ficha.
+     * @param x_char Fila donde colocar la ficha.
+     * @param y Columna donde colocar la ficha.
      */
     public void setFicha(Ficha f, char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int x = x_char - 'A';
