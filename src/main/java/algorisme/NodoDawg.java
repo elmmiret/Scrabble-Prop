@@ -2,6 +2,9 @@ package algorisme;
 
 import java.util.*;
 
+/**
+ * @author Arnau Miret Barrull
+ */
 public class NodoDawg {
     private Map<String, NodoDawg> hijos;
     private boolean esFinal;
@@ -27,6 +30,13 @@ public class NodoDawg {
     // Marca este nodo como final de palabra
     public void setEsFinal(boolean b) {
         this.esFinal = b;
+    }
+
+    // Devuelve si el nodo tiene un nodo hijo con la letra requerida
+    public boolean existeHijo(String letra) {
+        NodoDawg aux = getHijos().get(letra);
+        if(aux == null) return false;
+        return true;
     }
 
     // Necesario para comparar nodos al mizimizar el DAWG

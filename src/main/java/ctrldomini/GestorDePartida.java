@@ -5,6 +5,8 @@ import java.util.Scanner;
 import java.util.Map;
 
 /**
+ * Esta clase representa el Gestor de Partida
+ *
  * Gestiona la creación, eliminación, consulta y ejecución de partidas de Scrabble.
  * Proporciona funcionalidades para interactuar con múltiples partidas y usuarios, como:
  *
