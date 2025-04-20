@@ -153,9 +153,9 @@ public class Partida {
     }
 
     /**
-     * Obtiene
+     * Obtiene el Dawg para el algoritmo.
      *
-     * @return
+     * @return El Dawg.
      */
     public Dawg getDawg() {
         return dawg;
@@ -180,9 +180,9 @@ public class Partida {
     }
 
     /**
-     * Obtiene
+     * Obtiene la lista de rondas que se han hecho.
      *
-     * @return
+     * @return La lista de Rondas.
      */
     public List<Turno> getRondas() {
         return rondas;
@@ -214,6 +214,9 @@ public class Partida {
         rondas.add(turno);
     }
 
+    /**
+     * Crea un nuevo turno en la partida y lo añade a la lista de rondas.
+     */
     public SimpleEntry<Ficha, Ficha> sortearPrimerTurno() {
         Ficha fichaj1 = getBolsa().poll();
         Ficha fichaj2 = getBolsa().poll();
@@ -223,6 +226,10 @@ public class Partida {
         return resultado;
     }
 
+    /**
+     * Inicializa el primer turno.
+     * Sortea el orden de los turnos de los jugadores e inicializa los atriles.
+     */
     public void inicializarPrimerTurno() {
         Perfil primerJugador;
         SimpleEntry<Ficha, Ficha> sorteo = sortearPrimerTurno();
