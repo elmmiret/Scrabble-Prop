@@ -41,16 +41,26 @@ public class DriverPartida {
             switch (opcion) {
                 case 1:
                     System.out.println("Sigue las instrucciones para crear la partida: ");
-                    partida = gestor.CrearPartida();
+                    partida = gestor.crearPartida();
                     if (partida == null) System.out.println("Error al crear la partida, vuelve a intentarlo pulsando 1.");
                     else System.out.println("Partida creada con éxito, si deseas jugarla selecciona la opción 2 e inserta su id.");
                     break;
 
                 case 2:
                     System.out.println("Inicia sesión con tu cuenta");
-                    Perfil jugador = gestorPerfil.login();
-                    if (jugador == null) {
-                        System.out.println("Error al iniciar sesión.");
+                    System.out.print("\n");
+                    System.out.print("Username: ");
+                    String username = lector.nextLine();
+                    if (gestorDePerfil.existeJugador(username)) {
+                        System.out.print("Password: ");
+                        String password = lector.nextLine();
+                        if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                            Perfil jugador1 = gestorDePerfil.getJugador(username);
+                        } else System.out.println("\nPassword incorrecta\n");
+                    }
+                    else {
+                        System.out.println("\nNo existe ningún perfil con este username\n");
+                        opcion = 2;
                         break;
                     }
 
@@ -66,8 +76,6 @@ public class DriverPartida {
                         System.out.println("formato de id erroneo, pulsa 3 y posteriormente vuelve a intentarlo");
                         break;
                     }
-
-                    // TODO: pasar el id tambien
                     if (!gestor.existePartidaJugador(jugador, num)) System.out.println("No existe ninguna partida con este id para tu perfil.");
                     else gestor.jugar(num);
                     // que esa funcion llame al driver de turno y que de alguna manera
@@ -98,10 +106,24 @@ public class DriverPartida {
                     break;
 
                 case 4:
-                    // TODO: login que paso el marc x whats
+                    System.out.println("Inicia sesión con tu cuenta");
+                    System.out.print("\n");
+                    System.out.print("Username: ");
+                    String username = lector.nextLine();
+                    if (gestorDePerfil.existeJugador(username)) {
+                        System.out.print("Password: ");
+                        String password = lector.nextLine();
+                        if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                            Perfil jugador = gestorDePerfil.getJugador(username);
+                        } else System.out.println("\nPassword incorrecta\n");
+                    }
+                    else {
+                        System.out.println("\nNo existe ningún perfil con este username\n");
+                        opcion = 4;
+                        break;
+                    }
                     // el jugador tiene que logguearse para verificar que es el y entonces poder consultar sus partidas
                     // tiene que imprimir los ids de sus partidas, el nombre, el tipo y si es PvP su oponente
-                    Perfil jugador = gestorPerfil.login();
                     gestor.consultarPartidasJugador(jugador);
                     break;
 

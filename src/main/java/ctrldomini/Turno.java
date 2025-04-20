@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Collections;
+import java.util.AbstractMap.SimpleEntry;
 
 
 // TODO: concretar lo de los puntos de colocarPalabra
@@ -145,6 +146,10 @@ public class Turno {
         Collections.shuffle(listaBolsa);
         partida.getBolsa().clear();
         partida.getBolsa().addAll(listaBolsa);
+
+        // este robar es por si no llega a 7 fichas pq quedaban pocas, aunque cambie tiene que tener 7
+        // entpnces puede que vuelva a coger alguna que haya cambiado ahora.
+        robarFichas(atril);
 
         setTipoJugada(TipoJugada.cambiar);
         avanzarTurno();
@@ -371,8 +376,52 @@ public class Turno {
         }
     }
 
-    public void jugarIA() {
-        // TODO:
-    }
+    public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+        String[] atril = new String[atrilJ2.size()];
+        int index = 0;
+        for (Map.Entry<Ficha, Integer> entry : atrilJ2.entrySet()) {
+            for (int i = 0; i < entry.getValue(); i++) {
+                atril[index++] = entry.getKey().getLetra();
+            }
+        }
 
+        Algoritmo algoritmo = new Algoritmo();
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>  mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
+        if (mejorPalabra == null) {
+            if (partida.getBolsa() == null) pasarTurno();
+            else {
+                Map<Ficha,Integer> fichasPorCambiar = new HashMap<>();
+                // cambio las consonantes
+                for (Map.Entry<Ficha, Integer> entry : atrilJ2.entrySet()) {
+                    Ficha ficha = entry.getKey();
+                    int cantidad = entry.getValue();
+                    String letra = ficha.getLetra();
+                    if (letra != "A" || letra != "E" || letra != "I" || letra != "O" ||letra != "U" ) fichasPorCambiar.put(ficha, cantidad);
+                }
+                cambiarFichas(atrilJ2, fichasPorCambiar);
+            }
+        }
+        else {
+            int x1 = mejorPalabra.get(0).getValue().getKey();
+            int y1 = mejorPalabra.get(0).getValue().getValue();
+            int x2 = x1;
+            int y2 = y1;
+
+            if (mejorPalabra.size() > 1) {
+                x2 = mejorPalabra.get(1).getValue().getKey();
+                y2 = mejorPalabra.get(1).getValue().getValue();
+            }
+
+            String orientacion;
+            if (x1 == x2) orientacion = "horizontal";
+            else orientacion = "verical";
+
+            // formar la palabra
+            StringBuilder palabraFormada = new StringBuilder();
+            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entrada : mejorPalabra) {
+                palabraFormada.append(entrada.getKey().getKey());
+            }
+            colocarPalabra(palabraFormada.toString(), x1, y1, orientacion);
+        }
+    }
 }
