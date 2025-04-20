@@ -1,10 +1,12 @@
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+package ctrldomini;
+
+import org.junit.Before;
+import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.Queue;
-import static org.junit.jupiter.api.Assertions.*;
+import gestordeperfil.Perfil;
+import static org.junit.Assert.*;
 
-package ctrldomini;
 
 
 /**
@@ -12,7 +14,7 @@ package ctrldomini;
  *
  * @author: Paula Pérez
  */
-class PartidaTest {
+public class PartidaTest {
 
     private Partida partidaPvP;
     private Partida partidaPvIA;
@@ -24,8 +26,8 @@ class PartidaTest {
      * Crea instancias de Perfil para creador y oponente, e inicializa partidas
      * en ambos modos (PvP y PvIA) para su uso en las pruebas.
      */
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         creador = new Perfil("Creador", "123", "azul");
         oponente = new Perfil("Oponente", "321", "verde");
         partidaPvP = new Partida(creador, oponente, 0, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST);
@@ -37,7 +39,7 @@ class PartidaTest {
      * Verifica que el ID asignado coincida con el valor esperado en modo PvP.
      */
     @Test
-    void testGetId() {
+    public void testGetId() {
         assertEquals(0, partidaPvP.getId());
     }
 
@@ -46,7 +48,7 @@ class PartidaTest {
      * Verifica que los nombres asignados en ambos modos de juego (PvP y PvIA) sean correctos.
      */
     @Test
-    void testGetNombre() {
+    public void testGetNombre() {
         assertEquals("Partida PvP", partidaPvP.getNombre());
         assertEquals("Partida PvIA", partidaPvIA.getNombre());
     }
@@ -56,7 +58,7 @@ class PartidaTest {
      * Verifica que la fecha de creación coincida con el momento de inicialización.
      */
     @Test
-    void testGetFechaHoraCreacion() {
+    public void testGetFechaHoraCreacion() {
         LocalDateTime now = LocalDateTime.now();
         assertTrue(partidaPvP.getFechaHoraCreacion().isEqual(now));
     }
@@ -66,7 +68,7 @@ class PartidaTest {
      * Verifica que se detecte correctamente el tipo de partida (PvP o PvIA).
      */
     @Test
-    void testGetModoPartida() {
+    public void testGetModoPartida() {
         assertEquals(Partida.Modo.PvP, partidaPvP.getModoPartida());
         assertEquals(Partida.Modo.PvIA, partidaPvIA.getModoPartida());
     }
@@ -76,7 +78,7 @@ class PartidaTest {
      * Verifica que la dificultad sea 0 en modo PvP y el valor asignado en modo PvIA.
      */
     @Test
-    void testGetDificultad() {
+    public void testGetDificultad() {
         assertEquals(0, partidaPvP.getDificultad());
         assertEquals(2, partidaPvIA.getDificultad());
     }
@@ -86,7 +88,7 @@ class PartidaTest {
      * Verifica que el tablero se inicialice correctamente en ambos tipos de partida.
      */
     @Test
-    void testGetTablero() {
+    public void testGetTablero() {
         assertNotNull(partidaPvP.getTablero());
         assertNotNull(partidaPvIA.getTablero());
     }
@@ -96,7 +98,7 @@ class PartidaTest {
      * Verifica que la bolsa se inicialice correctamente y no esté vacía en ambos modos de juego.
      */
     @Test
-    void testGetBolsa() {
+    public void testGetBolsa() {
         Queue<Ficha> bolsaPvP = partidaPvP.getBolsa();
         Queue<Ficha> bolsaPvIA = partidaPvIA.getBolsa();
         assertNotNull(bolsaPvP);
@@ -108,7 +110,7 @@ class PartidaTest {
      * Verifica que el creador sea el mismo en ambos tipos de partida.
      */
     @Test
-    void testGetCreador() {
+    public void testGetCreador() {
         assertEquals(creador, partidaPvP.getCreador());
         assertEquals(creador, partidaPvIA.getCreador());
     }
@@ -118,7 +120,7 @@ class PartidaTest {
      * Verifica la presencia de oponente en modo PvP y su ausencia en modo PvIA.
      */
     @Test
-    void testGetOponente() {
+    public void testGetOponente() {
         assertEquals(oponente, partidaPvP.getOponente());
         assertNull(partidaPvIA.getOponente());
     }
