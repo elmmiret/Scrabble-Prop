@@ -34,6 +34,9 @@ public class TurnoTest {
         atrilTest.put(fichaA, 2);
     }
 
+    /**
+     * Verifica que todos los atributos se inicializan correctamente
+     */
     @Test
     public void testConstructorInicializaCorrectamente() {
         assertEquals(jugador1, turno.getJugador());
@@ -42,7 +45,9 @@ public class TurnoTest {
         assertNull(turno.getTipoJugada());
     }
 
-
+    /**
+     * Prueba que los atriles no sobrepasen su capacidad y cuenten bien el numero de fichas que tiene.
+     */
     @Test
     public void testInicializarAtrilesLlenaAtrilesHastaMaximo() {
         turno.inicializarAtriles();

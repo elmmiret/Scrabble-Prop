@@ -387,6 +387,12 @@ public class Turno {
         }
     }
 
+    /**
+     * Realiza el movimiento de la inteligencia artificial en el juego.
+     *
+     * La IA selecciona la mejor palabra posible para colocar en el tablero, usando el algoritmo de backtraking.
+     * Si no se puede formar una palabra válida, la IA pasa el turno o cambiaa consonantes.
+     */
     public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         String[] atril = new String[atrilJ2.size()];
         int index = 0;

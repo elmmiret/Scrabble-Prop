@@ -18,9 +18,11 @@ public class Main {
     Scanner scanner = new Scanner(System.in);
     Ranking ranking = new Ranking();
     GestorDePerfil gestorDePerfil = new GestorDePerfil(ranking);
+    GestorDePartida gestorDePartida = new GestorDePartida(gestorDePerfil);
     DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, scanner);
     DriverRanking driverRanking = new DriverRanking(ranking, scanner);
     DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, scanner);
+    DriverPartida driverPartida = new DriverPartida(gestorDePartida, gestorDePerfil, scanner);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
@@ -44,6 +46,7 @@ public class Main {
             break;
           case 2: //Create new game
             System.out.println("Creating new game");
+            driverPartida.partidaManagement();
             break;
           case 3: //See ranking
             driverRanking.rankingManagement();

@@ -13,9 +13,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import algorisme.*;
 
-// TODO: la partida acaba cuando se pasa en 2 turnos consecutivos
-//  o cuando uno de los jugadores se queda sin fichas en le atril y en la bolsa no quedan mas
-
 // TODO: en el driver de turno o partida poner si jugar o ir al menu para guardar, salir, etc
 
 /**
@@ -149,14 +146,20 @@ public class Partida {
         return dificultad;
     }
 
+    /**
+     * Obtiene el Idioma de la partida.
+     *
+     * @return El idioma.
+     */
+
     public Idioma getIdioma() {
         return idiomaPartida;
     }
 
     /**
-     * Obtiene
+     * Obtiene el Dawg para el algoritmo.
      *
-     * @return
+     * @return El Dawg.
      */
     public Dawg getDawg() {
         return dawg;
@@ -181,9 +184,9 @@ public class Partida {
     }
 
     /**
-     * Obtiene
+     * Obtiene la lista de rondas que se han hecho.
      *
-     * @return
+     * @return La lista de Rondas.
      */
     public List<Turno> getRondas() {
         return rondas;
@@ -215,6 +218,13 @@ public class Partida {
         rondas.add(turno);
     }
 
+    /**
+     * Sortea el orden de los turnos de los jugadores.
+     * Quien tenga la ficha más próxima a la A, empieza.
+     *
+     * @return Un pair de (ficha jugador1, ficha jugador2)
+     */
+
     public SimpleEntry<Ficha, Ficha> sortearPrimerTurno() {
         Ficha fichaj1 = getBolsa().poll();
         Ficha fichaj2 = getBolsa().poll();
@@ -224,6 +234,10 @@ public class Partida {
         return resultado;
     }
 
+    /**
+     * Inicializa el primer turno.
+     * Sortea el orden de los turnos de los jugadores e inicializa los atriles.
+     */
     public void inicializarPrimerTurno() {
         Perfil primerJugador;
         SimpleEntry<Ficha, Ficha> sorteo = sortearPrimerTurno();
