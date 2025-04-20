@@ -12,6 +12,8 @@ import exceptions.CoordenadaFueraDeRangoException;
 
 
 /**
+ * Esta clase representa el Gestor de Partida
+ *
  * Gestiona la creación, eliminación, consulta y ejecución de partidas de Scrabble.
  * @author Albert Aulet Niubó
  */
