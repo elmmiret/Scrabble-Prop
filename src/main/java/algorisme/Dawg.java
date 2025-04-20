@@ -527,7 +527,7 @@ public class Dawg {
     public int getNumeroNodes() {
         Set<NodoDawg> visitados = new HashSet<>();
         Deque<NodoDawg> pila = new ArrayDeque<>();
-        pila.push(arrel);
+        pila.push(getRoot());
         int contador = 0;
 
         while (!pila.isEmpty()) {

@@ -182,7 +182,7 @@ public class Algoritmo {
      * @return Puntuación total de la palabra, incluyendo bonificaciones.
      * @author Albert Aulet Niubó
      */
-    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) {
+    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) throws CoordenadaFueraDeRangoException{
         int puntuacion = 0;
         int puntuacion_vertical = 0;
         int multiplicadorPalabra = 1;
@@ -232,7 +232,7 @@ public class Algoritmo {
      * @return Puntuación total de la palabra vertical, aplicando modificadores relevantes.
      * @author Albert Aulet Niubó
      */
-    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) {
+    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException{
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
         int pos_ini = x;
         while (casillaCorrecta(x, y) && tablero.getFicha(x, y).getLetra() != null) {
