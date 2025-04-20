@@ -404,7 +404,7 @@ public class Turno {
 
         Algoritmo algoritmo = new Algoritmo();
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>  mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
-        if (mejorPalabra == null) {
+        if (mejorPalabra == null || mejorPalabra.isEmpty()) {
             if (partida.getBolsa() == null) pasarTurno();
             else {
                 Map<Ficha,Integer> fichasPorCambiar = new HashMap<>();

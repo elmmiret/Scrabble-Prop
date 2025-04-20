@@ -6,12 +6,13 @@ import gestordeperfil.Perfil;
 import ranking.DriverRanking;
 import ranking.Ranking;
 import estadisticas.DriverEstadisticas;
+import exceptions.*;
 
 import java.util.Scanner;
 
 public class Main {
 
-  public static void main(String[] args)
+  public static void main(String[] args) throws CasillaOcupadaException, CoordenadaFueraDeRangoException
   {
 
     // INIT

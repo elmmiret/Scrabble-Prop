@@ -107,7 +107,7 @@ public class Algoritmo {
         if(casillaCorrecta(x, y - 1)) {
             // Mirar si la casilla a la izquierda del ancla es vacía o no
             // Si la casilla esta ocupada (parte izq. compuesta de letras ya en el tablero)
-            if(tablero.getFicha(x,y-1).getLetra() != null) {
+            if(tablero.getFicha(x,y-1) != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
                 //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
@@ -235,10 +235,10 @@ public class Algoritmo {
     int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException{
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
         int pos_ini = x;
-        while (casillaCorrecta(x, y) && tablero.getFicha(x, y).getLetra() != null) {
+        while (casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
             --x;
         }
-        while(casillaCorrecta(x, y) && tablero.getFicha(x, y).getLetra() != null) {
+        while(casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
             SimpleEntry<String, Boolean> letra;
             if (pos_ini == x) {
                 letra = new SimpleEntry<>(tablero.getFicha(x, y).getLetra(), true);
@@ -298,11 +298,11 @@ public class Algoritmo {
     private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int filaIni = fila;
-        while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
+        while (fila > 0 && tablero.getFicha(fila,columna) != null) {
             --fila;
         }
         StringBuilder paraula = new StringBuilder(); // se podria hacer con strings pero si la palabra es larga es mas ineficiente ya que cada vez crea un nuevo string
-        while (fila < FILAS && (tablero.getFicha(fila,columna).getLetra() != null || fila == filaIni)) {
+        while (fila < FILAS && (tablero.getFicha(fila,columna) != null || fila == filaIni)) {
             if (fila != filaIni)
                 paraula.append(tablero.getFicha(fila,columna).getLetra());
             else
@@ -325,7 +325,7 @@ public class Algoritmo {
         for (int f = 0; f < FILAS; ++f) {
             for (int c = 0; c < COLUMNAS; ++c) {
 
-                if (tablero.getFicha(f,c).getLetra() == null) {
+                if (tablero.getFicha(f,c) == null) {
                     tablero.clearAbecedario(f,c);
                     for (String letra : atril) {
                         if (esPalabraValida(tablero,f,c,letra,dawg))
@@ -348,7 +348,7 @@ public class Algoritmo {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
         for (int f = 0; f < FILAS; ++f)
             for (int c = 0; c < COLUMNAS; ++c) {
-                if (tablero.getFicha(f,c).getLetra() == null && tieneAdyacentes(tablero, f, c)) {
+                if (tablero.getFicha(f,c) == null && tieneAdyacentes(tablero, f, c)) {
                     listaAnchors.add(new SimpleEntry<>(f, c));
                 }
             }
@@ -371,7 +371,7 @@ public class Algoritmo {
         for (int[] direction : directions) {
             int newFila = direction[0] + fila;
             int newColumna = direction[1] + columna;
-            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna).getLetra() != null)
+            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna) != null)
                 return true;
         }
         return false;
@@ -524,7 +524,8 @@ public class Algoritmo {
         }
 
         // si el tablero con posicion x  y (que hago que sea la posicion en la que estamos de la palabra en construccion) esta vacia probamos todas las letras y lo hacemos recursivamente
-        String letraTablero = tablero.getFicha(x,y).getLetra();
+        String letraTablero = null;
+        if (tablero.getFicha(x, y) != null) letraTablero =  tablero.getFicha(x,y).getLetra();
         if (letraTablero == null) {
             for (int i = 0; i < atril.length; i++) {
                 if (!usados[i] && tablero.getAbecedario(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
@@ -642,7 +643,7 @@ public class Algoritmo {
         // Mientras las casillas a la izquierda sean correctas y no esten ocupadas, sumar uno a size
         for(int col = y - 1; casillaCorrecta(x, col); col--) {
             // Si hay una casilla ya ocupada, no vamos a empezar la palabra directamente a su derecha, sino que vamos a dejar un espacio
-            if(tablero.getFicha(x,col).getLetra() != null) {
+            if(tablero.getFicha(x,col) != null) {
                 --size;
                 return size;
             }
@@ -667,7 +668,7 @@ public class Algoritmo {
         int size = 0;
 
         // Mientras las casillas a la izquierda sean correctas y esten ocupadas, sumar uno a size
-        for(int col = y - 1; tablero.getFicha(x,col).getLetra() != null && casillaCorrecta(x, col); col--) {
+        for(int col = y - 1; tablero.getFicha(x,col) != null && casillaCorrecta(x, col); col--) {
             ++size;
         }
 

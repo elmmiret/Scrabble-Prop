@@ -89,7 +89,8 @@ public class GestorDePartida {
 
     public Map<Ficha, Integer> obtenerAtrilJugador(Partida partida, Perfil jugador) {
         Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
-        return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
+        if (jugador == null) return turno.getAtrilJ2();
+        else return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
     }
 
 }

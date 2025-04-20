@@ -216,7 +216,8 @@ public class DriverPartida {
             Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
             Perfil jugador = turnoActual.getJugador();
             if (jugador != partida.getCreador()) {
-                System.out.println("\n=== TURNO DE " + jugador.getUsername() + " ===");
+                if (jugador != null) System.out.println("\n=== TURNO DE " + jugador.getUsername() + " ===");
+                else System.out.println("\n=== TURNO DE LA IA ===");
                 try {
                     gestor.obtenerRepresentacionTablero(partida.getTablero());
                 } catch (CoordenadaFueraDeRangoException e) {
