@@ -59,8 +59,12 @@ public class PartidaTest {
      */
     @Test
     public void testGetFechaHoraCreacion() {
-        LocalDateTime now = LocalDateTime.now();
-        assertTrue(partidaPvP.getFechaHoraCreacion().isEqual(now));
+        LocalDateTime before = LocalDateTime.now();
+        Partida p = new Partida(creador, oponente, 0, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST);
+        LocalDateTime after = LocalDateTime.now();
+
+        assertFalse(p.getFechaHoraCreacion().isBefore(before));
+        assertFalse(p.getFechaHoraCreacion().isAfter(after));
     }
 
     /**
