@@ -473,8 +473,8 @@ public class Dawg {
 
                 if(!palabraHorizontalCorrecta(tablero,x,col,y,letra)) return false;
             }
-
         }
+
         else if(casillaCorrecta(x,y+1)) {
             if(tablero.getFicha(x,y+1) != null) {
                 // Ir hacia la derecha para comprobar que la palabra existe

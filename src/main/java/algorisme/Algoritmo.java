@@ -180,7 +180,7 @@ public class Algoritmo {
      * @return Puntuación total de la palabra, incluyendo bonificaciones.
      * @author Albert Aulet Niubó
      */
-    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) throws CoordenadaFueraDeRangoException {
+    public int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) throws CoordenadaFueraDeRangoException {
         int puntuacion = 0;
         int puntuacion_vertical = 0;
         int multiplicadorPalabra = 1;
@@ -230,7 +230,7 @@ public class Algoritmo {
      * @return Puntuación total de la palabra vertical, aplicando modificadores relevantes.
      * @author Albert Aulet Niubó
      */
-    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+    public int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
         int pos_ini = x;
         while (casillaCorrecta(x, y) && tablero.getFicha(x, y).getLetra() != null) {
@@ -293,7 +293,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
      * @author Albert Aulet Niubó
      */
-    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
+    public boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna).getLetra() != null) {
@@ -319,7 +319,7 @@ public class Algoritmo {
     * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
      * @author Albert Aulet Niubó
     */
-    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
+    public void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
         for (int f = 0; f < FILAS; ++f) {
             for (int c = 0; c < COLUMNAS; ++c) {
 
@@ -342,7 +342,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
      * @author Albert Aulet Niubó
      */
-    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
+    public List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>() ;
         for (int f = 0; f < FILAS; ++f)
             for (int c = 0; c < COLUMNAS; ++c) {
@@ -363,7 +363,7 @@ public class Algoritmo {
     * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
      * @author Albert Aulet Niubó
     */
-    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
+    public boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] direction : directions) {
@@ -472,7 +472,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Albert Aulet Niubó
      */
-    private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) throws CoordenadaFueraDeRangoException {
+    public int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int puntuacion = 0;
 
@@ -499,7 +499,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Albert Aulet Niubó
      */
-    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) throws CoordenadaFueraDeRangoException {
+    public int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
@@ -569,7 +569,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
+    public List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
 
@@ -589,7 +589,7 @@ public class Algoritmo {
      * @return true si (x, y) es una posición válida, false en caso contrario.
      * @author Arnau Miret Barrull
      */
-    private boolean casillaCorrecta(Integer x, Integer y) {
+    public boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
@@ -605,7 +605,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
+    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraFinal = new ArrayList<>();
         int columna_inicial = y - max_long;
@@ -633,7 +633,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    private int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+    public int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
@@ -660,7 +660,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    private int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+    public int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
