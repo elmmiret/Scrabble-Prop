@@ -60,7 +60,7 @@ public class GestorDePartida {
         }
     }
 
-    private void manejarColocacionPalabra(Turno turno) {
+    private boolean manejarColocacionPalabra(Turno turno) {
         System.out.println("\nIntroduce la palabra:");
         String palabra = scanner.nextLine().toUpperCase();
 
@@ -78,13 +78,15 @@ public class GestorDePartida {
                 System.out.println("- La palabra existe en el diccionario");
                 System.out.println("- Tienes las fichas necesarias");
                 System.out.println("- La posición es válida");
+                return false;
             }
         } catch (CoordenadaFueraDeRangoException | CasillaOcupadaException e) {
             System.out.println("Error: " + e.getMessage());
         }
+        return true;
     }
 
-    private void manejarCambioFichas(Turno turno, Map<Ficha, Integer> atril) {
+    private boolean manejarCambioFichas(Turno turno, Map<Ficha, Integer> atril) {
         System.out.println("\nFichas disponibles:");
         atril.forEach((f, c) -> System.out.print(f.getLetra() + "(" + c + ") "));
 
@@ -104,6 +106,7 @@ public class GestorDePartida {
             if (!atril.containsKey(f) || atril.get(f) < cambio.get(f)) {
                 System.out.println("No tienes suficientes fichas de " + f.getLetra());
                 valido = false;
+
             }
         }
 
@@ -111,6 +114,7 @@ public class GestorDePartida {
             turno.cambiarFichas(atril, cambio);
             System.out.println("¡Fichas cambiadas con éxito!");
         }
+        return valido;
     }
 
     private void mostrarAtril(Map<Ficha, Integer> atril) {
@@ -222,16 +226,37 @@ public class GestorDePartida {
             mostrarAtril(atril);
 
             System.out.println("Acciones:\n 1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
-
-            switch (scanner.nextLine()) {
-                case "1" -> manejarColocacionPalabra(turnoActual);
-                case "2" -> manejarCambioFichas(turnoActual, atril);
-                case "3" -> turnoActual.pasarTurno();
-                case "4" -> {
-                    System.out.println("¡Has salido la partida!");
-                    enJuego = false;
+            int num = scanner.nextInt();
+            scanner.nextLine();
+            boolean accionValida = false;
+            while (!accionValida) {
+                switch (num) {
+                    case 1:
+                        accionValida = manejarColocacionPalabra(turnoActual);
+                        break;
+                    case 2:
+                        accionValida = manejarCambioFichas(turnoActual, atril);
+                        break;
+                    case 3:
+                        turnoActual.pasarTurno();
+                        accionValida = true;
+                        break;
+                    case 4:
+                        System.out.println("¡Has salido de la partida!");
+                        enJuego = false;
+                        accionValida = true;
+                        break;
+                    default:
+                        System.out.println("Opción inválida");
+                        num = scanner.nextInt();
+                        scanner.nextLine();
+                        break;
                 }
-                default -> System.out.println("Opción inválida");
+                if (!accionValida && (num == 1 || num == 2)) {
+                    System.out.println("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida");
+                    num = scanner.nextInt();
+                    scanner.nextLine();
+                }
             }
 
             if (partida.getRondas().size() > 1) {
@@ -249,6 +274,12 @@ public class GestorDePartida {
             }
         }
     }
+
+    public boolean existePartidaJugador(Perfil jugador, int idpartida) {
+        Partida p = partidas.get(idpartida);
+        return p != null && (p.getCreador().equals(jugador) || (p.getOponente() != null && p.getOponente().equals(jugador)));
+    }
+
 
     public void consultarPartidasJugador(Perfil jugador) {
         if (jugador == null) {
