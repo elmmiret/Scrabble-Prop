@@ -1,49 +1,64 @@
+package ctrldomini;
 
-import ctrldomini.*;
-//import com.google.gson.Gson;
-import algorisme.*;
-import java.util.*;
-    public static void main(String[] args) {
+import gestordeperfil.DriverPerfil;
+import gestordeperfil.GestorDePerfil;
+import gestordeperfil.Perfil;
+import ranking.DriverRanking;
+import ranking.Ranking;
+import estadisticas.DriverEstadisticas;
 
-      //vector de palabras
-      /*String[] palabras = {
-              "apple", "app", "cocacol·la", "banana", "ban", "band", "bat", "bar", "bark",
-              "car", "cat", "carpet", "dog", "door", "dolphin", "elephant",
-              "eagle", "fish", "frog", "goat", "giraffe", "horse", "house",
-              "ice", "igloo", "jungle", "jump", "kite", "kitten", "lion",
-              "lamp", "monkey", "mountain", "nest", "nose", "orange", "owl",
-              "penguin", "parrot", "queen", "quail", "rabbit", "river",
-              "snake", "sun", "tiger", "tree", "umbrella", "unicorn", "violet",
-              "violin", "whale", "window", "xylophone", "yak", "zebra", "zoo"
-      };
-      //insertar todas las palabras del vector en el DAWG
-      for(String palabra : palabras) {
-        dawg.insertar(palabra);
-      }*/
-     // Dawg dawgcatala = new Dawg();
-      //dawgcatala.insertarDiccionarioCastellano(dawgcatala);
+import java.util.Scanner;
 
-      //dawgcatala.acabar();
-      //dawgcatala.imprimir(dawgcatala.getRoot(), "");
+public class Main {
 
-      //buscar algunas palabras
-      /*System.out.println("Buscar 'cocacola mal escrito': " + dawgcatala.buscar("cocacol·la")); // true
-      System.out.println("Buscar 'GOLADES': " + dawgcatala.buscar("GOLADES"));     // true
-      System.out.println("Buscar 'GOLAFRE': " + dawgcatala.buscar("GOLAFRE"));      // true
-      System.out.println("Buscar 'EMBORRASCAR': " + dawgcatala.buscar("EMBORRASCAR"));      // true
-      System.out.println("Buscar 'EMOL·LIENTS': " + dawgcatala.buscar("EMOL·LIENTS"));    // false
+  public static void main(String[] args)
+  {
 
-      //verificar prefijos
-      System.out.println("Prefijo 'GO': " + dawgcatala.empiezaCon("ba"));   // true
-      System.out.println("Prefijo 'EMB': " + dawgcatala.empiezaCon("do"));    // true
-      System.out.println("Prefijo 'xyz': " + dawgcatala.empiezaCon("xyz"));  // false*/
+    // INIT
+    Scanner scanner = new Scanner(System.in);
+    Ranking ranking = new Ranking();
+    GestorDePerfil gestorDePerfil = new GestorDePerfil(ranking);
+    DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, scanner);
+    DriverRanking driverRanking = new DriverRanking(ranking, scanner);
+    DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, scanner);
 
+    System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
+    while (true)
+    {
+      System.out.print("\n");
+      System.out.println("Por favor, escoja una de las siguientes opciones:");
+      System.out.println("1- Gestión de perfil");
+      System.out.println("2- Gestión de partida");
+      System.out.println("3- Ver rankings");
+      System.out.println("4- Ver estadísticas");
+      System.out.println("5- Salir");
+      System.out.print("\n");
 
-      AlfabetoCAT alfcat = new AlfabetoCAT();
-      //Map<String, AbstractMap.SimpleEntry<Integer, Integer>> mapaLetrasCat = alfcat.getMapaLetras();
-
-      //Verificar que el alfabeto funciona
-      //System.out.println("La linea con L·L del alfabeto catalan tiene frequencia y puntuacion de " + alfcat.getFrequenciaLetra("L·L") + " y " + alfcat.getPuntuacionLetra("L·L"));
-
+      int chosenOption = scanner.nextInt();
+      scanner.nextLine(); //consume console buffer
+        switch (chosenOption)
+        {
+          case 1: //Profile management
+            driverPerfil.profileManagement();
+            break;
+          case 2: //Create new game
+            System.out.println("Creating new game");
+            break;
+          case 3: //See ranking
+            driverRanking.rankingManagement();
+            break;
+          case 4: //Exit
+            driverEstadisticas.estadisticasManagement();
+            break;
+          case 5:
+            System.out.println("Chau!");
+            System.exit(0);
+            break;
+          default: //Error option
+            System.out.println("Incorrect option, please choose any of the options offered");
+            break;
+        }
     }
+  }
+}

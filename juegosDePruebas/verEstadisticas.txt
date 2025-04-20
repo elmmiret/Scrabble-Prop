@@ -1,0 +1,15 @@
+4
+1
+1
+user1
+Password123
+Password123
+azul
+4
+user1
+2
+5
+
+Este juego de pruebas es para ver que no permite mostrar estadísticas
+cuando no hay ningún perfil creado y que funciona correctamente cuando
+si que hay al menos uno.
