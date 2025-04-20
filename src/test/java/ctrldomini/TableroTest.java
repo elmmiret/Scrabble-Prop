@@ -2,10 +2,11 @@ package ctrldomini;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
+import org.junit.Before;
 import exceptions.*;
 import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
-
+import ctrldomini.Tablero;
 
 /**
  * Tests para probar las funcionalidades de la clase Tablero
@@ -13,14 +14,14 @@ import java.util.AbstractMap.SimpleEntry;
  * @author: Paula Pérez
  */
 public class TableroTest {
-
+    private Tablero tablero;
     /**
      * Configura el entorno de prueba antes de cada test.
      * Crea una instancia de tablero usando el diccionario castellano.
      */
-    @BeforeEach
-    void setUp() {
-        Tablero tablero = new Tablero(CAST);
+    @Before
+    public void setUp() {
+        Tablero tablero = new Tablero(Partida.Idioma.CAST);
     }
 
     /**
@@ -172,7 +173,7 @@ public class TableroTest {
      * Verifica que el tablero se reconozca como vacío inicialmente y cambie su estado tras colocar una ficha.
      */
     @Test
-    public void testTableroVacio()  {
+    public void testTableroVacio() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         assertEquals("Debe devolver true", true, tablero.estaVacio());
         Ficha f1 = new Ficha("A", 1);
         tablero.setFicha(f1, 'A', 1);
