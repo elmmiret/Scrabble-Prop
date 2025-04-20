@@ -1,6 +1,6 @@
 package ctrldomini;
 
-import algorisme;
+import algorisme.*;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
 
