@@ -12,11 +12,13 @@ import gestordeperfil.*;
  * @author Paula Pérez
  */
 public class DriverPartida {
-    private GestorDePartida gestor;
+    public static GestorDePartida gestor;
+    public static GestorDePerfil gestorDePerfil;
     private Scanner scanner;
 
-    public DriverPartida(GestorDePartida gdp, Scanner scanner) {
+    public DriverPartida(GestorDePartida gdp, GestorDePerfil gestorp, Scanner scanner) {
         gestor = gdp;
+        gestorDePerfil = gestorp;
         scanner = scanner;
     }
 
@@ -54,6 +56,7 @@ public class DriverPartida {
                     break;
 
                 case 2:
+                    Perfil jugador1 = null;
                     System.out.println("Inicia sesión con tu cuenta");
                     System.out.print("\n");
                     System.out.print("Username: ");
@@ -62,7 +65,7 @@ public class DriverPartida {
                         System.out.print("Password: ");
                         String password = scanner.nextLine();
                         if (gestorDePerfil.esPasswordCorrecta(username, password)) {
-                            Perfil jugador1 = gestorDePerfil.getJugador(username);
+                            jugador1 = gestorDePerfil.getPerfil(username);
                         } else System.out.println("\nPassword incorrecta\n");
                     }
                     else {
@@ -83,45 +86,58 @@ public class DriverPartida {
                         System.out.println("formato de id erroneo, pulsa 3 y posteriormente vuelve a intentarlo");
                         break;
                     }
-                    if (!gestor.existePartidaJugador(jugador, num)) System.out.println("No existe ninguna partida con este id para tu perfil.");
+                    if (!gestor.existePartidaJugador(jugador1, num)) System.out.println("No existe ninguna partida con este id para tu perfil.");
                     else gestor.jugar(num);
                     // que esa funcion llame al driver de turno y que de alguna manera
                     break;
 
                 case 3:
                     System.out.println("Inicia sesión con tu cuenta");
-                    Perfil jugador = gestorPerfil.login();
-                    if (jugador == null) {
-                        System.out.println("Error al iniciar sesión.");
+                    Perfil jugador = null;
+                    System.out.println("Inicia sesión con tu cuenta");
+                    System.out.print("\n");
+                    System.out.print("Username: ");
+                    String username2 = scanner.nextLine();
+                    if (gestorDePerfil.existeJugador(username2)) {
+                        System.out.print("Password: ");
+                        String password = scanner.nextLine();
+                        if (gestorDePerfil.esPasswordCorrecta(username2, password)) {
+                            jugador = gestorDePerfil.getPerfil(username2);
+                        } else System.out.println("\nPassword incorrecta\n");
+                    }
+                    else {
+                        System.out.println("\nNo existe ningún perfil con este username\n");
+                        opcion = 3;
                         break;
                     }
 
                     System.out.println("Inserta el id de la partida que quieras eliminar:");
                     String input2 = scanner.nextLine(); // para leer hasta salto de linea
-                    int num;
+                    int num1;
                     try {
-                        num = Integer.parseInt(input2);  // intenta convertir a número
+                        num1 = Integer.parseInt(input2);  // intenta convertir a número
                     } catch (NumberFormatException e) {
-                        num = -1;  // si no habia un numero, ponemos un valor imposible para forzar el "default"
+                        num1 = -1;  // si no habia un numero, ponemos un valor imposible para forzar el "default"
                     }
-                    if (num == -1) {
+                    if (num1 == -1) {
                         System.out.println("formato de id erroneo, pulsa 3 y posteriormente vuelve a intentarlo");
                         break;
                     }
-                    if (!gestor.existePartidaJugador(jugador, num)) System.out.println("No existe ninguna partida con este id para tu perfil.");
-                    else gestor.borrar(num);
+                    if (!gestor.existePartidaJugador(jugador, num1)) System.out.println("No existe ninguna partida con este id para tu perfil.");
+                    else gestor.borrar(num1);
                     break;
 
                 case 4:
+                    Perfil jugador2 = null;
                     System.out.println("Inicia sesión con tu cuenta");
                     System.out.print("\n");
                     System.out.print("Username: ");
-                    String username = scanner.nextLine();
-                    if (gestorDePerfil.existeJugador(username)) {
+                    String username1 = scanner.nextLine();
+                    if (gestorDePerfil.existeJugador(username1)) {
                         System.out.print("Password: ");
                         String password = scanner.nextLine();
-                        if (gestorDePerfil.esPasswordCorrecta(username, password)) {
-                            Perfil jugador = gestorDePerfil.getJugador(username);
+                        if (gestorDePerfil.esPasswordCorrecta(username1, password)) {
+                            jugador2 = gestorDePerfil.getPerfil(username1);
                         } else System.out.println("\nPassword incorrecta\n");
                     }
                     else {
@@ -131,7 +147,7 @@ public class DriverPartida {
                     }
                     // el jugador tiene que logguearse para verificar que es el y entonces poder consultar sus partidas
                     // tiene que imprimir los ids de sus partidas, el nombre, el tipo y si es PvP su oponente
-                    gestor.consultarPartidasJugador(jugador);
+                    gestor.consultarPartidasJugador(jugador2);
                     break;
 
                 default:
