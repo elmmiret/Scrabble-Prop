@@ -10,6 +10,7 @@ import gestordeperfil.GestorDePerfil;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
+
 /**
  * Gestiona la creación, eliminación, consulta y ejecución de partidas de Scrabble.
  * @author Albert Aulet Niubó
@@ -87,6 +88,9 @@ public class GestorDePartida {
     }
 
     private boolean manejarCambioFichas(Turno turno, Map<Ficha, Integer> atril) {
+
+
+
         System.out.println("\nFichas disponibles:");
         atril.forEach((f, c) -> System.out.print(f.getLetra() + "(" + c + ") "));
 
@@ -235,7 +239,12 @@ public class GestorDePartida {
                         accionValida = manejarColocacionPalabra(turnoActual);
                         break;
                     case 2:
-                        accionValida = manejarCambioFichas(turnoActual, atril);
+                        if (partida.getBolsa().isEmpty()) {
+                            System.out.println("La bolsa está vacía...");
+                            accionValida = false;
+                        } else {
+                            accionValida = manejarCambioFichas(turnoActual, atril);
+                        }
                         break;
                     case 3:
                         turnoActual.pasarTurno();
