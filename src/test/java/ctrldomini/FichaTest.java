@@ -5,15 +5,23 @@ import org.junit.Test;
 /**
  * Tests para probar las funcionalidades de la clase Ficha
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class FichaTest {
 
+    /**
+     * Configura el entorno de prueba antes de cada test.
+     * Crea una instancia vacía de Ficha.
+     */
     @BeforeEach
     void setUp() {
         Ficha ficha;
     }
 
+    /**
+     * Prueba la creación básica de una ficha con letra mayúscula y puntuación válida.
+     * Verifica que ambos valores se almacenen correctamente.
+     */
     @Test
     public void testCrearFicha() {
         ficha = new Ficha("A", 1);
@@ -21,6 +29,10 @@ public class FichaTest {
         assertEquals("La puntuación de la ficha debe ser 1", 1, ficha.getPuntuacion());
     }
 
+    /**
+     * Prueba la creación de una ficha con un carácter especial del español (Ñ).
+     * Verifica que se acepten y almacenen correctamente caracteres no ASCII.
+     */
     @Test
     public void testFichaConCaracterEspecial() {
         ficha = new Ficha("Ñ", 8);
@@ -28,6 +40,10 @@ public class FichaTest {
         assertEquals("La puntuación de la ficha debe ser 8", 8, ficha.getPuntuacion());
     }
 
+    /**
+     * Prueba la conversión automática a mayúsculas al crear una ficha.
+     * Verifica que las letras minúsculas en el constructor se conviertan correctamente.
+     */
     @Test
     public void testFichaConLetraMinuscula() {
         ficha = new Ficha("e", 1);
@@ -35,6 +51,10 @@ public class FichaTest {
         assertEquals("La puntuación de la ficha debe ser 1", 1, ficha.getPuntuacion());
     }
 
+    /**
+     * Prueba la creación de fichas compuestas por múltiples caracteres.
+     * Verifica el correcto almacenamiento de secuencias como "RR".
+     */
     @Test
     public void testFichaConLetraMayorLongitud() {
         ficha = new Ficha("RR", 8);
@@ -42,6 +62,10 @@ public class FichaTest {
         assertEquals("La puntuación de la ficha debe ser 8", 8, ficha.getPuntuacion());
     }
 
+    /**
+     * Prueba la creación de fichas compuestas por múltiples caracteres.
+     * Verifica el correcto almacenamiento de secuencias como "L·L".
+     */
     @Test
     public void testFichaConLetraCaracterEspecial() {
         ficha = new Ficha("L·L", 10);
@@ -49,6 +73,10 @@ public class FichaTest {
         assertEquals("La puntuación de la ficha debe ser 10", 10, ficha.getPuntuacion());
     }
 
+    /**
+     * Prueba la conversión a mayúsculas con caracteres especiales.
+     * Verifica que los símbolos se mantengan mientras se convierten las letras.
+     */
     @Test
     public void testFichaConLetraCaracterEspecialMinuscula() {
         ficha = new Ficha("l·l", 10);
