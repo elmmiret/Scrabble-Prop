@@ -21,7 +21,7 @@ public class TableroTest {
      */
     @Before
     public void setUp() {
-        Tablero tablero = new Tablero(Partida.Idioma.CAST);
+        tablero = new Tablero(Partida.Idioma.CAST);
     }
 
     /**

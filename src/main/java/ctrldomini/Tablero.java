@@ -246,7 +246,7 @@ public class Tablero {
     public boolean estaVacio() throws CoordenadaFueraDeRangoException {
         for (int i = 0; i < FILAS; i++) {
             for (int j = 0; j < COLUMNAS; j++) {
-                if (getFicha(i,j) == null) return false;
+                if (getFicha(i,j) != null) return false;
                 if (getAbecedario(i,j) == null) return false;
             }
         }

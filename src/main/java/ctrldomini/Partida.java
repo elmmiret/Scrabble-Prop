@@ -211,7 +211,7 @@ public class Partida {
      * Crea un nuevo turno en la partida y lo añade a la lista de rondas.
      */
     public void nuevoTurno(Perfil jugador) {
-        Turno turno = new Turno(this, jugador);
+        Turno turno = new Turno(this, jugador, 0, 0);
         rondas.add(turno);
     }
 
