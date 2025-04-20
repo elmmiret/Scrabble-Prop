@@ -9,6 +9,13 @@ import java.util.Scanner;
  * @author: Paula Pérez
  */
 public class DriverTablero {
+    private Scanner scanner;
+    private Partida.Idioma idiomaPartida;
+
+    public DriverTablero(Scanner scanner, Partida.Idioma idiomaPartida) {
+        this.scanner = scanner;
+        this.idiomaPartida = idiomaPartida;
+    }
 
     private static void mostrarInstrucciones() {
         System.out.println("*** DRIVER DE LA CLASE TABLERO ***");
@@ -20,7 +27,7 @@ public class DriverTablero {
         System.out.println("0. Salir");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CoordenadaFueraDeRangoException {
         Scanner scanner = new Scanner(System.in);
         boolean salir = false;
         Tablero tablero = null;
@@ -30,7 +37,7 @@ public class DriverTablero {
         while (!salir) {
             System.out.print("Elige una opción: ");
 
-            String input = seleccion.nextLine(); // para leer hasta salto de linea
+            String input = scanner.nextLine(); // para leer hasta salto de linea
             int opcion;
             try {
                 opcion = Integer.parseInt(input);  // intenta convertir a número
@@ -41,15 +48,15 @@ public class DriverTablero {
             switch (opcion) {
                 case 1:
                     // poner en un futuro seleccion de idioma para que cambie la leyenda?
-                    tablero = new Tablero();
+                    tablero = new Tablero(Partida.Idioma.CAST);
                     System.out.print("Tablero creado");
                     break;
 
                 case 2:
                     System.out.print("Introduce la letra de la ficha: ");
-                    String letra = seleccion.nextLine();
+                    String letra = scanner.nextLine();
                     System.out.print("Introduce la puntuación de la ficha: ");
-                    String puntuacion = seleccion.nextLine();
+                    String puntuacion = scanner.nextLine();
                     int puntuacion_valida;
                     try {
                         puntuacion_valida = Integer.parseInt(puntuacion);
@@ -57,9 +64,8 @@ public class DriverTablero {
                         System.out.println("Input inválido");
                         break;
                     }
-                    ficha = new Ficha(letra, puntuacion_valida);
+                    Ficha ficha1 = new Ficha(letra, puntuacion_valida);
                     System.out.println("Ficha creada.");
-                    break;
 
                     System.out.print("Introduce la fila (A - O): ");
                     char fila = scanner.nextLine().charAt(0);
@@ -68,7 +74,7 @@ public class DriverTablero {
                     scanner.nextLine();
 
                     try {
-                        tablero.setFicha(ficha, fila, columna);
+                        tablero.setFicha(ficha1, fila, columna);
                         System.out.println("Ficha colocada correctamente.");
                     } catch (CoordenadaFueraDeRangoException | CasillaOcupadaException e) {
                         System.out.println(e.getMessage());
@@ -85,10 +91,10 @@ public class DriverTablero {
                     scanner.nextLine();
 
                     try {
-                        Ficha ficha = tablero.getFicha(filaMod - 'A', columnaMod - 1);
-                        if (ficha != null) {
-                            System.out.println("Letra de la ficha: " + ficha.getLetra());
-                            System.out.println("Puntuación de la ficha: " + ficha.getPuntuacion());
+                        Ficha ficha2 = tablero.getFicha(filaMod - 'A', columnaMod - 1);
+                        if (ficha2 != null) {
+                            System.out.println("Letra de la ficha: " + ficha2.getLetra());
+                            System.out.println("Puntuación de la ficha: " + ficha2.getPuntuacion());
                         } else {
                             System.out.println("No hay modificador en esta casilla.");
                         }
@@ -99,14 +105,14 @@ public class DriverTablero {
 
                 case 5:
                     System.out.print("Introduce la fila (A - O): ");
-                    char filaMod = scanner.nextLine().charAt(0);
+                    char filaMod1 = scanner.nextLine().charAt(0);
 
                     System.out.print("Introduce la columna (1 - 15): ");
-                    int columnaMod = scanner.nextInt();
+                    int columnaMod1 = scanner.nextInt();
                     scanner.nextLine();
 
                     try {
-                        TipoModificador modificador = tablero.getTipoModificador(filaMod - 'A', columnaMod - 1);
+                        Tablero.TipoModificador modificador = tablero.getTipoModificador(filaMod1 - 'A', columnaMod1 - 1);
                         if (modificador != null) {
                             System.out.println("Modificador de la casilla: " + modificador);
                         } else {
@@ -131,6 +137,6 @@ public class DriverTablero {
             }
         }
         System.out.println("*** FIN DEL TESTEO ***");
-        seleccion.close();
+        scanner.close();
     }
 }

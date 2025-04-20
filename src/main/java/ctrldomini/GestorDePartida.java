@@ -9,6 +9,7 @@ import java.util.Collections;
 import gestordeperfil.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
+import gestordeperfil.*;
 
 
 /**
@@ -106,7 +107,7 @@ public class GestorDePartida {
                 cambio.put(f, cambio.getOrDefault(f, 0) + 1);
             }
         }
-        
+
         boolean valido = true;
         for (Ficha f : cambio.keySet()) {
             if (!atril.containsKey(f) || atril.get(f) < cambio.get(f)) {

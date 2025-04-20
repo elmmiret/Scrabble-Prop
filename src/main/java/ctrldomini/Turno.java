@@ -1,5 +1,6 @@
 package ctrldomini;
 
+import gestordeperfil.*;
 import algorisme.*;
 import exceptions.*;
 import java.util.Map;
