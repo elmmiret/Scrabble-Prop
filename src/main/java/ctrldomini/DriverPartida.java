@@ -27,20 +27,22 @@ public class DriverPartida {
     }
 
     public void partidaManagement() throws CasillaOcupadaException, CoordenadaFueraDeRangoException{
-        Scanner scanner = new Scanner(System.in);
-        boolean salir = false;
-        while (!salir) {
-            int opcion = leerEntero("Selección:\n1- Crear una nueva partida\n2- Cargar partida existente\n3- Eliminar partida\n4- Consultar partidas\n5- Salir\n");
-            switch (opcion) {
-                case 1 -> crearNuevaPartida();
-                case 2 -> cargarPartidaExistente();
-                case 3 -> eliminarPartida();
-                case 4 -> consultarPartidas();
-                case 5 -> salir = true;
-                default -> System.out.println("Opción inválida");
+        if (gestorPerfiles.hayJugadores()){
+            Scanner scanner = new Scanner(System.in);
+            boolean salir = false;
+            while (!salir) {
+                int opcion = leerEntero("Selección:\n1- Crear una nueva partida\n2- Cargar partida existente\n3- Eliminar partida\n4- Consultar partidas\n5- Atrás\n\n");
+                switch (opcion) {
+                    case 1 -> crearNuevaPartida();
+                    case 2 -> cargarPartidaExistente();
+                    case 3 -> eliminarPartida();
+                    case 4 -> consultarPartidas();
+                    case 5 -> salir = true;
+                    default -> System.out.println("Opción inválida");
+                }
             }
         }
-        System.out.println("*** FIN DEL PROGRAMA ***");
+        else System.out.println("\nNo hay ningún perfil en el sistema para jugar!");
     }
 
     private void crearNuevaPartida() {
@@ -48,7 +50,7 @@ public class DriverPartida {
 
         int id = leerEntero("ID de partida: ");
         if (gestor.obtenerPartida(id) != null) {
-            System.out.println("¡Ya existe una partida con este ID!");
+            System.out.println("¡Ya existe una partida con este ID!\n");
             return;
         }
 
@@ -61,6 +63,7 @@ public class DriverPartida {
             default -> throw new IllegalArgumentException("Idioma inválido");
         };
 
+        System.out.println("\n=== AUTENTIFICACIÓN JUGADOR 1 ===");
         Perfil jugador = autenticarUsuario();
         if (jugador == null) {
             return;
@@ -69,8 +72,13 @@ public class DriverPartida {
         int modo = leerEntero("Modo (1-PvP 2-PvIA): ");
         Partida partida;
         if (modo == 1) {
+            System.out.println("\n=== AUTENTIFICACIÓN JUGADOR 2 ===");
             Perfil oponente = autenticarUsuario();
             if (oponente == null) {
+                return;
+            }
+            else if (oponente == jugador) {
+                System.out.println("\nNo puedes jugar contra ti mismo!\n");
                 return;
             }
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvP, oponente, 0);
@@ -79,23 +87,23 @@ public class DriverPartida {
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvIA, null, dificultad);
         }
 
-        System.out.println("Partida creada exitosamente! ID: " + partida.getId());
+        System.out.println("\nPartida creada correctamente! ID: " + partida.getId());
+        System.out.print("\n");
     }
 
     private Perfil autenticarUsuario() {
-        System.out.println("\n=== AUTENTICACIÓN ===");
         while (true) {
-            String username = leerCadena("Nombre de usuario");
+            String username = leerCadena("Username: ");
             if (!gestorPerfiles.existeJugador(username)) {
-                System.out.println("No existe ningun usuario con este username" + username);
+                System.out.println("No existe ningun usuario con este username: " + username);
                 continue;
             }
-            String contraseña = leerCadena("Contraseña del usuario");
+            String contraseña = leerCadena("Password del usuario: ");
             if (gestorPerfiles.esPasswordCorrecta(username, contraseña)) {
                 return gestorPerfiles.getPerfil(username);
             }
 
-            int opcion = leerEntero("Contraseña incorrecta\n1- Reintentar\n2- Recuperar contraseña\n3- Salir\n");
+            int opcion = leerEntero("Password incorrecta\n1- Reintentar\n2- Restablecer Password\n3- Salir\n");
             switch (opcion) {
                 case 1 -> {
                     continue;
@@ -121,13 +129,13 @@ public class DriverPartida {
             frase = leerCadena("\nIntroduce la frase de recuperación: ");
         }
 
-        String nuevaContraseña = leerCadena("Introduce la nueva contraseña: ");
+        String nuevaContraseña = leerCadena("Introduce la nueva password: ");
         while (!gestorPerfiles.esPasswordSegura(nuevaContraseña)) {
-            System.out.println("La contraseña no cumple los requisitos de seguridad. Los requisitos son: \n- Mínimo 8 caracteres\n- Al menos 1 mayúscula\n- Al menos 1 número\n");
-            nuevaContraseña = leerCadena("Introduce la nueva contraseña: ");
+            System.out.println("La password no cumple los requisitos de seguridad. Los requisitos son: \n- Mínimo 8 caracteres\n- Al menos 1 mayúscula\n- Al menos 1 número\n");
+            nuevaContraseña = leerCadena("Introduce la nueva password: ");
         }
         gestorPerfiles.cambiarPassword(username, nuevaContraseña);
-        System.out.println("¡Contraseña actualizada correctamente!");
+        System.out.println("¡Password actualizada correctamente!");
         return true;
     }
     private void cargarPartidaExistente() throws CoordenadaFueraDeRangoException, CasillaOcupadaException{
@@ -348,7 +356,11 @@ public class DriverPartida {
 
     private void mostrarAtril(Map<Ficha, Integer> atril) {
         System.out.println("\n=== TUS FICHAS ===");
-        atril.forEach((f, c) -> System.out.print(f.getLetra() + "(" + c + ") "));
+        atril.forEach((f, c) -> {
+            for (int i = 0; i < c; i++) {
+                System.out.print(f.getLetra() + " ");
+            }
+        });
         System.out.println("\n==================");
     }
 
