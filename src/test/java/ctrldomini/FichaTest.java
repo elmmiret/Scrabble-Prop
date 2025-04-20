@@ -1,6 +1,8 @@
 package ctrldomini;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.junit.Before;
+import ctrldomini.Ficha;
 
 /**
  * Tests para probar las funcionalidades de la clase Ficha
@@ -8,13 +10,13 @@ import org.junit.Test;
  * @author Paula Pérez
  */
 public class FichaTest {
-
+    private Ficha ficha;
     /**
      * Configura el entorno de prueba antes de cada test.
      * Crea una instancia vacía de Ficha.
      */
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         Ficha ficha;
     }
 

@@ -1,7 +1,8 @@
 package ctrldomini;
 
-import algorisme;
+import algorisme.*;
 import java.util.Scanner;
+import gestordeperfil.*;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -10,7 +11,7 @@ import java.time.format.DateTimeFormatter;
  * @author Paula Pérez
  */
 public class DriverPartida {
-
+    private GestorDePartida gestor;
     private static void mostrarInstrucciones() {
         System.out.println("*** DRIVER DE LA CLASE PARTIDA ***");
         System.out.println("1. Crear partida");
@@ -24,8 +25,6 @@ public class DriverPartida {
         Scanner sc = new Scanner(System.in);
         boolean salir = false;
         Partida partida = null;
-        GestorDePartida gestor;
-        GestorDePerfil gestorPerfil;
         mostrarInstrucciones();
 
         while (!salir) {
