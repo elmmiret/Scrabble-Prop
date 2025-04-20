@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
-import gestordeperfil.GestorDePerfil;
+import gestordeperfil.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
@@ -228,46 +228,49 @@ public class GestorDePartida {
 
             Map<Ficha, Integer> atril = jugador == partida.getCreador() ?
                     turnoActual.getAtrilJ1() : turnoActual.getAtrilJ2();
+            if (atril.size() > 0) {
+                mostrarAtril(atril);
 
-            mostrarAtril(atril);
-
-            System.out.println("Acciones:\n 1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
-            int num = scanner.nextInt();
-            scanner.nextLine();
-            boolean accionValida = false;
-            while (!accionValida) {
-                switch (num) {
-                    case 1:
-                        accionValida = manejarColocacionPalabra(turnoActual);
-                        break;
-                    case 2:
-                        if (partida.getBolsa().isEmpty()) {
-                            System.out.println("La bolsa está vacía...");
-                            accionValida = false;
-                        } else {
-                            accionValida = manejarCambioFichas(turnoActual, atril);
-                        }
-                        break;
-                    case 3:
-                        turnoActual.pasarTurno();
-                        accionValida = true;
-                        break;
-                    case 4:
-                        System.out.println("¡Has salido de la partida!");
-                        enJuego = false;
-                        accionValida = true;
-                        break;
-                    default:
-                        System.out.println("Opción inválida");
+                System.out.println("Acciones:\n 1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n" );
+                int num = scanner.nextInt();
+                scanner.nextLine();
+                boolean accionValida = false;
+                while (!accionValida) {
+                    switch (num) {
+                        case 1:
+                            accionValida = manejarColocacionPalabra(turnoActual);
+                            break;
+                        case 2:
+                            if (partida.getBolsa().isEmpty()) {
+                                System.out.println("La bolsa está vacía..." );
+                                accionValida = false;
+                            } else {
+                                accionValida = manejarCambioFichas(turnoActual, atril);
+                            }
+                            break;
+                        case 3:
+                            turnoActual.pasarTurno();
+                            accionValida = true;
+                            break;
+                        case 4:
+                            System.out.println("¡Has salido de la partida!" );
+                            enJuego = false;
+                            accionValida = true;
+                            break;
+                        default:
+                            System.out.println("Opción inválida" );
+                            num = scanner.nextInt();
+                            scanner.nextLine();
+                            break;
+                    }
+                    if (!accionValida && (num == 1 || num == 2)) {
+                        System.out.println("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida" );
                         num = scanner.nextInt();
                         scanner.nextLine();
-                        break;
+                    }
                 }
-                if (!accionValida && (num == 1 || num == 2)) {
-                    System.out.println("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida");
-                    num = scanner.nextInt();
-                    scanner.nextLine();
-                }
+            } else {
+                turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
             }
 
             if (partida.getRondas().size() > 1) {
