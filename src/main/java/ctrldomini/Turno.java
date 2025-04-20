@@ -1,5 +1,6 @@
 package ctrldomini;
 
+import gestordeperfil.*;
 import algorisme.*;
 import exceptions.*;
 import java.util.Map;
@@ -11,6 +12,10 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.util.AbstractMap.SimpleEntry;
 
+
+// TODO: concretar lo de los puntos de colocarPalabra
+//       hacer que se llame a la IA para jugar
+//       repasar driver de partida para que llame a turno (hacer driver turno)
 
 /**
  * Esta clase representa un turno dentro de una partida de Scrabble.
@@ -162,26 +167,14 @@ public class Turno {
             Ficha nuevaFicha = partida.getBolsa().remove();
             atril.put(nuevaFicha, atril.getOrDefault(nuevaFicha, 0) + 1); // si no existe la clave, se añade con valor 1, else se incrementa su valor
         }
-        // si uno de los dos atriles esta vacio, se acaba la partida
-        if (atrilJ1 == null || atrilJ2 == null) setTipoJugada(TipoJugada.finalizar);
     }
 
     /**
      * Pasa el turno al siguiente jugador.
      */
     public void pasarTurno(){
-        if (partida.getRondas().size() > 1) {
-            Turno rondaAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
-            if (rondaAnterior.getTipoJugada() == TipoJugada.pasar) setTipoJugada(TipoJugada.finalizar);
-            else {
-                setTipoJugada(TipoJugada.pasar);
-                avanzarTurno();
-            }
-        }
-        else {
-            setTipoJugada(TipoJugada.pasar);
-            avanzarTurno();
-        }
+        setTipoJugada(TipoJugada.pasar);
+        avanzarTurno();
     }
 
     /**
@@ -194,15 +187,6 @@ public class Turno {
         partida.nuevoTurno(nextJugador); // revisar
     }
 
-    /**
-     * Elimina una ficha del atril del jugador según la letra indicada.
-     * Si la ficha encontrada tiene más de una instancia, disminuye la cantidad de fichas en el atril.
-     * Si solo queda una ficha de esa letra, la elimina del atril completamente.
-     *
-     * @param atril El atril del jugador.
-     * @param letraBuscada La letra de la ficha que se desea quitar del atril.
-     * @return La ficha correspondiente a la letra buscada si se encuentra en el atril, o null si no se encuentra.
-     */
     private Ficha quitarFichaDelAtril(Map<Ficha, Integer> atril, String letraBuscada) {
         for (Map.Entry<Ficha, Integer> entry : atril.entrySet()) {
             if (entry.getKey().getLetra().equals(letraBuscada)) {
@@ -216,15 +200,6 @@ public class Turno {
         return null;
     }
 
-    /**
-     * Calcula los puntos adicionales sumados por las fichas adyacentes a una palabra en la dirección horizontal.
-     * La función explora las casillas hacia la izquierda y hacia la derecha de la palabra colocada, sumando los puntos de las fichas encontradas.
-     *
-     * @param x_ini La coordenada X inicial donde comienza la palabra.
-     * @param y_ini La coordenada Y inicial donde comienza la palabra.
-     * @param palabra La palabra que se ha colocado en el tablero.
-     * @return La cantidad total de puntos adicionales sumados por las fichas adyacentes en la dirección horizontal.
-     */
     private int calculoPuntosExtraHorizontal(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
         // explorar horizontal hacia la izquierda
@@ -242,15 +217,6 @@ public class Turno {
         return puntosPorSumar;
     }
 
-    /**
-     * Calcula los puntos adicionales sumados por las fichas adyacentes a una palabra en la dirección vertical.
-     * La función explora las casillas hacia arriba y hacia abajo de la palabra colocada, sumando los puntos de las fichas encontradas.
-     *
-     * @param x_ini La coordenada X inicial donde comienza la palabra.
-     * @param y_ini La coordenada Y inicial donde comienza la palabra.
-     * @param palabra La palabra que se ha colocado en el tablero.
-     * @return La cantidad total de puntos adicionales sumados por las fichas adyacentes en la dirección vertical.
-     */
     private int calculoPuntosExtraVertical(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
         // buscar fichas adyacentes antes (hacia arriba)
@@ -411,12 +377,6 @@ public class Turno {
         }
     }
 
-    /**
-     * Realiza el movimiento de la inteligencia artificial en el juego.
-     *
-     * La IA selecciona la mejor palabra posible para colocar en el tablero, usando el algoritmo de backtraking.
-     * Si no se puede formar una palabra válida, la IA pasa el turno o cambiaa consonantes.
-     */
     public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         String[] atril = new String[atrilJ2.size()];
         int index = 0;

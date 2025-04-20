@@ -4,6 +4,7 @@ import algorisme.*;
 import java.util.Scanner;
 import gestordeperfil.*;
 import java.time.format.DateTimeFormatter;
+import gestordeperfil.*;
 
 /**
  * Driver para probar las funcionalidades de la clase Partida.
@@ -12,6 +13,13 @@ import java.time.format.DateTimeFormatter;
  */
 public class DriverPartida {
     private GestorDePartida gestor;
+    private Scanner scanner;
+
+    public DriverPartida(GestorDePartida gdp, Scanner scanner) {
+        gestor = gdp;
+        scanner = scanner;
+    }
+
     private static void mostrarInstrucciones() {
         System.out.println("*** DRIVER DE LA CLASE PARTIDA ***");
         System.out.println("1. Crear partida");
@@ -22,14 +30,14 @@ public class DriverPartida {
     }
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         boolean salir = false;
         Partida partida = null;
         mostrarInstrucciones();
 
         while (!salir) {
             System.out.print("Elige una opción: ");
-            String input = seleccion.nextLine(); // para leer hasta salto de linea
+            String input = scanner.nextLine(); // para leer hasta salto de linea
             int opcion;
             try {
                 opcion = Integer.parseInt(input);  // intenta convertir a número
@@ -49,10 +57,10 @@ public class DriverPartida {
                     System.out.println("Inicia sesión con tu cuenta");
                     System.out.print("\n");
                     System.out.print("Username: ");
-                    String username = lector.nextLine();
+                    String username = scanner.nextLine();
                     if (gestorDePerfil.existeJugador(username)) {
                         System.out.print("Password: ");
-                        String password = lector.nextLine();
+                        String password = scanner.nextLine();
                         if (gestorDePerfil.esPasswordCorrecta(username, password)) {
                             Perfil jugador1 = gestorDePerfil.getJugador(username);
                         } else System.out.println("\nPassword incorrecta\n");
@@ -64,10 +72,10 @@ public class DriverPartida {
                     }
 
                     System.out.println("Inserta el id de la partida que quieras cargar:");
-                    String input = seleccion.nextLine(); // para leer hasta salto de linea
+                    String input1 = scanner.nextLine(); // para leer hasta salto de linea
                     int num;
                     try {
-                        num = Integer.parseInt(input);  // intenta convertir a número
+                        num = Integer.parseInt(input1);  // intenta convertir a número
                     } catch (NumberFormatException e) {
                         num = -1;  // si no habia un numero, ponemos un valor imposible para forzar el "default"
                     }
@@ -89,10 +97,10 @@ public class DriverPartida {
                     }
 
                     System.out.println("Inserta el id de la partida que quieras eliminar:");
-                    String input = seleccion.nextLine(); // para leer hasta salto de linea
+                    String input2 = scanner.nextLine(); // para leer hasta salto de linea
                     int num;
                     try {
-                        num = Integer.parseInt(input);  // intenta convertir a número
+                        num = Integer.parseInt(input2);  // intenta convertir a número
                     } catch (NumberFormatException e) {
                         num = -1;  // si no habia un numero, ponemos un valor imposible para forzar el "default"
                     }
@@ -108,10 +116,10 @@ public class DriverPartida {
                     System.out.println("Inicia sesión con tu cuenta");
                     System.out.print("\n");
                     System.out.print("Username: ");
-                    String username = lector.nextLine();
+                    String username = scanner.nextLine();
                     if (gestorDePerfil.existeJugador(username)) {
                         System.out.print("Password: ");
-                        String password = lector.nextLine();
+                        String password = scanner.nextLine();
                         if (gestorDePerfil.esPasswordCorrecta(username, password)) {
                             Perfil jugador = gestorDePerfil.getJugador(username);
                         } else System.out.println("\nPassword incorrecta\n");
