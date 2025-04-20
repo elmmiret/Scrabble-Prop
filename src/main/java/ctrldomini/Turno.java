@@ -58,6 +58,16 @@ public class Turno {
         this.atrilJ2 = new HashMap<>();
     }
 
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+        this.partida = partida;
+        this.jugador = jugador;
+        this.puntosJ1 = puntosJ1;
+        this.puntosJ2 = puntosJ2;
+        this.atrilJ1 = atrilJ1;
+        this.atrilJ2 = atrilJ2;
+    }
+
+
     // MÉTODOS
 
     /**
@@ -160,6 +170,7 @@ public class Turno {
      * @return El numero de fichas que hay.
      */
     public int getTotalFichas(Map<Ficha, Integer> atril) {
+        if (atril == null) return 0;
         int total = 0;
         for (Integer cantidad : atril.values()) {
             total += cantidad;
@@ -195,7 +206,7 @@ public class Turno {
         Perfil nextJugador;
         if (jugador == partida.getCreador()) nextJugador = partida.getOponente();
         else nextJugador = partida.getCreador();
-        partida.nuevoTurno(nextJugador); // revisar
+        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
     }
 
     private Ficha quitarFichaDelAtril(Map<Ficha, Integer> atril, String letraBuscada) {

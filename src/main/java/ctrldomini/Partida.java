@@ -67,11 +67,11 @@ public class Partida {
         mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
-        rondas = new ArrayList<>();
-        inicializarPrimerTurno();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         dificultad = 0;
+        rondas = new ArrayList<>();
+        inicializarPrimerTurno();
     }
 
     /**
@@ -91,11 +91,11 @@ public class Partida {
         mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
-        rondas = new ArrayList<>();
-        inicializarPrimerTurno();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
         this.dificultad = dificultad;
+        rondas = new ArrayList<>();
+        inicializarPrimerTurno();
     }
 
     // MÉTODOS
@@ -213,10 +213,11 @@ public class Partida {
     /**
      * Crea un nuevo turno en la partida y lo añade a la lista de rondas.
      */
-    public void nuevoTurno(Perfil jugador) {
-        Turno turno = new Turno(this, jugador, 0, 0);
+    public void nuevoTurno(Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+        Turno turno = new Turno(this, jugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
         rondas.add(turno);
     }
+
 
     /**
      * Sortea el orden de los turnos de los jugadores.
@@ -243,7 +244,8 @@ public class Partida {
         SimpleEntry<Ficha, Ficha> sorteo = sortearPrimerTurno();
         if (sorteo.getKey().getLetra() == sorteo.getValue().getLetra()) primerJugador = creador;
         else primerJugador = oponente;
-        nuevoTurno(primerJugador);
+        Turno turno = new Turno(this, primerJugador, 0, 0);
+        rondas.add(turno);
         rondas.get(0).inicializarAtriles();
     }
 

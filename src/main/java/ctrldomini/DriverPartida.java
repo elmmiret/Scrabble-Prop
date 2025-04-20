@@ -202,6 +202,7 @@ public class DriverPartida {
                 }
             } else {
                 turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
+                enJuego = false;
             }
 
             if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
@@ -263,6 +264,7 @@ public class DriverPartida {
                 }
                 else {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
+                    enJuego = false;
                 }
 
                 if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
