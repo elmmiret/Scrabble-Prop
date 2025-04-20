@@ -42,12 +42,7 @@ public class GestorDePartida {
         String nuevaContraseña = scanner.nextLine();
 
         while (!gestorDePerfil.esPasswordSegura(nuevaContraseña)) {
-            System.out.println("""
-                Requisitos contraseña:
-                - Mínimo 8 caracteres
-                - Al menos 1 mayúscula
-                - Al menos 1 número
-                """);
+            System.out.println("Requisitos contraseña:\n- Mínimo 8 carácteres\n- Al menos 1 mayúscula\n- Al menos 1 número");
             System.out.println("Introduce nueva contraseña:");
             nuevaContraseña = scanner.nextLine();
         }
@@ -103,8 +98,7 @@ public class GestorDePartida {
                 cambio.put(f, cambio.getOrDefault(f, 0) + 1);
             }
         }
-
-        // Validar fichas
+        
         boolean valido = true;
         for (Ficha f : cambio.keySet()) {
             if (!atril.containsKey(f) || atril.get(f) < cambio.get(f)) {
@@ -149,7 +143,9 @@ public class GestorDePartida {
 
         System.out.println("\n=== JUGADOR PRINCIPAL ===");
         Perfil jugadorPrincipal = autenticarUsuario();
-
+        if (jugadorPrincipal == null) {
+            return null;
+        }
         System.out.println("\nModo de juego (1-PvP 2-PvIA):");
         Partida.Modo modo = scanner.nextInt() == 1 ? Partida.Modo.PvP : Partida.Modo.PvIA;
         scanner.nextLine();
@@ -158,6 +154,9 @@ public class GestorDePartida {
         if (modo == Partida.Modo.PvP) {
             System.out.println("\n=== JUGADOR SECUNDARIO ===");
             Perfil oponente = autenticarUsuario();
+            if (oponente == null) {
+                return null;
+            }
             nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma);
         } else {
             System.out.println("Dificultad IA (1-3):");
@@ -187,12 +186,7 @@ public class GestorDePartida {
                 return gestorDePerfil.getPerfil(username);
             }
 
-            System.out.println("""
-                Contraseña incorrecta
-                1- Reintentar
-                2- Recuperar contraseña
-                3- Cancelar
-                """);
+            System.out.println("Contraseña incorrecta\n1- Reintentar\n2- Recuperar contraseña\n3- Cancelar\n");
             int opcion = scanner.nextInt();
             scanner.nextLine();
 
@@ -227,13 +221,7 @@ public class GestorDePartida {
 
             mostrarAtril(atril);
 
-            System.out.println("""
-                Acciones:
-                1- Colocar palabra
-                2- Cambiar fichas
-                3- Pasar turno
-                4- Salir de la partida
-                """);
+            System.out.println("Acciones:\n 1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
 
             switch (scanner.nextLine()) {
                 case "1" -> manejarColocacionPalabra(turnoActual);
@@ -246,31 +234,60 @@ public class GestorDePartida {
                 default -> System.out.println("Opción inválida");
             }
 
-            // Verificar condiciones de victoria
+            if (partida.getRondas().size() > 1) {
+                Turno turnoAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
+                if (turnoAnterior.getTipoJugada() == turnoActual.getTipoJugada() && turnoActual.getTipoJugada() == Turno.TipoJugada.pasar) {
+                    turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
+                }
+            }
             if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
                 System.out.println("\n=== PARTIDA FINALIZADA ===");
                 System.out.println("Puntuación final:");
                 System.out.println("- " + partida.getCreador().getUsername() + ": " + turnoActual.getPuntuacionJ1());
-                System.out.println("- " + (partida.getModoPartida() == Partida.Modo.PvP ?
-                        partida.getOponente().getUsername() : "IA") + ": " + turnoActual.getPuntuacionJ2());
+                System.out.println("- " + (partida.getModoPartida() == Partida.Modo.PvP ? partida.getOponente().getUsername() : "IA") + ": " + turnoActual.getPuntuacionJ2());
                 enJuego = false;
             }
         }
     }
 
     public void consultarPartidasJugador(Perfil jugador) {
-        System.out.println("\n=== PARTIDAS DE " + jugador.getUsername() + " ===");
-        partidas.values().stream()
-                .filter(p -> p.getCreador().equals(jugador) ||
-                        (p.getOponente() != null && p.getOponente().equals(jugador)))
-                .forEach(p -> {
-                    System.out.println("ID: " + p.getId());
-                    System.out.println("Nombre: " + p.getNombre());
-                    System.out.println("Modo: " + p.getModoPartida());
-                    System.out.println("Creada: " + p.getFechaHoraCreacion());
-                    System.out.println("-------------------");
-                });
+        if (jugador == null) {
+            System.out.println("\nEl jugador no es válido.\n");
+            return;
+        }
+
+        List<Partida> partidasJugador = new ArrayList<>();
+
+        for (Map.Entry<Integer, Partida> entry : partidas.entrySet()) {
+            Partida partida = entry.getValue();
+            if (partida.getCreador().equals(jugador) || (partida.getOponente() != null && partida.getOponente().equals(jugador))) {
+                partidasJugador.add(partida);
+            }
+        }
+
+        if (partidasJugador.isEmpty()) {
+            System.out.println("\nEl jugador " + jugador.getUsername() + " no participa en ninguna partida.\n");
+        } else {
+            System.out.println("\nPartidas de " + jugador.getUsername() + ":");
+            System.out.println("-------------------------------------------------");
+            for (Partida p : partidasJugador) {
+
+
+                System.out.println("ID: " + p.getId());
+                System.out.println("Nombre: " + p.getNombre());
+                System.out.println("Data de creación: " + p.getFechaHoraCreacion());
+                System.out.println("Modo: " + p.getModoPartida());
+                if (p.getModoPartida() == Partida.Modo.PvP) {
+                    System.out.println("Oponente: " + p.getOponente());
+                } else {
+                    System.out.println("Dificultad: " + p.getDificultad());
+                }
+                System.out.println("-------------------------------------------------");
+            }
+            System.out.println();
+        }
     }
+
 
     public void borrar(int idPartida) {
         Partida eliminada = partidas.remove(idPartida);
