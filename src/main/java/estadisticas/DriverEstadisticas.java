@@ -25,11 +25,11 @@ public class DriverEstadisticas {
      * Construye un controlador de estadísticas vinculado a un gestor de perfiles.
      *
      * @param gdp Gestor de perfiles que provee acceso a los datos
-     * @param inputStream Fuente de entrada para la interacción del usuario
+     * @param scanner Fuente de entrada para la interacción del usuario
      */
-    public DriverEstadisticas(GestorDePerfil gdp, InputStream inputStream) {
+    public DriverEstadisticas(GestorDePerfil gdp, Scanner scanner) {
         gestorDePerfil = gdp;
-        lector = new Scanner(inputStream);
+        lector = scanner;
     }
 
     /**

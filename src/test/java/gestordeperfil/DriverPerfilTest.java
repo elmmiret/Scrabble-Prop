@@ -6,6 +6,7 @@ import ranking.Ranking;
 
 import static org.junit.Assert.*;
 import java.io.*;
+import java.util.Scanner;
 
 /**
  * Clase de pruebas para el sistema de gestión interactiva de perfiles mediante consola.
@@ -41,12 +42,10 @@ public class DriverPerfilTest
      * @param input Cadena que simula la entrada del usuario (separados por saltos de línea)
      * @return Instancia del driver configurada con la entrada simulada
      */
-    private DriverPerfil createDriverWithInput(String input)
-    {
-        return new DriverPerfil(
-                gestor,
-                new ByteArrayInputStream(input.getBytes())
-        );
+    private DriverPerfil createDriverWithInput(String input) {
+        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        Scanner testScanner = new Scanner(inputStream);
+        return new DriverPerfil(gestor, testScanner);
     }
 
     /**

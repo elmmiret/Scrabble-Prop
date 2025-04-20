@@ -19,11 +19,12 @@ public class DriverPerfil {
      * Inicializa el scanner para lectura de entrada del usuario.
      *
      * @param gdp el gestor de perfiles a utilizar
+     * @param scanner fuente de entrada para interactuar con el usuario
      */
     // Modified constructor
-    public DriverPerfil(GestorDePerfil gdp, InputStream inputStream) {
+    public DriverPerfil(GestorDePerfil gdp, Scanner scanner) {
         gestorDePerfil = gdp;
-        lector = new Scanner(inputStream);
+        lector = scanner;
     }
 
     /**
@@ -140,7 +141,7 @@ public class DriverPerfil {
                 System.out.print("Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número): ");
                 String newPassword = lector.nextLine();
                 if (gestorDePerfil.esPasswordSegura(newPassword)) {
-                    System.out.print("New password otra vez: ");
+                    System.out.print("Nueva password otra vez: ");
                     String newPassword2 = lector.nextLine();
                     if (newPassword.equals(newPassword2)) {
                         gestorDePerfil.cambiarPassword(username, newPassword);
