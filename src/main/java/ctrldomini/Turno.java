@@ -13,10 +13,6 @@ import java.util.Collections;
 import java.util.AbstractMap.SimpleEntry;
 
 
-// TODO: concretar lo de los puntos de colocarPalabra
-//       hacer que se llame a la IA para jugar
-//       repasar driver de partida para que llame a turno (hacer driver turno)
-
 /**
  * Esta clase representa un turno dentro de una partida de Scrabble.
  * Gestiona las acciones realizadas por los jugadores como cambiar fichas,
@@ -53,12 +49,13 @@ public class Turno {
      * @param partida La partida en la que se está jugando.
      * @param jugador El perfil del jugador que realiza el turno.
      */
-    public Turno(Partida partida, Perfil jugador) {
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2) {
         this.partida = partida;
         this.jugador = jugador;
+        this.puntosJ1 = puntosJ1;
+        this.puntosJ2 = puntosJ2;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
-        this.tipoJugada = tipoJugada;
     }
 
     // MÉTODOS
@@ -157,13 +154,27 @@ public class Turno {
     }
 
     /**
+     * Obtiene el numero de fichas que hay en el atril.
+     *
+     * @param atril El atril del jugador.
+     * @return El numero de fichas que hay.
+     */
+    public int getTotalFichas(Map<Ficha, Integer> atril) {
+        int total = 0;
+        for (Integer cantidad : atril.values()) {
+            total += cantidad;
+        }
+        return total;
+    }
+
+    /**
      * Roba fichas de la bolsa.
      * Acaba cuando llena al máximo el atril o no quedan mas fichas en la bolsa.
      *
      * @param atril El atril del jugador.
      */
     public void robarFichas(Map<Ficha,Integer> atril) {
-        while (atril.size() < MAX_FICHAS || !partida.getBolsa().isEmpty()) {
+        while (getTotalFichas(atril) < MAX_FICHAS && !partida.getBolsa().isEmpty())  {
             Ficha nuevaFicha = partida.getBolsa().remove();
             atril.put(nuevaFicha, atril.getOrDefault(nuevaFicha, 0) + 1); // si no existe la clave, se añade con valor 1, else se incrementa su valor
         }
@@ -251,7 +262,7 @@ public class Turno {
         int puntosHorizontalExtra = 0;
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion)) {
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
-            if (orientacion == "vertical") {
+            if ("vertical".equals(orientacion)) {
                 for (int i = 0; i < fichas.size(); ++i) {
                     String letraBuscada = fichas.get(i);
                     Ficha fichaEncontrada;
@@ -349,8 +360,7 @@ public class Turno {
      * @param y La coordenada Y de la ficha a retirar.
      */
     public void retirarFicha(int x, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        if (partida.getTablero().getFicha(x, y) == null);
-        else partida.getTablero().setFicha(null, (char) ('A'+x), y+1);
+        if (!(partida.getTablero().getFicha(x, y) == null)) partida.getTablero().setFicha(null, (char) ('A'+x), y+1);
     }
 
     /**
@@ -366,12 +376,12 @@ public class Turno {
      * Inicializa los atriles de ambos jugadores con fichas de la bolsa.
      */
     public void inicializarAtriles() {
-        while (atrilJ1.size() < MAX_FICHAS) {
+        while (getTotalFichas(atrilJ1) < MAX_FICHAS) {
             Ficha ficha = partida.getBolsa().poll();
             atrilJ1.put(ficha, atrilJ1.getOrDefault(ficha, 0) + 1);
         }
 
-        while (atrilJ2.size() < MAX_FICHAS) {
+        while (getTotalFichas(atrilJ2) < MAX_FICHAS) {
             Ficha ficha = partida.getBolsa().poll();
             atrilJ2.put(ficha, atrilJ2.getOrDefault(ficha, 0) + 1);
         }
@@ -397,7 +407,7 @@ public class Turno {
                     Ficha ficha = entry.getKey();
                     int cantidad = entry.getValue();
                     String letra = ficha.getLetra();
-                    if (letra != "A" || letra != "E" || letra != "I" || letra != "O" ||letra != "U" ) fichasPorCambiar.put(ficha, cantidad);
+                    if (!"AEIOU".contains(letra)) fichasPorCambiar.put(ficha, cantidad);
                 }
                 cambiarFichas(atrilJ2, fichasPorCambiar);
             }
@@ -415,7 +425,7 @@ public class Turno {
 
             String orientacion;
             if (x1 == x2) orientacion = "horizontal";
-            else orientacion = "verical";
+            else orientacion = "vertical";
 
             // formar la palabra
             StringBuilder palabraFormada = new StringBuilder();
