@@ -263,6 +263,9 @@ public class Dawg {
                 for(int col = y; col < y + size && casillaCorrecta(x,col); col++) {
                     // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(x,col) != null) {
+                        if (!tablero.getFicha(x,col).getLetra().equals(division.get(pos_division))) {
+                            return false;
+                        }
                         nodo = nodo.getHijos().get(division.get(pos_division));
                         if(nodo == null) return false;
                         ++pos_division;
@@ -284,11 +287,15 @@ public class Dawg {
 
             for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
                 // Si vamos a una posición que tiene una ficha ya colocada
-                    if(tablero.getFicha(fil,y) != null) {
-                        nodo = nodo.getHijos().get(division.get(pos_division));
-                        if(nodo == null) return false;
-                        ++pos_division;
+                if(tablero.getFicha(fil,y) != null) {
+                    if (!tablero.getFicha(fil,y).getLetra().equals(division.get(pos_division))) {
+                        return false;
                     }
+                    nodo = nodo.getHijos().get(division.get(pos_division));
+                    if(nodo == null) return false;
+                    ++pos_division;
+                }
+
 
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
