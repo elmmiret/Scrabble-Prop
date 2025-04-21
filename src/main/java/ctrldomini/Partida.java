@@ -66,6 +66,7 @@ public class Partida {
         dawg = new Dawg(idiomaPartida);
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
+        mapaLetras = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
@@ -90,6 +91,7 @@ public class Partida {
         dawg = new Dawg(idiomaPartida);
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
+        mapaLetras = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
@@ -275,6 +277,7 @@ public class Partida {
         List<Ficha> listaTemporal = new ArrayList<>();
         for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
             Ficha ficha = entry.getKey();
+            mapaLetras.put(ficha.getLetra(), ficha);
             int cantidad = entry.getValue();
             for (int i = 0; i < cantidad; i++) listaTemporal.add(ficha);
         }
@@ -282,5 +285,10 @@ public class Partida {
         // mezclo las fichas para randomizar las posiciones
         Collections.shuffle(listaTemporal);
         bolsa.addAll(listaTemporal);
+    }
+
+    public int getPuntuacionFicha(String letra)
+    {
+        return mapaLetras.get(letra).getPuntuacion();
     }
 }

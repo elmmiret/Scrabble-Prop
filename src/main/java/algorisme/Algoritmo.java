@@ -17,6 +17,12 @@ public class Algoritmo {
     private static final int FILAS = 15;
     private static final int COLUMNAS = 15;
     private static final Set<String> Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
+    private Partida partida;
+
+    public Algoritmo(Partida partida)
+    {
+        this.partida = partida;
+    }
 
     /**
      *
@@ -61,11 +67,20 @@ public class Algoritmo {
 
             // Obtenemos las posiciones de las anclas del tablero
             List<SimpleEntry<Integer, Integer>> anclas = computarAnclas(tablero);
+            for (SimpleEntry<Integer, Integer> pos : anclas)
+            {
+                System.out.printf("ANCLA: %d %d\n", pos.getKey(), pos.getValue());
+            }
 
             // Por cada ancla, obtenemos la mejor palaba
             for(SimpleEntry<Integer, Integer> ancla : anclas) {
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = computarPalabraAncla(dawg,tablero,ancla,atril);
                 int puntuacionPalabra = obtenerPuntuacion(tablero,mejorPalabraAncla);
+                for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : mejorPalabraAncla) {
+                    String palabra = entry.getKey().getKey(); // Access the String from the inner SimpleEntry
+                    System.out.println(palabra);
+                }
+                System.out.println(puntuacionPalabra);
                 if(puntuacionPalabra > mejorPuntuacion) {
                     mejorPalabra = mejorPalabraAncla;
                 }
@@ -144,9 +159,6 @@ public class Algoritmo {
             // Si la casilla no esta ocupada (parte izq. compuesta de letras del atril)
             else {
 
-                List<List<SimpleEntry<String, Boolean>>> partesIzquierdas = new ArrayList<>();
-                //List<List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>> parteDerecha = new ArrayList<>();
-
                 // Funcion para saber la logitud maxima de la parte izquierda
                 int max_long = tamañoParteIzquierdaAtril(tablero,x,y); //HECHA
 
@@ -154,6 +166,7 @@ public class Algoritmo {
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
                 mejorPalabra = computarMejorPalabraDelAtril(dawg.getRoot(),atril,max_long,tablero,x,y);
 
+                mejorPalabraAncla = mejorPalabra;
             }
 
         }
@@ -173,6 +186,60 @@ public class Algoritmo {
 
         return mejorPalabraAncla;
     }
+    /*
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) throws CoordenadaFueraDeRangoException {
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
+        int x = ancla.getKey();
+        int y = ancla.getValue();
+
+        // Validate coordinates
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) {
+            throw new CoordenadaFueraDeRangoException(x, y);
+        }
+
+        // Check left anchor expansion
+        if (casillaCorrecta(x, y - 1)) {
+            if (tablero.getFicha(x, y - 1) != null) {
+                // Case 1: Left part uses existing tiles
+                int maxLeftLength = tamañoParteIzquierdaTablero(tablero, x, y);
+                List<SimpleEntry<String, Boolean>> leftPart = computarParteIzquierdaTablero(tablero, maxLeftLength, x, y);
+
+                // Assign positions to left part
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> currentWord =
+                        asignarPosiciones(leftPart, maxLeftLength, x, y - maxLeftLength);
+
+                // Traverse DAWG for valid prefixes
+                NodoDawg node = dawg.getRoot();
+                for (SimpleEntry<String, Boolean> entry : leftPart) {
+                    node = node.getHijos().get(entry.getKey());
+                    if (node == null) break;
+                }
+
+                // Extend right part with rack tiles
+                boolean[] used = new boolean[atril.length];
+                int score = extenderParteDerecha(tablero, currentWord, atril, used, node, x, y);
+
+                if (!currentWord.isEmpty()) {
+                    mejorPalabraAncla = currentWord;
+                }
+            } else {
+                // Case 2: Left part uses rack tiles
+                int maxLeftLength = tamañoParteIzquierdaAtril(tablero, x, y);
+                mejorPalabraAncla = computarMejorPalabraDelAtril(dawg.getRoot(), atril, maxLeftLength, tablero, x,y);
+            }
+        } else {
+            // Case 3: No left expansion - use pure right extension
+            boolean[] used = new boolean[atril.length];
+            List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> currentWord = new ArrayList<>();
+            int score = extenderParteDerecha(tablero, currentWord, atril, used, dawg.getRoot(), x, y);
+
+            if (!currentWord.isEmpty()) {
+                mejorPalabraAncla = currentWord;
+            }
+        }
+
+        return mejorPalabraAncla;
+    }
 
     /**
      * Calcula la puntuación de una palabra considerando modificadores del tablero.
@@ -182,40 +249,51 @@ public class Algoritmo {
      * @return Puntuación total de la palabra, incluyendo bonificaciones.
      * @author Albert Aulet Niubó
      */
-    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra) throws CoordenadaFueraDeRangoException{
+    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra)
+            throws CoordenadaFueraDeRangoException {
+
         int puntuacion = 0;
         int puntuacion_vertical = 0;
         int multiplicadorPalabra = 1;
         int fichasAtril = 0;
-        if(palabra == null) {
+
+        // FIX 1: Reverse null check to process valid words
+        if (palabra != null) { // Changed from == null to != null
             for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
                 String letra = letra_i.getKey().getKey();
                 boolean esDelAtril = letra_i.getKey().getValue();
                 int pos_x = letra_i.getValue().getKey();
                 int pos_y = letra_i.getValue().getValue();
-                int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+
+                int valor_letra = partida.getPuntuacionFicha(letra);
+                //System.out.printf("Valor ficha %s: %d\n", letra, valor_letra);
+
                 if (esDelAtril) {
                     Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
-                    switch (mod) {
-                        case dobleTantoDeLetra:
-                            valor_letra *= 2;
-                            break;
-                        case tripleTantoDeLetra:
-                            valor_letra *= 3;
-                            break;
-                        case dobleTantoDePalabra:
-                            multiplicadorPalabra *= 2;
-                            break;
-                        case tripleTantoDePalabra:
-                            multiplicadorPalabra *= 3;
-                            break;
+                    if (mod != null)
+                    {
+                        switch (mod) {
+                            case dobleTantoDeLetra:
+                                valor_letra *= 2;
+                                break;
+                            case tripleTantoDeLetra:
+                                valor_letra *= 3;
+                                break;
+                            case dobleTantoDePalabra:
+                                multiplicadorPalabra *= 2;
+                                break;
+                            case tripleTantoDePalabra:
+                                multiplicadorPalabra *= 3;
+                                break;
+                        }
                     }
                     puntuacion_vertical += obtenerPuntuacionPalabraVertical(tablero, pos_x, pos_y);
-                    fichasAtril += 1;
+                    fichasAtril++;
                 }
                 puntuacion += valor_letra;
             }
         }
+
         puntuacion *= multiplicadorPalabra;
         if (fichasAtril == 7) {
             puntuacion += 50;
@@ -234,55 +312,58 @@ public class Algoritmo {
      * @return Puntuación total de la palabra vertical, aplicando modificadores relevantes.
      * @author Albert Aulet Niubó
      */
-    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException{
+    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y)
+            throws CoordenadaFueraDeRangoException {
+
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
-        int pos_ini = x;
+        int originalX = x;
+
+        // FIX 2: Proper vertical word traversal
+        // Find topmost tile
         while (casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
-            --x;
+            x--;
         }
-        while(casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
-            SimpleEntry<String, Boolean> letra;
-            if (pos_ini == x) {
-                letra = new SimpleEntry<>(tablero.getFicha(x, y).getLetra(), true);
-            }
-            else {
-                letra = new SimpleEntry<>(tablero.getFicha(x, y).getLetra(), false);
-            }
-            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(x, y);
-            palabra.add(new SimpleEntry<>(letra, posicion));
-            ++x;
+        x++; // Adjust to first valid position
+
+        // Collect all vertical tiles
+        while (casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
+            boolean esDelAtril = (x == originalX); // Mark anchor position
+            Ficha f = tablero.getFicha(x, y);
+
+            palabra.add(new SimpleEntry<>(
+                    new SimpleEntry<>(f.getLetra(), esDelAtril),
+                    new SimpleEntry<>(x, y)
+            ));
+            x++;
         }
 
-        if (palabra == null) return 0;
-
+        // Calculate vertical score
         int puntuacion = 0;
         int multiplicadorPalabra = 1;
+
         for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
-            String letra = letra_i.getKey().getKey();
             boolean esDelAtril = letra_i.getKey().getValue();
             int pos_x = letra_i.getValue().getKey();
             int pos_y = letra_i.getValue().getValue();
-            int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+
+            Ficha f = tablero.getFicha(pos_x, pos_y);
+            if (f == null) continue;
+
+            int valor_letra = f.getPuntuacion();
+
             if (esDelAtril) {
                 Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
                 switch (mod) {
-                    case dobleTantoDeLetra:
-                        valor_letra *= 2;
-                        break;
-                    case tripleTantoDeLetra:
-                        valor_letra *= 3;
-                        break;
-                    case dobleTantoDePalabra:
-                        multiplicadorPalabra *= 2;
-                        break;
-                    case tripleTantoDePalabra:
-                        multiplicadorPalabra *= 3;
-                        break;
+                    case dobleTantoDeLetra -> valor_letra *= 2;
+                    case tripleTantoDeLetra -> valor_letra *= 3;
+                    case dobleTantoDePalabra -> multiplicadorPalabra *= 2;
+                    case tripleTantoDePalabra -> multiplicadorPalabra *= 3;
                 }
             }
             puntuacion += valor_letra;
         }
-        return puntuacion*multiplicadorPalabra;
+
+        return puntuacion * multiplicadorPalabra;
     }
 
     /**
@@ -369,12 +450,11 @@ public class Algoritmo {
     */
     private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
-        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-        for (int[] direction : directions) {
-            int newFila = direction[0] + fila;
-            int newColumna = direction[1] + columna;
-            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna) != null)
-                return true;
+        int newFila = 0 + fila;
+        int newColumna = 1 + columna;
+        if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna) != null)
+        {
+            return true;
         }
         return false;
     }
@@ -423,6 +503,13 @@ public class Algoritmo {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if(!camino.isEmpty()) {
             List<SimpleEntry<String, Boolean>> caminoAux = camino;
+            /*
+            for (SimpleEntry<String, Boolean> entry : caminoAux) {
+                System.out.print(entry.getKey());
+            }
+            System.out.print("\n");
+            */
+
 
             List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones = new ArrayList<>();
             caminoAuxConPosiciones = asignarPosiciones(caminoAux,caminoAux.size(),x,y);
@@ -443,6 +530,14 @@ public class Algoritmo {
                     mejorPalabra.addAll(caminoAuxConPosiciones);
                 }
             }
+
+            /*
+            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxConPosiciones) {
+                System.out.print(entry.getKey().getKey());
+            }
+            System.out.print("\n");
+
+             */
         }
         if(restantes == 0) return;
 
@@ -454,6 +549,10 @@ public class Algoritmo {
                 if(siguiente != null) {
                     usados[i] = true;
                     camino.add(new SimpleEntry<>(letra, true));
+                    for (SimpleEntry<String, Boolean> entry : camino) {
+                        System.out.print(entry.getKey());
+                    }
+                    System.out.print("\n");
                     computarMejorPalabraDelAtrilAux(siguiente,atril,usados,restantes-1,camino,mejorPalabra,tablero,x,y);
                     if (camino.size() > 0) camino.remove(camino.size() - 1);
                     usados[i] = false;

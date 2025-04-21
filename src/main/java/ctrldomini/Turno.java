@@ -236,6 +236,7 @@ public class Turno {
         Perfil nextJugador;
         if (jugador == partida.getCreador()) nextJugador = partida.getOponente();
         else nextJugador = partida.getCreador();
+        System.out.println("HOLA ESTOY AVANZANDO");
         partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
     }
 
@@ -459,11 +460,16 @@ public class Turno {
             }
         }
 
-        Algoritmo algoritmo = new Algoritmo();
+        Algoritmo algoritmo = new Algoritmo(partida);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>  mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
         if (mejorPalabra == null || mejorPalabra.isEmpty()) {
-            if (partida.getBolsa() == null) pasarTurno();
+            System.out.println("NO HAY MEJOR PALABRA");
+            if (partida.getBolsa() == null)
+            {
+                pasarTurno();
+            }
             else {
+                System.out.println("VOY A CAMBIAR FICHAS");
                 Map<Ficha,Integer> fichasPorCambiar = new HashMap<>();
                 // cambio las consonantes
                 for (Map.Entry<Ficha, Integer> entry : atrilJ2.entrySet()) {
@@ -476,6 +482,11 @@ public class Turno {
             }
         }
         else {
+            System.out.println("HAY MEJOR PALABRA");
+            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : mejorPalabra) {
+                String palabra = entry.getKey().getKey(); // Access the String from the inner SimpleEntry
+                System.out.println(palabra);
+            }
             int x1 = mejorPalabra.get(0).getValue().getKey();
             int y1 = mejorPalabra.get(0).getValue().getValue();
             int x2 = x1;
