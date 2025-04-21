@@ -448,7 +448,7 @@ public class Turno {
      * La IA selecciona la mejor palabra posible para colocar en el tablero, usando el algoritmo de backtraking.
      * Si no se puede formar una palabra válida, la IA pasa el turno o cambiaa consonantes.
      */
-    public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+    public void turnoIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int nroFichas = getTotalFichas(atrilJ2);
         String[] atril = new String[nroFichas];
         int index = 0;
@@ -459,42 +459,33 @@ public class Turno {
         }
 
         Algoritmo algoritmo = new Algoritmo();
-        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>  mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
         if (mejorPalabra == null || mejorPalabra.isEmpty()) {
-            if (partida.getBolsa() == null) pasarTurno();
-            else {
-                Map<Ficha,Integer> fichasPorCambiar = new HashMap<>();
-                // cambio las consonantes
+            if (partida.getBolsa().isEmpty()) {
+                pasarTurno();
+            } else {
+                Map<Ficha, Integer> fichasPorCambiar = new HashMap<>();
                 for (Map.Entry<Ficha, Integer> entry : atrilJ2.entrySet()) {
                     Ficha ficha = entry.getKey();
-                    int cantidad = entry.getValue();
                     String letra = ficha.getLetra();
-                    if (!"AEIOU".contains(letra)) fichasPorCambiar.put(ficha, cantidad);
+                    if (!"AEIOU".contains(letra)) {
+                        fichasPorCambiar.put(ficha, entry.getValue());
+                    }
                 }
                 cambiarFichas(atrilJ2, fichasPorCambiar);
             }
-        }
-        else {
+        } else {
             int x1 = mejorPalabra.get(0).getValue().getKey();
             int y1 = mejorPalabra.get(0).getValue().getValue();
-            int x2 = x1;
-            int y2 = y1;
-
-            if (mejorPalabra.size() > 1) {
-                x2 = mejorPalabra.get(1).getValue().getKey();
-                y2 = mejorPalabra.get(1).getValue().getValue();
-            }
-
-            String orientacion;
-            if (x1 == x2) orientacion = "horizontal";
-            else orientacion = "vertical";
-
-            // formar la palabra
+            String orientacion = (mejorPalabra.size() > 1 && x1 == mejorPalabra.get(1).getValue().getKey()) ? "horizontal" : "vertical";
             StringBuilder palabraFormada = new StringBuilder();
             for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entrada : mejorPalabra) {
                 palabraFormada.append(entrada.getKey().getKey());
             }
-            colocarPalabra(palabraFormada.toString(), x1, y1, orientacion);
+            boolean exito = colocarPalabra(palabraFormada.toString(), x1, y1, orientacion);
+            if (!exito) {
+                pasarTurno();
+            }
         }
     }
 }

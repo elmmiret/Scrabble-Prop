@@ -173,7 +173,7 @@ public class DriverPartida {
             }
             Map <Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
             if (atril.size() > 0) {
-                mostrarAtril(atril);
+                mostrarAtril(atril, 0);
                 int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                 boolean accionValida = false;
                 while (!accionValida) {
@@ -198,15 +198,21 @@ public class DriverPartida {
                             break;
 
                     }
+                    Turno turnoNoTanAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
                     if (!accionValida && (num == 1 || num == 2)) {
                         num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
-                    } else if (partida.getRondas().size() > 1 && turnoActual.getTipoJugada() == Turno.TipoJugada.pasar){
-                        Turno turnoAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
-                        if (turnoAnterior.getTipoJugada() == Turno.TipoJugada.pasar) {
-                            turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
-                            enJuego = false;
-                        }
                     }
+                }
+                List<Turno> rondas = partida.getRondas();
+                int n = rondas.size();
+                if (n >= 2
+                        && rondas.get(n-2).getTipoJugada() == Turno.TipoJugada.pasar
+                        && rondas.get(n-3).getTipoJugada() == Turno.TipoJugada.pasar) {
+
+                    rondas.get(n-1).setTipoJugada(Turno.TipoJugada.finalizar);
+                    System.out.println("¡Se han producido dos pases consecutivos! Fin de la partida.\n");
+                    mostrarResultadosFinales(partida);
+                    break;
                 }
             } else {
                 turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
@@ -214,8 +220,9 @@ public class DriverPartida {
             }
 
             if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
-                mostrarResultadosFinales(partida);
+                System.out.println("¡Se ha acabado la partida!\n");
             }
+            mostrarResultadosFinales(partida);
         }
     }
 
@@ -235,8 +242,11 @@ public class DriverPartida {
                 }
                 Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
                 if (atril.size() > 0) {
-                    mostrarAtril(atril);
-                    turnoActual.jugarIA();
+                    mostrarAtril(atril, 1);
+                    turnoActual.turnoIA();
+                    Turno turnoAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
+                    Turno turnoNoTanAnterior =  partida.getRondas().get(partida.getRondas().size() - 1);
+                    System.out.println("LA ACCIÓN DE LA IA HA SIDO: " + turnoAnterior.getTipoJugada() + "-----" + turnoNoTanAnterior.getTipoJugada() + ".\n");
                 } else {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                 }
@@ -253,7 +263,7 @@ public class DriverPartida {
                 }
                 Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
                 if (atril.size() > 0) {
-                    mostrarAtril(atril);
+                    mostrarAtril(atril, 0);
                     int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                     boolean accionValida = false;
                     while (!accionValida) {
@@ -292,10 +302,12 @@ public class DriverPartida {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                     enJuego = false;
                 }
-                if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
-                    mostrarResultadosFinales(partida);
-                }
+
             }
+            if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
+                System.out.println("¡Se ha acabado la partida!\n");
+            }
+            mostrarResultadosFinales(partida);
         }
     }
 
@@ -373,8 +385,12 @@ public class DriverPartida {
         }
     }
 
-    private void mostrarAtril(Map<Ficha, Integer> atril) {
-        System.out.println("\n=== TUS FICHAS ===");
+    private void mostrarAtril(Map<Ficha, Integer> atril, int num ) {
+        if (num == 0) {
+            System.out.println("\n=== TUS FICHAS ===");
+        } else {
+            System.out.println("\n=== FICHAS DE LA IA ===");
+        }
         atril.forEach((f, c) -> {
             for (int i = 0; i < c; i++) {
                 System.out.print(f.getLetra() + " ");
@@ -384,7 +400,7 @@ public class DriverPartida {
     }
 
     private void mostrarResultadosFinales(Partida partida) {
-        System.out.println("\n=== RESULTADOS FINALES ===");
+        System.out.println("\n=== RESULTADOS RONDA " + (partida.getRondas().size() - 1) + " ===");
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         System.out.println(partida.getCreador().getUsername() + ": " +
                 turnoActual.getPuntuacionJ1());
