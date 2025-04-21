@@ -253,7 +253,7 @@ public class Dawg {
 
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
-            if(modo == "horizontal") {
+            if("horizontal".equals(modo)) {
                 if(!cabePalabraHorizontal(division,x,y)) return false;
 
                 // Desde la posición y ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
@@ -275,7 +275,7 @@ public class Dawg {
                     }
                 }
             }
-            else if(modo == "vertical") {
+            else if("vertical".equals(modo)) {
                 if(!cabePalabraVertical(division,x,y)) return false;
 
                 // Desde esa posición ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero

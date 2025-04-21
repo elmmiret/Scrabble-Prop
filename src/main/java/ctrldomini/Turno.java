@@ -255,7 +255,14 @@ public class Turno {
      * @return true si se ha colocado correctamente la palabra o false si no.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        // existe la palabra, cabe en el tablero y coincide bien con todas las otras fichas
+        Ficha fichaInicial = partida.getTablero().getFicha(x_ini, y_ini);
+        if (fichaInicial != null) {
+            List<String> letras = partida.getDawg().dividirPalabra(palabra);
+            if (!letras.get(0).equals(fichaInicial.getLetra())) {
+                throw new CasillaOcupadaException(x_ini, y_ini);
+            }
+        }
+
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
         int puntosVerticalExtra = 0;

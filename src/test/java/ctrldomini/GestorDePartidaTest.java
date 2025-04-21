@@ -108,12 +108,15 @@ public class GestorDePartidaTest {
     }
 
     @Test(expected = CasillaOcupadaException.class)
-    public void testColocarPalabraEnCasillaOcupada() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+    public void testColocarPalabraEnCasillaOcupada() throws Exception {
         Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
         Turno t = p.getRondas().get(0);
 
-        gestor.colocarPalabra(t, "HOLA", 0, 0, "horizontal");
-        gestor.colocarPalabra(t, "MUNDO", 0, 0, "vertical"); // Debe lanzar excepción pero creo que el error que me sale es por el tema excepcion
+        Ficha ficha = new Ficha("H", 1);
+        t.getAtrilJ1().put(ficha, 1);
+        t.colocarPalabra("H", 0, 0, "horizontal"); // Coloca 'H' en (0,0)
+
+        gestor.colocarPalabra(t, "MUNDO", 0, 0, "vertical");
     }
 
     @Test
@@ -145,5 +148,12 @@ public class GestorDePartidaTest {
         Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
         Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(p, jugador1);
         assertNotNull(atril);
+    }
+
+    @Test
+    public void testVerificarFraseRecuperación() {
+        assertTrue(gestor.verificarFraseRecuperacion("Jugador1", "Frase1"));
+        assertFalse(gestor.verificarFraseRecuperacion("Jugador1", "Frase2"));
+
     }
 }
