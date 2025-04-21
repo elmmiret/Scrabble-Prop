@@ -9,7 +9,6 @@ import java.nio.file.*;
 
 public class AlfabetoCAST {
     private Map<Ficha,Integer> mapaFichas;
-    //private Map<String, SimpleEntry<Integer, Integer>> mapaLetras;
 
     public AlfabetoCAST() {
         mapaFichas = cargarArchivo("src/main/java/archivos/letrasCAST.txt");

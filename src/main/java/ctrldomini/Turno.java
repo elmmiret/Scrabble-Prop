@@ -55,6 +55,7 @@ public class Turno {
         this.puntosJ2 = puntosJ2;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
+        this.tipoJugada = tipoJugada;
     }
 
     public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
@@ -166,6 +167,7 @@ public class Turno {
         for (Map.Entry<Ficha, Integer> entry : cambioReal.entrySet()) {
             Ficha ficha = entry.getKey();
             int cantidad = entry.getValue();
+
             for (int i = 0; i < cantidad; i++) {
                 if (atril.containsKey(ficha) && atril.get(ficha) > 0) {
                     colaTemporal.add(ficha);
@@ -302,7 +304,10 @@ public class Turno {
         int puntosBasePalabra = 0;
 
         System.out.println("Entro a colocar palabra");
-        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion)) {
+        // pasarle si es el primer turno o no
+        boolean esPrimerTurno = false;
+        if (getTablero().estaVacio()) esPrimerTurno = true;
+        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
             System.out.println("La he comprobado y esta bien");
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
             if ("vertical".equals(orientacion)) {
@@ -334,7 +339,7 @@ public class Turno {
                     }
                     else { // si esta ya puesta, solo se suman los puntos de la ficha, sin modificadores
                         f = partida.getTablero().getFicha(x_ini + i, y_ini);
-                        puntosBasePalabra += f.getPuntuacion();  
+                        puntosBasePalabra += f.getPuntuacion();
                         System.out.println("Puntos de la letra '" + letraBuscada + f.getPuntuacion());
                     }
 
@@ -370,7 +375,7 @@ public class Turno {
 
                 // puntos de juntar con palabras ya hechas
                 puntosBasePalabra += calculoPuntosExtraVertical(x_ini, y_ini, palabra);
-                puntosPorSumar = puntosBasePalabra * modificadorPalabra; 
+                puntosPorSumar = puntosBasePalabra * modificadorPalabra;
                 puntosPorSumar += puntosHorizontalExtra;
 
                 System.out.println("Despues de multiplicar y sumar extras puntos base palabra es:" + puntosBasePalabra);

@@ -1,5 +1,6 @@
 package algorisme;
 import ctrldomini.*;
+import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
 //import java.lang.reflect.Array;
@@ -245,7 +246,7 @@ public class Dawg {
      * @throws CoordenadaFueraDeRangoException
      * @author Arnau Miret Barrull
      */
-    public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo) throws CoordenadaFueraDeRangoException {
+    public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<String> division = dividirPalabra(palabra);
         int size = division.size();
@@ -255,7 +256,8 @@ public class Dawg {
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
             if("horizontal".equals(modo)) {
-                if(!cabePalabraHorizontal(division,x,y)) return false;
+                if(!cabePalabraHorizontal(tablero,division,x,y, esPrimerTurno)) return false;
+                System.out.println("No hay ficha colocada en la casilla y cabe palabra Horizontal");
 
                 // Desde la posición y ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
                 NodoDawg nodo = getRoot();
@@ -280,22 +282,23 @@ public class Dawg {
                 }
             }
             else if("vertical".equals(modo)) {
-                if(!cabePalabraVertical(division,x,y)) return false;
+                if(!cabePalabraVertical(tablero, division,x,y, esPrimerTurno)) return false;
+                System.out.println("No hay ficha colocada en la casilla y cabe palabra Vertical");
 
                 // Desde esa posición ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-            for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
-                // Si vamos a una posición que tiene una ficha ya colocada
-                if(tablero.getFicha(fil,y) != null) {
-                    if (!tablero.getFicha(fil,y).getLetra().equals(division.get(pos_division))) {
-                        return false;
+                for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
+                    // Si vamos a una posición que tiene una ficha ya colocada
+                    if(tablero.getFicha(fil,y) != null) {
+                        if (!tablero.getFicha(fil,y).getLetra().equals(division.get(pos_division))) {
+                            return false;
+                        }
+                        nodo = nodo.getHijos().get(division.get(pos_division));
+                        if(nodo == null) return false;
+                        ++pos_division;
                     }
-                    nodo = nodo.getHijos().get(division.get(pos_division));
-                    if(nodo == null) return false;
-                    ++pos_division;
-                }
 
 
                     // Si vamos a una posición que no tiene una ficha colocada
@@ -310,7 +313,7 @@ public class Dawg {
         // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
         else {
             if(modo.equals("horizontal")){
-                if(!cabePalabraHorizontal(division,x,y)) return false;
+                if(!cabePalabraHorizontal(tablero,division,x,y, esPrimerTurno)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
@@ -346,7 +349,7 @@ public class Dawg {
             }
 
             else if(modo.equals("vertical")) {
-                if(!cabePalabraVertical(division,x,y)) return false;
+                if(!cabePalabraVertical(tablero,division,x,y, esPrimerTurno)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
@@ -383,6 +386,8 @@ public class Dawg {
         }
         return true;
     }
+
+
 
     /**
      * Función que comprueba que la colocación (en horizontal) de la letra en una posición del tablero es correcta
@@ -501,21 +506,49 @@ public class Dawg {
         return true;
     }
 
-    private boolean cabePalabraVertical(List<String> divisiones, int x, int y) {
+    private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         int size = divisiones.size();
-        for(int fil = x; fil < x + size; fil++) {
-            if(!casillaCorrecta(fil,y)) return false;
+        Integer[] X = {1, 1, 0, 0};
+        Integer[] Y = {0, 0, 1, 1};
+        boolean adyacente_a_algo = false;
+
+        for (int fil = x; fil < x + size; fil++) {  // recorrer desde x hasta x + tamaño de palabra
+            if (!casillaCorrecta(fil, y)) return false;
+
+            if (tablero.getFicha(fil, y) != null) adyacente_a_algo = true;
+
+            for (int i = 0; i < 4 && !adyacente_a_algo; i++) {
+                if (casillaCorrecta(fil + X[i], y + Y[i])) {
+                    if (tablero.getFicha(fil + X[i], y + Y[i]) != null) adyacente_a_algo = true;
+                }
+            }
         }
-        return true;
+
+        return esPrimerTurno || adyacente_a_algo;
     }
 
-    private boolean cabePalabraHorizontal(List<String> divisiones, int x, int y) {
+
+    private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         int size = divisiones.size();
-        for(int col = y; col < y + size; col++) {
-            if(!casillaCorrecta(x,col)) return false;
+        Integer[] X = {1, 1, 0, 0};
+        Integer[] Y = {0, 0, 1, 1};
+        boolean adyacente_a_algo = false;
+
+        for (int col = y; col < y + size; col++) {  // recorrer desde y hasta y + tamaño de palabra
+            if (!casillaCorrecta(x, col)) return false;
+
+            if (tablero.getFicha(x, col) != null) adyacente_a_algo = true;
+
+            for (int i = 0; i < 4 && !adyacente_a_algo; i++) {
+                if (casillaCorrecta(x + X[i], col + Y[i])) {
+                    if (tablero.getFicha(x + X[i], col + Y[i]) != null) adyacente_a_algo = true;
+                }
+            }
         }
-        return true;
+
+        return esPrimerTurno || adyacente_a_algo;
     }
+
 
     /**
      * Función para saber si una casilla está dentro del tablero o no
@@ -535,7 +568,7 @@ public class Dawg {
     public int getNumeroNodes() {
         Set<NodoDawg> visitados = new HashSet<>();
         Deque<NodoDawg> pila = new ArrayDeque<>();
-        pila.push(getRoot());
+        pila.push(root);
         int contador = 0;
 
         while (!pila.isEmpty()) {
