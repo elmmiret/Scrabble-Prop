@@ -139,6 +139,12 @@ public class Tablero {
         return tablero.get(x).get(y).getKey().getKey();
     }
 
+    public Ficha getFicha(char x_char, int y) throws CoordenadaFueraDeRangoException {
+        int x = x_char - 'A';
+        --y;
+        return getFicha(x, y);
+    }
+
     /**
      * Obtiene el modificador de la casilla del tablero especificada.
      *
@@ -158,7 +164,7 @@ public class Tablero {
      * @param y Columna del abeceadrio.
      * @return Set de letras situado en la posición (x, y) o null si no hay abecedario.
      */
-    public Set getAbecedario ( int x, int y) throws CoordenadaFueraDeRangoException {
+    public Set<String> getAbecedario ( int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         return tablero.get(x).get(y).getValue();
     }
@@ -250,7 +256,7 @@ public class Tablero {
         for (int i = 0; i < FILAS; i++) {
             for (int j = 0; j < COLUMNAS; j++) {
                 if (getFicha(i,j) != null) return false;
-                if (getAbecedario(i,j) == null) return false;
+                if (getAbecedario(i,j).isEmpty()) return false;
             }
         }
         return true;
@@ -264,7 +270,8 @@ public class Tablero {
      * @author Albert Aulet Niubó (excepcionalmente en esta clase)
      */
     public void transponerTablero() {
-        List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);        for (int y = 0; y < COLUMNAS; y++) {
+        List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);
+        for (int y = 0; y < COLUMNAS; y++) {
             List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>(FILAS);
             for (int x = 0; x < FILAS; x++) {
                 fila.add(tablero.get(x).get(y));
@@ -356,7 +363,7 @@ public class Tablero {
                 System.out.println();
                 System.out.println("           LLEGENDA");
                 System.out.print(rojo + "   " + "\u001B[0m");
-                System.out.println(" TRIPLE TAN DE PARAULA");
+                System.out.println(" TRIPLE TANT DE PARAULA");
                 System.out.print(naranja + "   " + "\u001B[0m");
                 System.out.println(" DOBLE  TANT DE PARAULA");
                 System.out.print(azul + "   " + "\u001B[0m");

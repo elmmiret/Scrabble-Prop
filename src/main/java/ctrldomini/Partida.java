@@ -171,7 +171,7 @@ public class Partida {
      * @return El tablero de la partida.
      */
     public Tablero getTablero() {
-        return tablero;
+        return this.tablero;
     }
 
     /**

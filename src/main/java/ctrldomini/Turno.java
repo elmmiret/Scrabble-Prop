@@ -115,6 +115,15 @@ public class Turno {
     }
 
     /**
+     * Obtiene el tipo de jugada realizada en el turno.
+     *
+     * @return El tipo de jugada (cambiar, pasar, colocar).
+     */
+    public Tablero getTablero() {
+        return partida.getTablero();
+    }
+
+    /**
      * Establece el tipo de jugada realizada en el turno.
      *
      * @param tipoJugada El tipo de jugada a establecer.
