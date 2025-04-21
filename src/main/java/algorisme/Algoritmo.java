@@ -359,12 +359,10 @@ public class Algoritmo {
     */
     public boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
-        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-        for (int[] direction : directions) {
-            int newFila = direction[0] + fila;
-            int newColumna = direction[1] + columna;
-            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna).getLetra() != null) return true;
-        }
+        int[] direction = {0, 1};
+        int newFila = direction[0] + fila;
+        int newColumna = direction[1] + columna;
+        if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna).getLetra() != null) return true;
         return false;
     }
 
