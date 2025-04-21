@@ -543,8 +543,8 @@ public class Dawg {
         Integer[] Y = {0, 0, 1, 1};
         boolean adyacente_a_algo = false;
         for(int fil = x; fil < size; fil++) {
-            if(!casillaCorrecta(fil,y)) return false;
-            if(tablero.getFicha(x,fil) != null) adyacente_a_algo = true;
+            if(!casillaCorrecta(fil,y)) return false;s
+            if(tablero.getFicha(fil,y) != null) adyacente_a_algo = true;
             for(int i = 0; i < 4 && !adyacente_a_algo; i++) {
                 if(casillaCorrecta(fil+X[i], y+Y[i])) {
                     if(tablero.getFicha(fil+X[i],y+Y[i]) != null) adyacente_a_algo = true;
