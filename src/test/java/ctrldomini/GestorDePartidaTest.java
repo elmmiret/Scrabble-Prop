@@ -4,6 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import gestordeperfil.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ranking.Ranking;
@@ -105,7 +108,7 @@ public class GestorDePartidaTest {
     }
 
     @Test(expected = CasillaOcupadaException.class)
-    public void testColocarPalabraEnCasillaOcupada() throws CoordenadaFueraDeRangoException ,CasillaOcupadaException {
+    public void testColocarPalabraEnCasillaOcupada() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
         Turno t = p.getRondas().get(0);
 
@@ -116,10 +119,11 @@ public class GestorDePartidaTest {
     @Test
     public void testCambiarFichasValido() {
         Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
-        Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(p, jugador1);
-        atril.put(new Ficha("A", 1), 2);
-
-        boolean resultado = gestor.cambiarFichas(p.getRondas().get(0), atril, List.of("A", "A"));
+        Map<Ficha, Integer> atril = new HashMap<>();
+        atril.put(new Ficha("A", 0), 1);
+        atril.put(new Ficha("B", 0), 2);
+        List<String> letras = Arrays.asList("A", "B");
+        boolean resultado = gestor.cambiarFichas(p.getRondas().get(0), atril, letras);
 
         assertTrue(resultado);
 
@@ -128,7 +132,7 @@ public class GestorDePartidaTest {
     @Test
     public void testCambiarFichasInvalido() {
         Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
-        Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(p, jugador1);
+        Map<Ficha, Integer> atril = new HashMap<>();
         atril.put(new Ficha("B", 1), 1);
 
         boolean resultado = gestor.cambiarFichas(p.getRondas().get(0), atril, List.of("B", "B"));

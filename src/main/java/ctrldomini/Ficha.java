@@ -42,4 +42,21 @@ public class Ficha {
     public int getPuntuacion() {
         return puntuacion;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Ficha other = (Ficha) obj;
+        return puntuacion == other.puntuacion &&
+                letra.equals(other.letra);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(letra, puntuacion);
+    }
+
+
+
 }
