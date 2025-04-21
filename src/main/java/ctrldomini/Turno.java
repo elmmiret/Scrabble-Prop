@@ -87,6 +87,10 @@ public class Turno {
         return puntosJ2;
     }
 
+    public Partida getPartida() {
+        return partida;
+    }
+
     /**
      * Obtiene el atril del jugador creador.
      *
@@ -140,12 +144,29 @@ public class Turno {
      * @param fichasParaCambiar Un mapa de fichas y la cantidad que desea cambiar.
      */
     public void cambiarFichas(Map<Ficha,Integer> atril, Map<Ficha,Integer> fichasParaCambiar) {
+        // Reconstruir el mapa usando las instancias reales del atril
+        Map<Ficha,Integer> cambioReal = new HashMap<>();
+        for (Map.Entry<Ficha,Integer> entry : fichasParaCambiar.entrySet()) {
+            String letra = entry.getKey().getLetra();
+            int cantidad = entry.getValue();
+            // Buscar la ficha en el atril que coincida por letra
+            Ficha fichaReal = null;
+            for (Ficha fAtril : atril.keySet()) {
+                if (fAtril.getLetra().equalsIgnoreCase(letra)) {
+                    fichaReal = fAtril;
+                    break;
+                }
+            }
+            if (fichaReal != null) {
+                cambioReal.put(fichaReal, cambioReal.getOrDefault(fichaReal, 0) + cantidad);
+            }
+        }
+
         Queue<Ficha> colaTemporal = new LinkedList<>();
-        // añadir las fichas a la cola temporal y restarlas del atril
-        for (Map.Entry<Ficha, Integer> entry : fichasParaCambiar.entrySet()) {
+        // Retirar las fichas del atril real
+        for (Map.Entry<Ficha, Integer> entry : cambioReal.entrySet()) {
             Ficha ficha = entry.getKey();
             int cantidad = entry.getValue();
-
             for (int i = 0; i < cantidad; i++) {
                 if (atril.containsKey(ficha) && atril.get(ficha) > 0) {
                     colaTemporal.add(ficha);
@@ -155,17 +176,17 @@ public class Turno {
             }
         }
 
+        // Robar nuevas fichas
         robarFichas(atril);
 
+        // Devolver las cambiadas a la bolsa y barajar
         partida.getBolsa().addAll(colaTemporal);
-        // Barajar la bolsa (convertir a lista, mezclar y volver a meter en la cola)
         List<Ficha> listaBolsa = new ArrayList<>(partida.getBolsa());
         Collections.shuffle(listaBolsa);
         partida.getBolsa().clear();
         partida.getBolsa().addAll(listaBolsa);
 
-        // este robar es por si no llega a 7 fichas pq quedaban pocas, aunque cambie tiene que tener 7
-        // entpnces puede que vuelva a coger alguna que haya cambiado ahora.
+        // Robar de nuevo hasta tener MAX_FICHAS
         robarFichas(atril);
 
         setTipoJugada(TipoJugada.cambiar);

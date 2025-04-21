@@ -30,6 +30,7 @@ public class Partida {
     private Tablero tablero;
     // TODO: implementar comodines
     private Map<Ficha,Integer> mapaFichas;
+    private Map<String, Ficha> mapaLetras;
     private Queue<Ficha> bolsa;
     private List<Turno> rondas; // mirar de como gestionar esto en turno
     private LocalDateTime fechaHoraCreacion;

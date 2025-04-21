@@ -37,12 +37,23 @@ public class GestorDePartida {
     public boolean cambiarFichas(Turno turno, Map<Ficha, Integer> atril, List<String> letras) {
         Map<Ficha, Integer> cambio = new HashMap<>();
         for (String letra : letras) {
-            Ficha f = new Ficha(letra.toUpperCase(), 0);
-            cambio.put(f, cambio.getOrDefault(f, 0) + 1);
+            Ficha fichaReal = null;
+            for (Ficha fAtril : atril.keySet()) {
+                if (fAtril.getLetra().equalsIgnoreCase(letra)) {
+                    fichaReal = fAtril;
+                    break;
+                }
+            }
+            if (fichaReal == null) {
+                return false;
+            }
+            cambio.put(fichaReal, cambio.getOrDefault(fichaReal, 0) + 1);
         }
-
-        for (Ficha f : cambio.keySet()) {
-            if (!atril.containsKey(f) || atril.get(f) < cambio.get(f)) {
+        // Verificar cantidad suficiente
+        for (Map.Entry<Ficha, Integer> entry : cambio.entrySet()) {
+            Ficha f = entry.getKey();
+            int needed = entry.getValue();
+            if (!atril.containsKey(f) || atril.get(f) < needed) {
                 return false;
             }
         }
