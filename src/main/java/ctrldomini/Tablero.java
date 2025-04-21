@@ -92,7 +92,7 @@ public class Tablero {
             for (int j = 0; j < COLUMNAS; j++) {
                 m = null;
                 // triple palabra
-                if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 7 || j == 14)) {
+                if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 7 || j == 14) && !(i == 7 && j == 7)) {
                     m = TipoModificador.tripleTantoDePalabra;
                 }
                 // doble palabra
@@ -243,7 +243,7 @@ public class Tablero {
         for (int i = 0; i < FILAS; i++) {
             for (int j = 0; j < COLUMNAS; j++) {
                 if (getFicha(i,j) != null) return false;
-                if (getAbecedario(i,j).isEmpty()) return false;
+                if (getAbecedario(i,j) != null && !getAbecedario(i,j).isEmpty()) return false;
             }
         }
         return true;

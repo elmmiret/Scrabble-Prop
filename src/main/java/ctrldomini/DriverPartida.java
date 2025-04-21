@@ -216,6 +216,7 @@ public class DriverPartida {
             if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
                 mostrarResultadosFinales(partida);
             }
+            mostrarResultadosFinales(partida);
         }
     }
 
@@ -295,6 +296,7 @@ public class DriverPartida {
                 if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
                     mostrarResultadosFinales(partida);
                 }
+                mostrarResultadosFinales(partida);
             }
         }
     }
