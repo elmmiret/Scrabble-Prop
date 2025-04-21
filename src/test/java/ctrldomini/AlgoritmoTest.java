@@ -44,7 +44,7 @@ public class AlgoritmoTest {
         Ficha f3 = new Ficha("s", 1);
         Ficha f4 = new Ficha("a", 1);
 
-        // Poner la palabra casa horizontalmente empezando en (7,7) - posicion central
+        // Poner la palabra casa horizontalmente empezando en el 7,7 (posición central)
         tablero.setFicha(f1,'H', 8);
         tablero.setFicha(f2, 'H', 9);
         tablero.setFicha(f3, 'H', 10);

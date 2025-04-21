@@ -108,7 +108,6 @@ public class Algoritmo {
             if(tablero.getFicha(x,y-1).getLetra() != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
-                //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
 
                 // Computar la parte izquierda con las casillas del tablero
                 int max_long = tamañoParteIzquierdaTablero(tablero,x,y); //HECHA
@@ -143,10 +142,9 @@ public class Algoritmo {
             else {
 
                 List<List<SimpleEntry<String, Boolean>>> partesIzquierdas = new ArrayList<>();
-                //List<List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>> parteDerecha = new ArrayList<>();
 
                 // Funcion para saber la logitud maxima de la parte izquierda
-                int max_long = tamañoParteIzquierdaAtril(tablero,x,y); //HECHA
+                int max_long = tamañoParteIzquierdaAtril(tablero,x,y);
 
                 // Backtracking de las partes izquierdas posibles con las fichas del atril y tamaño indicado
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
@@ -163,10 +161,6 @@ public class Algoritmo {
             boolean[] usados = new boolean[atril.length];
 
             int puntuacion = extenderParteDerecha(tablero,mejorPalabra,atril,usados,dawg.getRoot(),x,y);
-
-            // Computación únicamente de la parte derecha
-            //mejorPalabraAncla = computarParteDerechaUnicamente(tablero,dawg,atril,x,y);
-
         }
 
         return mejorPalabraAncla;
@@ -369,8 +363,7 @@ public class Algoritmo {
         for (int[] direction : directions) {
             int newFila = direction[0] + fila;
             int newColumna = direction[1] + columna;
-            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna).getLetra() != null)
-                return true;
+            if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila,newColumna).getLetra() != null) return true;
         }
         return false;
     }
@@ -426,10 +419,9 @@ public class Algoritmo {
             // extenderParteDerecha devuelve CaminoAuxConPosiciones entero y su puntuacion
             int puntuacionCamino = extenderParteDerecha(tablero,caminoAuxConPosiciones,atril,usados,nodo,x,y);
 
-
             // Si mejorPalabra no esta asignada, se le asigna la primera palabra que llegue
             if(mejorPalabra.isEmpty()) {
-                mejorPalabra.addAll(caminoAuxConPosiciones);;
+                mejorPalabra.addAll(caminoAuxConPosiciones);
             }
 
             // Si mejorPalabra ya esta asignada, comparar valores y asignar la palabra de mayor puntuación

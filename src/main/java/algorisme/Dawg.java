@@ -1,5 +1,6 @@
 package algorisme;
 import ctrldomini.*;
+import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
 //import java.lang.reflect.Array;
@@ -254,7 +255,7 @@ public class Dawg {
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
             if(modo == "horizontal") {
-                if(!cabePalabraHorizontal(division,x,y)) return false;
+                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
 
                 // Desde la posición y ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
                 NodoDawg nodo = getRoot();
@@ -287,7 +288,7 @@ public class Dawg {
 
             }
             else if(modo == "vertical") {
-                if(!cabePalabraVertical(division,x,y)) return false;
+                if(!cabePalabraVertical(tablero,division,x,y)) return false;
 
                 // Desde esa posición ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
                 NodoDawg nodo = getRoot();
@@ -323,7 +324,7 @@ public class Dawg {
         // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
         else {
             if(modo == "horizontal"){
-                if(!cabePalabraHorizontal(division,x,y)) return false;
+                if(!cabePalabraHorizontal(tablero,division,x,y)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
@@ -370,7 +371,7 @@ public class Dawg {
             }
 
             else if(modo == "vertical") {
-                if(!cabePalabraVertical(division,x,y)) return false;
+                if(!cabePalabraVertical(tablero,division,x,y)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
@@ -536,20 +537,39 @@ public class Dawg {
         return true;
     }
 
-    private boolean cabePalabraVertical(List<String> divisiones, int x, int y) {
+    private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y)  throws CoordenadaFueraDeRangoException{
         int size = divisiones.size();
+        Integer[] X = {1, 1, 0, 0};
+        Integer[] Y = {0, 0, 1, 1};
+        boolean adyacente_a_algo = false;
         for(int fil = x; fil < size; fil++) {
             if(!casillaCorrecta(fil,y)) return false;
+            if(tablero.getFicha(x,fil) != null) adyacente_a_algo = true;
+            for(int i = 0; i < 4 && !adyacente_a_algo; i++) {
+                if(casillaCorrecta(fil+X[i], y+Y[i])) {
+                    if(tablero.getFicha(fil+X[i],y+Y[i]) != null) adyacente_a_algo = true;
+                }
+            }
+
         }
-        return true;
+        return adyacente_a_algo;
     }
 
-    private boolean cabePalabraHorizontal(List<String> divisiones, int x, int y) {
+    private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y) throws CoordenadaFueraDeRangoException{
         int size = divisiones.size();
+        Integer[] X = {1, 1, 0, 0};
+        Integer[] Y = {0, 0, 1, 1};
+        boolean adyacente_a_algo = false;
         for(int col = y; col < size; col++) {
             if(!casillaCorrecta(x,col)) return false;
+            if(tablero.getFicha(x,col) != null) adyacente_a_algo = true;
+            for(int i = 0; i < 4 && !adyacente_a_algo; i++) {
+                if(casillaCorrecta(x+X[i], col+Y[i])) {
+                    if(tablero.getFicha(x+X[i],col+Y[i]) != null) adyacente_a_algo = true;
+                }
+            }
         }
-        return true;
+        return adyacente_a_algo;
     }
 
     /**
