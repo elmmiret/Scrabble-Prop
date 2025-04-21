@@ -69,12 +69,13 @@ public class DriverTablero {
 
                     System.out.print("Introduce la fila (A - O): ");
                     char fila = scanner.nextLine().charAt(0);
+                    int x = fila - 'A';
                     System.out.print("Introduce la columna (1 - 15): ");
                     int columna = scanner.nextInt();
                     scanner.nextLine();
 
                     try {
-                        tablero.setFicha(ficha1, fila, columna);
+                        tablero.setFicha(ficha1, x, columna);
                         System.out.println("Ficha colocada correctamente.");
                     } catch (CoordenadaFueraDeRangoException | CasillaOcupadaException e) {
                         System.out.println(e.getMessage());

@@ -235,13 +235,13 @@ public class Turno {
         int puntosPorSumar = 0;
         // explorar horizontal hacia la izquierda
         for (int x = x_ini - 1; x >= 0; --x) {
-            Ficha f = partida.getTablero().getFicha((char)('A' + x), y_ini);
+            Ficha f = partida.getTablero().getFicha( x, y_ini);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
         }
         // explorar horizontal hacia la derecha después de la palabra
         for (int x = x_ini + palabra.length(); x < Tablero.COLUMNAS; x++) {
-            Ficha f = partida.getTablero().getFicha((char)('A' + x), y_ini);
+            Ficha f = partida.getTablero().getFicha(x, y_ini);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
         }
@@ -250,15 +250,15 @@ public class Turno {
 
     private int calculoPuntosExtraVertical(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
-        // buscar fichas adyacentes antes (hacia arriba)
+        // buscar fichas antes de la palabra (hacia arriba)
         for (int y = y_ini - 1; y >= 0; y--) {
-            Ficha f = partida.getTablero().getFicha((char)('A' + x_ini), y);
+            Ficha f = partida.getTablero().getFicha(x_ini, y);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
         }
-        // buscar fichas adyacentes después (hacia abajo)
+        // buscar fichas después de la palabra (hacia abajo)
         for (int y = y_ini + palabra.length(); y < Tablero.FILAS; y++) {
-            Ficha f = partida.getTablero().getFicha((char)('A' + x_ini), y);
+            Ficha f = partida.getTablero().getFicha(x_ini, y);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
         }
@@ -291,25 +291,29 @@ public class Turno {
                     if (fichaEncontrada == null) return false;
 
                     Ficha f = fichaEncontrada;
-                    partida.getTablero().setFicha( f, (char) ('A' + x_ini + i), y_ini);
+                    partida.getTablero().setFicha( f, x_ini + i, y_ini);
                     if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
                     else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
                     else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
                     else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2;
                     else puntosPorSumar += f.getPuntuacion();
 
-                    // buscar fichas a la izquierda
-                    for (int j = (char)('A' + x_ini) - 1; j >= 'A'; j--) {
-                        Ficha fIzq = partida.getTablero().getFicha((char)j, y_ini + j);
+                    // Explorar horizontalmente (izquierda)
+                    int x = x_ini + i - 1;
+                    while (x >= 0) {
+                        Ficha fIzq = partida.getTablero().getFicha(x, y_ini);
                         if (fIzq == null) break;
                         puntosPorSumar += fIzq.getPuntuacion();
+                        x--;
                     }
 
-                    // buscar fichas a la derecha
-                    for (int j = (char)('A' + x_ini) + 1; j < 'A' +Tablero.COLUMNAS; j++) {
-                        Ficha fDer = partida.getTablero().getFicha((char)j, y_ini + j);
+                    // Explorar horizontalmente (derecha)
+                    x = x_ini + i + 1;
+                    while (x < Tablero.COLUMNAS) {
+                        Ficha fDer = partida.getTablero().getFicha(x, y_ini);
                         if (fDer == null) break;
                         puntosPorSumar += fDer.getPuntuacion();
+                        x++;
                     }
                 }
 
@@ -321,7 +325,7 @@ public class Turno {
                 if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
                 else puntosJ2 += puntosPorSumar;
             }
-            else {
+            else { // horizontal
                 for (int i = 0; i < fichas.size(); ++i) {
                     String letraBuscada = fichas.get(i);
                     Ficha fichaEncontrada;
@@ -330,24 +334,29 @@ public class Turno {
                     if (fichaEncontrada == null) return false;
 
                     Ficha f = fichaEncontrada;
-                    partida.getTablero().setFicha( f, (char) ('A' + x_ini), y_ini + i);
+                    partida.getTablero().setFicha( f, x_ini, y_ini + i);
                     if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
                     else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
                     else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
                     else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2;
                     else puntosPorSumar += f.getPuntuacion();
 
-                    // arriba
-                    for (int y = y_ini - 1; y >= 0; y--) {
-                        Ficha fArriba = partida.getTablero().getFicha((char)('A' + x_ini + i), y);
+                    // Explorar verticalmente (arriba)
+                    int y = y_ini + i - 1;
+                    while (y >= 0) {
+                        Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
                         if (fArriba == null) break;
                         puntosVerticalExtra += fArriba.getPuntuacion();
+                        y--;
                     }
-                    // abajo
-                    for (int y = y_ini + 1; y < partida.getTablero().FILAS; y++) {
-                        Ficha fAbajo = partida.getTablero().getFicha((char)('A' + x_ini + i), y);
+
+                    // Explorar verticalmente (abajo)
+                    y = y_ini + i + 1;
+                    while (y < Tablero.FILAS) {
+                        Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
                         if (fAbajo == null) break;
                         puntosVerticalExtra += fAbajo.getPuntuacion();
+                        y++;
                     }
 
                 }
@@ -380,7 +389,7 @@ public class Turno {
      * @param y La coordenada Y de la ficha a retirar.
      */
     public void retirarFicha(int x, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        if (!(partida.getTablero().getFicha(x, y) == null)) partida.getTablero().setFicha(null, (char) ('A'+x), y+1);
+        if (!(partida.getTablero().getFicha(x, y) == null)) partida.getTablero().setFicha(null, x, y+1);
     }
 
     /**

@@ -139,11 +139,6 @@ public class Tablero {
         return tablero.get(x).get(y).getKey().getKey();
     }
 
-    public Ficha getFicha(char x_char, int y) throws CoordenadaFueraDeRangoException {
-        int x = x_char - 'A';
-        --y;
-        return getFicha(x, y);
-    }
 
     /**
      * Obtiene el modificador de la casilla del tablero especificada.
@@ -179,19 +174,11 @@ public class Tablero {
      * @param x Fila donde colocar la ficha.
      * @param c Columna donde colocar la ficha.
      */
-    public void setFicha (Ficha f,char x_char, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        int x = x_char - 'A';
-        --y;
+    public void setFicha (Ficha f, int x, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if (getFicha(x, y) != null) throw new CasillaOcupadaException(x, y);
-        // ? pongo otra excepcion de que esa letra no existe en el abecedario?
-//        if (letras.contains(f.getLetra())) {
-//            SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
-//            tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));
-//        }
         SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> actual = tablero.get(x).get(y);
         tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, actual.getKey().getValue()), actual.getValue()));
-
     }
 
     /**

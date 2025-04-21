@@ -31,7 +31,7 @@ public class TableroTest {
     @Test
     public void testSetYGetFicha() throws CoordenadaFueraDeRangoException, CasillaOcupadaException  {
         Ficha f = new Ficha("A", 1);
-        tablero.setFicha(f, 'D', 4);
+        tablero.setFicha(f, 3, 3);
         assertEquals("Debe devolver la letra de la ficha colocada", "A", tablero.getFicha(3, 3).getLetra());
     }
 
@@ -80,7 +80,7 @@ public class TableroTest {
     @Test(expected = CoordenadaFueraDeRangoException.class)
     public void testSetFichasFueraDeRango() throws Exception {
         Ficha f = new Ficha("C", 1);
-        tablero.setFicha(f, 'Z', 30);
+        tablero.setFicha(f, 43, 30);
     }
 
     /**
@@ -91,8 +91,8 @@ public class TableroTest {
     public void testSetFichaYaOcupada() throws Exception {
         Ficha f1 = new Ficha("A", 1);
         Ficha f2 = new Ficha("B", 2);
-        tablero.setFicha(f1, 'F', 11);
-        tablero.setFicha(f2, 'F', 11);
+        tablero.setFicha(f1, 5, 11);
+        tablero.setFicha(f2, 5, 11);
     }
 
     /**
@@ -176,7 +176,7 @@ public class TableroTest {
     public void testTableroVacio() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         assertEquals("Debe devolver true", true, tablero.estaVacio());
         Ficha f1 = new Ficha("A", 1);
-        tablero.setFicha(f1, 'A', 1);
+        tablero.setFicha(f1, 0, 1);
         assertEquals("Debe devolver false", false, tablero.estaVacio());
     }
 }
