@@ -296,27 +296,23 @@ public class Turno {
      * @return true si se ha colocado correctamente la palabra o false si no.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        Ficha fichaInicial = partida.getTablero().getFicha(x_ini, y_ini);
-        if (fichaInicial != null) {
-            List<String> letras = partida.getDawg().dividirPalabra(palabra);
-            if (!letras.get(0).equals(fichaInicial.getLetra())) {
-                throw new CasillaOcupadaException(x_ini, y_ini);
-            }
-        }
-
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
         int puntosVerticalExtra = 0;
         int puntosHorizontalExtra = 0;
+        System.out.println("Entro a colocar palabra");
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion)) {
+            System.out.println("La he comprobado y esta bien");
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
             if ("vertical".equals(orientacion)) {
-                for (int i = 0; i < fichas.size(); ++i) {
+                for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
                     Ficha fichaEncontrada;
                     if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                     else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
                     if (fichaEncontrada == null) return false;
+                    System.out.println("Tengo la ficha en el atril y la he quitado");
+
 
                     Ficha f = fichaEncontrada;
                     partida.getTablero().setFicha( f, x_ini + i, y_ini);
@@ -354,12 +350,14 @@ public class Turno {
                 else puntosJ2 += puntosPorSumar;
             }
             else { // horizontal
-                for (int i = 0; i < fichas.size(); ++i) {
+                for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
                     Ficha fichaEncontrada;
                     if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                     else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
                     if (fichaEncontrada == null) return false;
+                    System.out.println("Tengo la ficha en el atril y la he quitado");
+
 
                     Ficha f = fichaEncontrada;
                     partida.getTablero().setFicha( f, x_ini, y_ini + i);

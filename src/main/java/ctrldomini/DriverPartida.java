@@ -308,7 +308,7 @@ public class DriverPartida {
         String orientacion = leerCadena("Orientación (V/H): ").toUpperCase();
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() -1);
         try {
-            boolean exito = gestor.colocarPalabra(turnoActual, palabra, x, y, orientacion.equals("V") ? "vertical" : "horizontal");
+            boolean exito = gestor.colocarPalabra(turnoActual, palabra, x, y - 1, orientacion.equals("V") ? "vertical" : "horizontal");
             System.out.println(exito ? "¡Palabra colocada!" : "Movimiento inválido");
             return exito;
         } catch (Exception e) {
