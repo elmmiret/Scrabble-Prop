@@ -307,18 +307,23 @@ public class Turno {
             if ("vertical".equals(orientacion)) {
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
-                    Ficha fichaEncontrada;
-                    if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
-                    else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
-                    if (fichaEncontrada == null) return false;
-                    System.out.println("Tengo la ficha en el atril y la he quitado");
+                    Ficha f;
+                    if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal
+                        Ficha fichaEncontrada;
+                        if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
+                        else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
+                        if (fichaEncontrada == null) return false;
+                        System.out.println("Tengo la ficha en el atril y la he quitado");
+                        f = fichaEncontrada;
+                        partida.getTablero().setFicha( f, x_ini + i, y_ini);
+                        if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
+                        else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
+                    }
+                    else f = partida.getTablero().getFicha(x_ini + i, y_ini);
 
+                    //despues de quitarla o sin quitarla, solo le sumas los puntos DE ESA FICHA, sin modificadores
 
-                    Ficha f = fichaEncontrada;
-                    partida.getTablero().setFicha( f, x_ini + i, y_ini);
-                    if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
-                    else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
-                    else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
+                    if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
                     else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2;
                     else puntosPorSumar += f.getPuntuacion();
 
@@ -352,18 +357,28 @@ public class Turno {
             else { // horizontal
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
-                    Ficha fichaEncontrada;
-                    if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
-                    else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
-                    if (fichaEncontrada == null) return false;
-                    System.out.println("Tengo la ficha en el atril y la he quitado");
+                    Ficha f;
+                    if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal
+                        Ficha fichaEncontrada;
+                        if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
+                        else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
+                        if (fichaEncontrada == null){
+                            if (fichaEncontrada == null) {
+                                System.out.println("La letra '" + letraBuscada + "' no está en el atril.");
+                                return false;
+                            }
+                            return false;
+                        }
+                        System.out.println("Tengo la ficha en el atril y la he quitado");
+                        f = fichaEncontrada;
+                        partida.getTablero().setFicha( f, x_ini, y_ini + i);
+                        if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
+                        else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
+                    }
+                    else f = partida.getTablero().getFicha(x_ini, y_ini + i);
 
-
-                    Ficha f = fichaEncontrada;
-                    partida.getTablero().setFicha( f, x_ini, y_ini + i);
-                    if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
-                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
-                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
+                    //despues de quitarla o sin quitarla, solo le sumas los puntos DE ESA FICHA, sin modificadores
+                    if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
                     else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2;
                     else puntosPorSumar += f.getPuntuacion();
 

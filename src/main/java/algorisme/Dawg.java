@@ -250,6 +250,7 @@ public class Dawg {
         List<String> division = dividirPalabra(palabra);
         int size = division.size();
         if(!existePalabra(palabra)) return false;
+        System.out.println("La palabra existe");
 
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
