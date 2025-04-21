@@ -12,7 +12,7 @@ public class AlfabetoING {
     //private Map<String, SimpleEntry<Integer, Integer>> mapaLetras;
 
     public AlfabetoING() {
-        mapaFichas = cargarArchivo("src/main/java/archivos/letrasING.txt");
+        mapaFichas = cargarArchivo("src/main/java/archivos/letrasENG.txt");
     }
 
     private Map<Ficha,Integer> cargarArchivo(String ruta) {

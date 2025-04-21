@@ -479,11 +479,11 @@ public class Turno {
             int x1 = mejorPalabra.get(0).getValue().getKey();
             int y1 = mejorPalabra.get(0).getValue().getValue();
             int x2 = x1;
-            int y2 = y1;
+            //int y2 = y1;
 
             if (mejorPalabra.size() > 1) {
                 x2 = mejorPalabra.get(1).getValue().getKey();
-                y2 = mejorPalabra.get(1).getValue().getValue();
+                //y2 = mejorPalabra.get(1).getValue().getValue();
             }
 
             String orientacion;
