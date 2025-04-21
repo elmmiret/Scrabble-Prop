@@ -185,14 +185,13 @@ public class Dawg {
     public boolean existePalabra(String palabra) {
         List<String> simbolos = dividirPalabra(palabra);
         NodoDawg nodo = root;
-
         for(String simbolo : simbolos) {
             if(nodo.getHijos().get(simbolo) == null) {
                 return false;
             }
             nodo = nodo.getHijos().get(simbolo);
         }
-        return nodo.getEsFinal();
+        return true;
     }
 
     public void insertarDiccionarioCatalan() {
@@ -249,7 +248,11 @@ public class Dawg {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<String> division = dividirPalabra(palabra);
         int size = division.size();
-        if(!existePalabra(palabra)) return false;
+        if(!existePalabra(palabra))
+        {
+            System.out.println("PALABRA NO EXISTE\n");
+            return false;
+        }
 
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {

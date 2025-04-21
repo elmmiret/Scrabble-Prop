@@ -536,11 +536,15 @@ public class Algoritmo {
                     if (siguiente != null) {
                         usados[i] = true;
                         caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(letra, true), new SimpleEntry<>(x, y)));
-                        int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, siguiente, mejorPalabra, x, y + 1, puntuacion);
-                        if (puntuacionRec > mejorPuntuacion) {
-                            mejorPuntuacion = puntuacionRec;
+                        if (y + 1 < 15)
+                        {
+                            int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, siguiente, mejorPalabra, x, y + 1, puntuacion);
+                            if (puntuacionRec > mejorPuntuacion) {
+                                mejorPuntuacion = puntuacionRec;
+                            }
                         }
-                        caminoAuxPos.remove(caminoAuxPos.size() - 1);
+                        if (caminoAuxPos.size() >= 1)
+                            caminoAuxPos.remove(caminoAuxPos.size() - 1);
                         usados[i] = false;
                     }
                 }
@@ -552,11 +556,16 @@ public class Algoritmo {
             // miramos si la parte izquierda puede seguir haciendo una palabra con esa letra
             if (nodo.getHijos().get(letraTablero) != null) {
                 caminoAuxPos.add(new SimpleEntry<>(new SimpleEntry<>(tablero.getFicha(x,y).getLetra(), false), new SimpleEntry<>(x, y)));
-                int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero.getFicha(x,y).getLetra()),mejorPalabra,x,y+1,puntuacion);
-                if (puntuacionRec > mejorPuntuacion) {
-                    mejorPuntuacion = puntuacionRec;
+                if (y + 1 < 15)
+                {
+                    int puntuacionRec = extenderParteDerechaAux(tablero, caminoAuxPos, atril, usados, nodo.getHijos().get(tablero.getFicha(x,y).getLetra()),mejorPalabra,x,y+1,puntuacion);
+                    if (puntuacionRec > mejorPuntuacion) {
+                        mejorPuntuacion = puntuacionRec;
+
+                    }
                 }
-                caminoAuxPos.remove(caminoAuxPos.size() - 1);
+                if (caminoAuxPos.size() >= 1)
+                    caminoAuxPos.remove(caminoAuxPos.size() - 1);
             }
         }
 
