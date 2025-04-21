@@ -405,7 +405,8 @@ public class Turno {
      * Si no se puede formar una palabra válida, la IA pasa el turno o cambiaa consonantes.
      */
     public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        String[] atril = new String[atrilJ2.size()];
+        int nroFichas = getTotalFichas(atrilJ2);
+        String[] atril = new String[nroFichas];
         int index = 0;
         for (Map.Entry<Ficha, Integer> entry : atrilJ2.entrySet()) {
             for (int i = 0; i < entry.getValue(); i++) {

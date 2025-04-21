@@ -2,3 +2,6 @@
 1
 partidaPvIA
 1
+
+=== TUS FICHAS ===
+C(1) U(1) I(1) L(1) A(1) S(1) O(1)

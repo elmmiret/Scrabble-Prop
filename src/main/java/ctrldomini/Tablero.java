@@ -179,10 +179,13 @@ public class Tablero {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if (getFicha(x, y) != null) throw new CasillaOcupadaException(x, y);
         // ? pongo otra excepcion de que esa letra no existe en el abecedario?
-        if (letras.contains(f.getLetra())) {
-            SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
-            tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));
-        }
+//        if (letras.contains(f.getLetra())) {
+//            SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
+//            tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, casilla.getKey().getValue()), casilla.getValue()));
+//        }
+        SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> actual = tablero.get(x).get(y);
+        tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(f, actual.getKey().getValue()), actual.getValue()));
+
     }
 
     /**
