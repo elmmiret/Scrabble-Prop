@@ -260,7 +260,7 @@ public class Dawg {
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-                for(int col = y; col < size && casillaCorrecta(x,col); col++) {
+                for(int col = y; col < y + size && casillaCorrecta(x,col); col++) {
                     // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(x,col) != null) {
                         nodo = nodo.getHijos().get(division.get(pos_division));
@@ -282,8 +282,8 @@ public class Dawg {
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-                for(int fil = x; fil < size && casillaCorrecta(fil,y); fil++) {
-                    // Si vamos a una posición que tiene una ficha ya colocada
+            for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
+                // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(fil,y) != null) {
                         nodo = nodo.getHijos().get(division.get(pos_division));
                         if(nodo == null) return false;
@@ -301,7 +301,7 @@ public class Dawg {
 
         // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
         else {
-            if(modo == "horizontal"){
+            if(modo.equals("horizontal")){
                 if(!cabePalabraHorizontal(division,x,y)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
@@ -337,7 +337,7 @@ public class Dawg {
                 }
             }
 
-            else if(modo == "vertical") {
+            else if(modo.equals("vertical")) {
                 if(!cabePalabraVertical(division,x,y)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
@@ -495,7 +495,7 @@ public class Dawg {
 
     private boolean cabePalabraVertical(List<String> divisiones, int x, int y) {
         int size = divisiones.size();
-        for(int fil = x; fil < size; fil++) {
+        for(int fil = x; fil < x + size; fil++) {
             if(!casillaCorrecta(fil,y)) return false;
         }
         return true;
@@ -503,7 +503,7 @@ public class Dawg {
 
     private boolean cabePalabraHorizontal(List<String> divisiones, int x, int y) {
         int size = divisiones.size();
-        for(int col = y; col < size; col++) {
+        for(int col = y; col < y + size; col++) {
             if(!casillaCorrecta(x,col)) return false;
         }
         return true;

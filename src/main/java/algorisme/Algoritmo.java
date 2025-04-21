@@ -192,7 +192,9 @@ public class Algoritmo {
             boolean esDelAtril = letra_i.getKey().getValue();
             int pos_x = letra_i.getValue().getKey();
             int pos_y = letra_i.getValue().getValue();
-            int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+            int valor_letra;
+            if (tablero.getFicha(pos_x, pos_y) == null) return -1;
+            else valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
             if (esDelAtril) {
                 Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
                 switch (mod) {
