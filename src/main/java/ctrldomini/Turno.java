@@ -296,6 +296,7 @@ public class Turno {
      * @return true si se ha colocado correctamente la palabra o false si no.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+        System.out.println(partida.dawg.getNumeroNodes());
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
         int puntosVerticalExtra = 0;

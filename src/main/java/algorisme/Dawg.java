@@ -72,7 +72,7 @@ public class Dawg {
 
         // Marca el último nodo como final
         if(nodo != null) nodo.setEsFinal(true);
-        palabraAnterior = simbolos;
+        palabraAnterior = new ArrayList<>(simbolos);
     }
 
     /**
@@ -91,7 +91,7 @@ public class Dawg {
         for(int i = 0; i < palabraAnterior.size() - hasta; i++) {
             String simbolo = palabraAnterior.get(palabraAnterior.size() - 1 - i);
             NodoDawg hijo = nodo.getHijos().get(simbolo);
-            if(hijo != null) {
+            if(hijo != null && !hijo.getEsFinal()) {
                 NodoDawg nodoregistrado = registro.get(hijo);
                 if(nodoregistrado != null) {
                     // Reutiliza un nodo ya registrado
@@ -164,18 +164,21 @@ public class Dawg {
      * @param prefijo
      * @return
      */
+    /*
     public boolean existePrefijo(String prefijo) {
         List<String> simbolos = dividirPalabra(prefijo);
         NodoDawg nodo = root;
 
         for(String simbolo : simbolos) {
-            if(!nodo.getHijos().containsKey(simbolo)) {
+            if(nodo.getHijos().get(simbolo) == null) {
                 return false;
             }
             nodo = nodo.getHijos().get(simbolo);
         }
         return true;
     }
+    */
+
 
     /**
      * True o false si existe la palabra indicada en el Dawg
@@ -191,7 +194,7 @@ public class Dawg {
             }
             nodo = nodo.getHijos().get(simbolo);
         }
-        return true;
+        return nodo.getEsFinal();
     }
 
     public void insertarDiccionarioCatalan() {
@@ -525,7 +528,7 @@ public class Dawg {
      * @param y
      * @return
      */
-    private boolean casillaCorrecta(Integer x, Integer y) {
+    public boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
@@ -535,21 +538,20 @@ public class Dawg {
      * @author Albert Aulet Niubó
      */
     public int getNumeroNodes() {
-        Set<NodoDawg> visitados = new HashSet<>();
-        Deque<NodoDawg> pila = new ArrayDeque<>();
-        pila.push(getRoot());
-        int contador = 0;
+        Set<NodoDawg> visited = new HashSet<>();
+        return getNumeroNodesRec(root, visited);
+    }
 
-        while (!pila.isEmpty()) {
-            NodoDawg nodo = pila.pop();
-            if (visitados.add(nodo)) {
-                contador++;
-                for (NodoDawg hijo : nodo.getHijos().values()) {
-                    pila.push(hijo);
-                }
-            }
+    // Función recursiva para contar los nodos únicos en el DAWG.
+    private int getNumeroNodesRec(NodoDawg node, Set<NodoDawg> visited) {
+        if (visited.contains(node)) {
+            return 0;
         }
-
-        return contador;
+        visited.add(node);
+        int count = 1; // Contamos el nodo actual.
+        for (NodoDawg child : node.getHijos().values()) {
+            count += getNumeroNodesRec(child, visited);
+        }
+        return count;
     }
 }
