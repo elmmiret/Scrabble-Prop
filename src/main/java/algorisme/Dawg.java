@@ -251,20 +251,17 @@ public class Dawg {
      * @param prefijo
      * @return
      */
-    /*
+
     public boolean existePrefijo(String prefijo) {
         List<String> simbolos = dividirPalabra(prefijo);
         NodoDawg nodo = root;
-
-        for(String simbolo : simbolos) {
-            if(nodo.getHijos().get(simbolo) == null) {
-                return false;
-            }
-            nodo = nodo.getHijos().get(simbolo);
+        for (String simbolo : simbolos) {
+            nodo = nodo.getHijo(simbolo);
+            if (nodo == null) return false;
         }
-        return true;
+        return true; // El prefijo existe si se recorren todos los símbolos
     }
-    */
+
 
 
     /**
