@@ -287,7 +287,7 @@ public class DriverPartida {
 
     private boolean colocarPalabra(Partida partida, Perfil jugador) {
         String palabra = leerCadena("Palabra: ").toUpperCase();
-        String x_string = leerCadena("Fila (A, B...): ");
+        String x_string = leerCadena("Fila (A, B...): ").toUpperCase();
         int x = x_string.charAt(0) - 'A';
         int y = leerEntero("Columna: ");
         String orientacion = leerCadena("Orientación (V/H): ").toUpperCase();
