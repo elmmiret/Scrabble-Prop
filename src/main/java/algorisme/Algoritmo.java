@@ -187,32 +187,34 @@ public class Algoritmo {
         int puntuacion_vertical = 0;
         int multiplicadorPalabra = 1;
         int fichasAtril = 0;
-        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
-            String letra = letra_i.getKey().getKey();
-            boolean esDelAtril = letra_i.getKey().getValue();
-            int pos_x = letra_i.getValue().getKey();
-            int pos_y = letra_i.getValue().getValue();
-            int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
-            if (esDelAtril) {
-                Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
-                switch (mod) {
-                    case dobleTantoDeLetra:
-                        valor_letra *= 2;
-                        break;
-                    case tripleTantoDeLetra:
-                        valor_letra *= 3;
-                        break;
-                    case dobleTantoDePalabra:
-                        multiplicadorPalabra *= 2;
-                        break;
-                    case tripleTantoDePalabra:
-                        multiplicadorPalabra *= 3;
-                        break;
+        if(palabra == null) {
+            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
+                String letra = letra_i.getKey().getKey();
+                boolean esDelAtril = letra_i.getKey().getValue();
+                int pos_x = letra_i.getValue().getKey();
+                int pos_y = letra_i.getValue().getValue();
+                int valor_letra = tablero.getFicha(pos_x, pos_y).getPuntuacion();
+                if (esDelAtril) {
+                    Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
+                    switch (mod) {
+                        case dobleTantoDeLetra:
+                            valor_letra *= 2;
+                            break;
+                        case tripleTantoDeLetra:
+                            valor_letra *= 3;
+                            break;
+                        case dobleTantoDePalabra:
+                            multiplicadorPalabra *= 2;
+                            break;
+                        case tripleTantoDePalabra:
+                            multiplicadorPalabra *= 3;
+                            break;
+                    }
+                    puntuacion_vertical += obtenerPuntuacionPalabraVertical(tablero, pos_x, pos_y);
+                    fichasAtril += 1;
                 }
-                puntuacion_vertical += obtenerPuntuacionPalabraVertical(tablero, pos_x, pos_y);
-                fichasAtril += 1;
+                puntuacion += valor_letra;
             }
-            puntuacion += valor_letra;
         }
         puntuacion *= multiplicadorPalabra;
         if (fichasAtril == 7) {
@@ -453,7 +455,7 @@ public class Algoritmo {
                     usados[i] = true;
                     camino.add(new SimpleEntry<>(letra, true));
                     computarMejorPalabraDelAtrilAux(siguiente,atril,usados,restantes-1,camino,mejorPalabra,tablero,x,y);
-                    camino.remove(camino.size() - 1);
+                    if (camino.size() > 0) camino.remove(camino.size() - 1);
                     usados[i] = false;
                 }
             }

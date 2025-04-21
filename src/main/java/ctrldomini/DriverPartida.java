@@ -1,9 +1,6 @@
 package ctrldomini;
 
-import java.util.Scanner;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
@@ -45,7 +42,7 @@ public class DriverPartida {
         else System.out.println("\nNo hay ningún perfil en el sistema para jugar!");
     }
 
-    private void crearNuevaPartida() {
+    private void crearNuevaPartida() throws CasillaOcupadaException, CoordenadaFueraDeRangoException{
         System.out.println("\n=== CREAR PARTIDA ===");
 
         int id = leerEntero("ID de partida: ");
@@ -82,9 +79,11 @@ public class DriverPartida {
                 return;
             }
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvP, oponente, 0);
+            jugar(partida);
         } else {
             int dificultad = leerEntero("Dificultad IA (1-3): ");
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvIA, null, dificultad);
+            jugarIA(partida);
         }
 
         System.out.println("\nPartida creada correctamente! ID: " + partida.getId());
@@ -321,7 +320,11 @@ public class DriverPartida {
     private boolean cambiarFichas(Partida partida, Perfil jugador) {
         Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
         System.out.print("Letras a cambiar (separadas por espacio): ");
-        List<String> letras = List.of(scanner.nextLine().split(" "));
+        String line = scanner.nextLine().trim();
+        List<String> letras = line.isEmpty()
+                ? Collections.emptyList()
+                : List.of(line.split("\\s+"));
+
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() -1);
 
         boolean exito = gestor.cambiarFichas(turnoActual, atril, letras);
