@@ -414,6 +414,7 @@ public class Turno {
                 else puntosJ2 += puntosPorSumar;
             }
         }
+        else return false;
 
         setTipoJugada(TipoJugada.colocar);
         if (jugador == partida.getCreador()) robarFichas(atrilJ1);
