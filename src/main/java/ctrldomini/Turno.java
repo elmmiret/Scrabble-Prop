@@ -310,7 +310,7 @@ public class Turno {
         // pasarle si es el primer turno o no
         boolean esPrimerTurno = false;
         if (getTablero().estaVacio()) esPrimerTurno = true;
-        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
+        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion)) {
             System.out.println("La he comprobado y esta bien");
 
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);

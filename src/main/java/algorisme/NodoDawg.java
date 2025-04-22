@@ -108,24 +108,18 @@ public class NodoDawg {
         return Objects.hash(esFinal, hijos.keySet());
     }*/
 
+
     @Override
     public int hashCode() {
-        return Objects.hash(hijos,esFinal);
+        return Objects.hash(esFinal, hijos.keySet()); // Incluir solo claves de hijos
     }
-
-    /*@Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof NodoDawg)) return false;
-        NodoDawg otronodo = (NodoDawg) obj;
-        return this.esFinal == otronodo.esFinal && this.hijos.keySet().equals(otronodo.hijos.keySet());
-    }*/
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        NodoDawg otronodo = (NodoDawg) obj;
-        //return esFinal == otronodo.esFinal && hijos.equals(otronodo.hijos);
-        return Objects.equals(hijos,otronodo.hijos) && Objects.equals(esFinal,otronodo.esFinal);
+        NodoDawg otro = (NodoDawg) obj;
+        return this.esFinal == otro.esFinal &&
+                this.hijos.keySet().equals(otro.hijos.keySet()); // Comparar claves
     }
 }

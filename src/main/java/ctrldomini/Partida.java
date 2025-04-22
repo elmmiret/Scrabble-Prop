@@ -253,8 +253,8 @@ public class Partida {
     public void inicializarPrimerTurno() {
         Perfil primerJugador;
         SimpleEntry<Ficha, Ficha> sorteo = sortearPrimerTurno();
-        if (sorteo.getKey().getLetra() == sorteo.getValue().getLetra()) primerJugador = creador;
-        else primerJugador = oponente;
+
+        primerJugador = getOponente();
         Turno turno = new Turno(this, primerJugador, 0, 0);
         rondas.add(turno);
         rondas.get(0).inicializarAtriles();
