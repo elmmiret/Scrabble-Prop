@@ -6,76 +6,109 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * La clase NodoDawg representa un nodo en un DAWG (Directed Acyclic Word Graph),
+ * una estructura eficiente para almacenar y buscar palabras de forma compacta.
+ *
+ * <p>Cada nodo contiene un conjunto de hijos que representan los siguientes caracteres posibles,
+ * y puede marcar el final de una palabra válida.</p>
+ *
  * @author Arnau Miret Barrull
  */
 public class NodoDawg {
-    private Map<String, NodoDawg> hijos;
-    private boolean esFinal;
-    private NodoDawg ultimohijoanadido;
 
-    // Funcion constructora
+    /**
+     * Mapa que almacena los hijos del nodo, donde la clave es una letra
+     * y el valor es el nodo hijo correspondiente.
+     */
+    private Map<String, NodoDawg> hijos;
+
+    /**
+     * Indica si este nodo marca el final de una palabra válida.
+     */
+    private boolean esFinal;
+
+    /**
+     * Constructor que inicializa un nodo vacío.
+     * Crea un mapa de hijos vacío y establece el estado inicial de 'esFinal' como falso.
+     */
     public NodoDawg() {
         hijos = new HashMap<String,NodoDawg>();
         esFinal = false;
-        //ultimohijoanadido = null;
     }
 
-    // GETTERS y SETTERS
-
-    /*
-    // Función que devuleve el ultimo nodo añadido
-    public NodoDawg getUltimoNodoAnadido() {
-        return ultimohijoanadido;
-    }
-
-    // Función para setear el ultimo nodo añadido
-    public void setUltimoNodoAnadido(NodoDawg nodo) {
-        ultimohijoanadido = nodo;
-    }*/
-
-    // Indica si este nodo representa el final de una palabra
+    /**
+     * Comprueba si el nodo marca el final de una palabra.
+     * @return true si es final de palabra, false en caso contrario
+     */
     public boolean getEsFinal(){
         return esFinal;
     }
 
-    // Devuelve los hijos de este nodo
+    /**
+     * Obtiene todos los hijos del nodo.
+     * @return Mapa con los hijos donde la clave es la letra y el valor el nodo hijo
+     */
     public Map<String, NodoDawg> getHijos(){
         return hijos;
     }
 
-    // Devuelve el hijo indicado
+    /**
+     * Obtiene un hijo específico del nodo.
+     * @param letra Letra que identifica al hijo buscado
+     * @return Nodo hijo correspondiente a la letra, o {@code null} si no existe
+     */
     public NodoDawg getHijo(String letra) {
         return this.hijos.get(letra);
     }
 
-    // Marca este nodo como final de palabra
+    /**
+     * Establece si este nodo marca el final de una palabra.
+     * @param b Valor booleano para indicar final de palabra
+     */
     public void setEsFinal(boolean b) {
         this.esFinal = b;
     }
 
-    // Función que setea los hijos de un nodo
+    /**
+     * Reemplaza todos los hijos del nodo.
+     * @param hijos Nuevo mapa de hijos a establecer
+     */
     public void setHijos(Map<String, NodoDawg> hijos) {
         this.hijos = hijos;
     }
 
-    // Devuelve si la función tiene hijos o no
+    /**
+     * Verifica si el nodo tiene hijos.
+     * @return true si tiene al menos un hijo, false en caso contrario
+     */
     public boolean tieneHijos() {
         return !this.hijos.isEmpty();
     }
 
     // Funciones que modifican los hijos
 
-    // Función que añade un hijo a un nodo
+    /**
+     * Añade un nuevo hijo al nodo.
+     * @param letra Letra que identifica al nuevo hijo
+     * @param nodo Nodo hijo a añadir
+     */
     public void anadirHijo(String letra, NodoDawg nodo) {
         this.hijos.put(letra,nodo);
     }
 
-    // Función que sustituye un hijo que ya existía en el nodo
+    /**
+     * Reemplaza un hijo existente en el nodo.
+     * @param letra Letra del hijo a reemplazar
+     * @param nodo Nuevo nodo hijo
+     */
     public void cambiarHijo(String letra, NodoDawg nodo) {
         this.hijos.replace(letra, nodo);
     }
 
-    // Función que devuelve la string más grande lexicograficamente
+    /**
+     * Encuentra el hijo con la letra lexicográficamente más grande.
+     * @return Entrada con la letra y nodo del hijo más grande, o {@code null} si no hay hijos
+     */
     public Map.Entry<String, NodoDawg> getHijoMasGrande() {
         if (this.hijos.isEmpty()) return null;
 
@@ -88,6 +121,17 @@ public class NodoDawg {
         return new AbstractMap.SimpleEntry<>(letramasgrande, hijos.get(letramasgrande));
     }
 
+    /**
+     * Compara la equivalencia estructural con otro nodo.
+     * Dos nodos son equivalentes si:
+     * <ul>
+     *   <li>Tienen el mismo estado de final de palabra</li>
+     *   <li>Tienen la misma cantidad de hijos</li>
+     *   <li>Todos sus hijos correspondientes son recursivamente equivalentes</li>
+     * </ul>
+     * @param nodo Nodo a comparar
+     * @return true si son estructuralmente equivalentes, false en caso contrario
+     */
     public boolean esEquivalente(NodoDawg nodo) {
         if (this.esFinal != nodo.getEsFinal()) return false;
         if (this.hijos.size() != nodo.getHijos().size()) return false;
@@ -102,24 +146,20 @@ public class NodoDawg {
         return true;
     }
 
-    // Necesario para comparar nodos al mizimizar el DAWG
-    /*@Override
-    public int hashCode() {
-        return Objects.hash(esFinal, hijos.keySet());
-    }*/
-
+    /**
+     * Calcula el código hash basado en los hijos y el estado de final de palabra.
+     * @return Código hash para el nodo
+     */
     @Override
     public int hashCode() {
         return Objects.hash(hijos,esFinal);
     }
 
-    /*@Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof NodoDawg)) return false;
-        NodoDawg otronodo = (NodoDawg) obj;
-        return this.esFinal == otronodo.esFinal && this.hijos.keySet().equals(otronodo.hijos.keySet());
-    }*/
-
+    /**
+     * Compara la igualdad profunda entre nodos.
+     * @param obj Objeto a comparar
+     * @return true si son estructuralmente iguales, false en caso contrario
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
