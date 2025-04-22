@@ -88,6 +88,9 @@ public class Partida {
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
+        //-------------------------------------------------
+        System.out.println("Dawg llega a cargarse\n");
+        //-------------------------------------------------
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
@@ -259,6 +262,7 @@ public class Partida {
             case CAT:
                 AlfabetoCAT alfabetoCat = new AlfabetoCAT();
                 mapaFichas = alfabetoCat.getMapaFichas();
+                System.out.println("Se carga la bolsa");
                 break;
             case CAST:
                 AlfabetoCAST alfabetoCast = new AlfabetoCAST();

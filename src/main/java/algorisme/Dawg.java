@@ -19,7 +19,7 @@ public class Dawg {
 
     // Funcion constructora
     public Dawg(Partida.Idioma idiomaPartida) {
-        Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
+        Digrafos = new HashSet<>(Arrays.asList("RR", "NY", "LL", "L·L", "CH"));
         root = new NodoDawg();
         registro = new HashMap<>();
         //palabraAnterior = new ArrayList<>();
@@ -287,7 +287,9 @@ public class Dawg {
     public void insertarDiccionarioCatalan() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/catalan.txt"))) {
             String linea;
+            //int numero = 0;
             while((linea = entrada.readLine()) != null) {
+                //System.out.println("linea insertada " + numero++ + "\n");
                 insertar2(linea);
             }
             acabar2();

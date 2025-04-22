@@ -46,7 +46,6 @@ public class AlfabetoCAST {
         return mapaFichasAux;
     }
 
-
     public Map<Ficha,Integer> getMapaFichas() {
         return mapaFichas;
     }
@@ -54,8 +53,4 @@ public class AlfabetoCAST {
     public int getFrequenciaLetra(Ficha ficha) {
         return mapaFichas.get(ficha);
     }
-
-    /*public int getPuntuacionLetra(String letra) {
-        return mapaLetras
-    }*/
 }

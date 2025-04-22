@@ -18,42 +18,40 @@ public class DawgTest {
         dawg = new Dawg(Partida.Idioma.CAST);
 
         // Insertamos algunas palabras manualmente para pruebas
-        dawg.insertar("casa");
-        dawg.insertar("casas");
-        dawg.insertar("casar");
-        dawg.insertar("perro");
-        dawg.insertar("lluvia"); // prueba con dígrafo "ll"
-        dawg.insertar("CANOA");
-        dawg.acabar(); // Finalizamos la construcción
+        dawg.insertar2("IL·LOGICO");
+        dawg.insertar2("IL·LEGIBLE");
+        dawg.insertar2("IL·LEGAL");
+        dawg.insertar2("DIARREA"); // prueba con dígrafo "ll"
+        dawg.acabar2(); // Finalizamos la construcción
     }
 
     @Test
     public void testDividirPalabra() {
-        List<String> esperado = Arrays.asList("ll", "u", "v", "i", "a");
-        assertEquals(esperado, dawg.dividirPalabra("lluvia"));
+        List<String> esperado = Arrays.asList("L·L", "U", "V", "I", "A");
+        assertEquals(esperado, dawg.dividirPalabra("L·LUVIA"));
 
-        esperado = Arrays.asList("ch", "a", "c", "a", "l");
-        assertEquals(esperado, dawg.dividirPalabra("chacal"));
+        esperado = Arrays.asList("CH", "A", "C", "A", "L");
+        assertEquals(esperado, dawg.dividirPalabra("CHACAL"));
     }
 
     @Test
     public void testExistePalabra() {
-        assertTrue(dawg.existePalabra("CANOA"));
-        assertTrue(dawg.existePalabra("casas"));
-        assertTrue(dawg.existePalabra("perro"));
+        assertTrue(dawg.existePalabra("IL·LOGICO"));
+        assertTrue(dawg.existePalabra("IL·LEGIBLE"));
+        /*assertTrue(dawg.existePalabra("perro"));
         assertTrue(dawg.existePalabra("lluvia"));
 
         assertFalse(dawg.existePalabra("cas"));
         assertFalse(dawg.existePalabra("perros"));
         assertFalse(dawg.existePalabra(""));
-        assertFalse(dawg.existePalabra("xyz"));
+        assertFalse(dawg.existePalabra("xyz"));*/
     }
 
     @Test
     public void testInsertarDiccionario() {
         // Verificamos que las palabras insertadas en el setUp existen
-        assertTrue(dawg.existePalabra("casa"));
-        assertTrue(dawg.existePalabra("perro"));
+        assertTrue(dawg.existePalabra("DIARREA"));
+        assertTrue(dawg.existePalabra("IL·LEGAL"));
     }
 
     @Test

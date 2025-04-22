@@ -53,8 +53,4 @@ public class AlfabetoCAT {
     public int getFrequenciaLetra(Ficha ficha) {
         return mapaFichas.get(ficha);
     }
-
-    /*public int getPuntuacionLetra(String letra) {
-        return mapaLetras
-    }*/
 }
