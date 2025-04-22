@@ -83,6 +83,7 @@ public class DriverPartida {
         } else {
             int dificultad = leerEntero("Dificultad IA (1-3): ");
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvIA, null, dificultad);
+            System.out.println("Partida creada correctamente!");
             jugarIA(partida);
         }
 

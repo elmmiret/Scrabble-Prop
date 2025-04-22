@@ -63,7 +63,11 @@ public class Partida {
         idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
-        dawg = new Dawg(idiomaPartida);
+        try {
+            dawg = new Dawg(idiomaPartida);
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Error al inicializar el DAWG: " + e.getMessage());
+        }
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
         mapaLetras = new HashMap<>();
@@ -88,7 +92,11 @@ public class Partida {
         idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
-        dawg = new Dawg(idiomaPartida);
+        try {
+            dawg = new Dawg(idiomaPartida);
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Error al inicializar el DAWG: " + e.getMessage());
+        }
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
         mapaLetras = new HashMap<>();
