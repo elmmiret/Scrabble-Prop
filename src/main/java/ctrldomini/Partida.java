@@ -269,6 +269,7 @@ public class Partida {
             case CAT:
                 AlfabetoCAT alfabetoCat = new AlfabetoCAT();
                 mapaFichas = alfabetoCat.getMapaFichas();
+                System.out.println("Se carga la bolsa");
                 break;
             case CAST:
                 AlfabetoCAST alfabetoCast = new AlfabetoCAST();

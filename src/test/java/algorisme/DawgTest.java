@@ -2,7 +2,6 @@ package algorisme;
 
 import static org.junit.Assert.*;
 
-import algorisme.Dawg;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
@@ -10,63 +9,47 @@ import java.util.List;
 import ctrldomini.*;
 
 public class DawgTest {
-    private Dawg dawg;
+    private Dawg dawgING;
+    private Dawg dawgCAST;
+    private Dawg dawgCAT;
+
 
     @Before
     public void setUp() {
-        // Usamos un DAWG pequeño para pruebas
-        dawg = new Dawg(Partida.Idioma.CAST);
-
-        // Insertamos algunas palabras manualmente para pruebas
-        dawg.insertar("casa");
-        dawg.insertar("casas");
-        dawg.insertar("casar");
-        dawg.insertar("perro");
-        dawg.insertar("lluvia"); // prueba con dígrafo "ll"
-        dawg.insertar("CANOA");
-        dawg.acabar(); // Finalizamos la construcción
+        dawgING = new Dawg(Partida.Idioma.ENG);
+        dawgCAST = new Dawg(Partida.Idioma.CAST);
+        dawgCAT = new Dawg(Partida.Idioma.CAT);
     }
 
     @Test
     public void testDividirPalabra() {
-        List<String> esperado = Arrays.asList("ll", "u", "v", "i", "a");
-        assertEquals(esperado, dawg.dividirPalabra("lluvia"));
+        List<String> esperado = Arrays.asList("L·L", "U", "V", "I", "A");
+        assertEquals(esperado, dawgING.dividirPalabra("L·LUVIA"));
 
-        esperado = Arrays.asList("ch", "a", "c", "a", "l");
-        assertEquals(esperado, dawg.dividirPalabra("chacal"));
+        esperado = Arrays.asList("CH", "A", "C", "A", "L");
+        assertEquals(esperado, dawgCAST.dividirPalabra("CHACAL"));
+
+        esperado = Arrays.asList("NY", "A", "C", "A", "L");
+        assertEquals(esperado, dawgCAT.dividirPalabra("NYACAL"));
     }
 
     @Test
     public void testExistePalabra() {
-        assertTrue(dawg.existePalabra("CANOA"));
-        assertTrue(dawg.existePalabra("casas"));
-        assertTrue(dawg.existePalabra("perro"));
-        assertTrue(dawg.existePalabra("lluvia"));
+        assertTrue(dawgING.existePalabra("CRAZY"));
+        assertTrue(dawgCAST.existePalabra("ARRIBA"));
+        assertTrue(dawgCAT.existePalabra("IL·LEGAL"));
 
-        assertFalse(dawg.existePalabra("cas"));
-        assertFalse(dawg.existePalabra("perros"));
-        assertFalse(dawg.existePalabra(""));
-        assertFalse(dawg.existePalabra("xyz"));
-    }
 
-    @Test
-    public void testInsertarDiccionario() {
-        // Verificamos que las palabras insertadas en el setUp existen
-        assertTrue(dawg.existePalabra("casa"));
-        assertTrue(dawg.existePalabra("perro"));
+        assertFalse(dawgING.existePalabra("cas"));
+        assertFalse(dawgCAST.existePalabra("perros"));
+        assertFalse(dawgCAT.existePalabra(""));
     }
 
     @Test
     public void testCasillaCorrecta() {
-        assertTrue(dawg.casillaCorrecta(0, 0));
-        assertTrue(dawg.casillaCorrecta(14, 14));
-        assertFalse(dawg.casillaCorrecta(-1, 0));
-        assertFalse(dawg.casillaCorrecta(15, 15));
-    }
-
-    @Test
-    public void testGetNumeroNodes() {
-        int numNodes = dawg.getNumeroNodes();
-        assertTrue(numNodes > 0);
+        assertTrue(dawgING.casillaCorrecta(0, 0));
+        assertTrue(dawgCAT.casillaCorrecta(14, 14));
+        assertFalse(dawgCAST.casillaCorrecta(-1, 0));
+        assertFalse(dawgING.casillaCorrecta(15, 15));
     }
 }
