@@ -6,21 +6,24 @@ import gestordeperfil.Perfil;
 import ranking.DriverRanking;
 import ranking.Ranking;
 import estadisticas.DriverEstadisticas;
+import exceptions.*;
 
 import java.util.Scanner;
 
 public class Main {
 
-  public static void main(String[] args)
+  public static void main(String[] args) throws CasillaOcupadaException, CoordenadaFueraDeRangoException
   {
 
     // INIT
     Scanner scanner = new Scanner(System.in);
     Ranking ranking = new Ranking();
     GestorDePerfil gestorDePerfil = new GestorDePerfil(ranking);
+    GestorDePartida gestorDePartida = new GestorDePartida(gestorDePerfil);
     DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, scanner);
     DriverRanking driverRanking = new DriverRanking(ranking, scanner);
     DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, scanner);
+    DriverPartida driverPartida = new DriverPartida(gestorDePartida, gestorDePerfil, scanner);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
@@ -43,7 +46,7 @@ public class Main {
             driverPerfil.profileManagement();
             break;
           case 2: //Create new game
-            System.out.println("Creating new game");
+            driverPartida.partidaManagement();
             break;
           case 3: //See ranking
             driverRanking.rankingManagement();
@@ -52,11 +55,11 @@ public class Main {
             driverEstadisticas.estadisticasManagement();
             break;
           case 5:
-            System.out.println("Chau!");
+            System.out.println("Chau!\n");
             System.exit(0);
             break;
           default: //Error option
-            System.out.println("Incorrect option, please choose any of the options offered");
+            System.out.println("Opción incorrecta, por favor escoja una de las opciones ofrecidas");
             break;
         }
     }
