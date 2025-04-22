@@ -21,9 +21,29 @@ import java.util.TreeSet;
  * @author Marc Ribas Acon
  */
 public class Ranking {
+
+    /**
+     * Ranking principal ordenado por puntos totales en orden descendente.
+     * En caso de empate, usa el nombre de usuario en orden alfabético ascendente.
+     */
     private TreeSet<Perfil> rankingPuntos;
+
+    /**
+     * Clasificación de jugadores por cantidad total de partidas jugadas (descendente).
+     * Utiliza el nombre de usuario como desempate para perfiles con misma cantidad de partidas.
+     */
     private TreeSet<Perfil> rankingPartidasJugadas;
+
+    /**
+     * Ranking de victorias ordenado de mayor a menor número de partidas ganadas.
+     * El criterio secundario de ordenación es el nombre de usuario en orden ascendente.
+     */
     private TreeSet<Perfil> rankingVictorias;
+
+    /**
+     * Clasificación de derrotas organizada por mayor número de partidas perdidas primero.
+     * Los empates en número de derrotas se resuelven alfabéticamente por nombre de usuario.
+     */
     private TreeSet<Perfil> rankingDerrotas;
 
     /**

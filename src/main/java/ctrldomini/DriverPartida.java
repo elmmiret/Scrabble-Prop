@@ -15,12 +15,14 @@ public class DriverPartida {
     private static GestorDePartida gestor;
     private static GestorDePerfil gestorPerfiles;
     private static Scanner scanner;
+    private int pasarPartidaSeguidos;
 
 
     public DriverPartida(GestorDePartida gdp, GestorDePerfil gestorp, Scanner scanner) {
         gestor = gdp;
         gestorPerfiles = gestorp;
         this.scanner = scanner;
+        pasarPartidaSeguidos = 0;
     }
 
     public void partidaManagement() throws CasillaOcupadaException, CoordenadaFueraDeRangoException{
@@ -87,7 +89,6 @@ public class DriverPartida {
             jugarIA(partida);
         }
 
-        System.out.println("\nPartida creada correctamente! ID: " + partida.getId());
         System.out.print("\n");
     }
 
@@ -181,12 +182,15 @@ public class DriverPartida {
                     switch(num) {
                         case 1:
                             accionValida = colocarPalabra(partida, jugador);
+                            pasarPartidaSeguidos = 0;
                             break;
                         case 2:
                             accionValida = cambiarFichas(partida, jugador);
+                            pasarPartidaSeguidos = 0;
                             break;
                         case 3:
                             turnoActual.pasarTurno();
+                            ++pasarPartidaSeguidos;
                             accionValida = true;
                             break;
                         case 4:
@@ -201,17 +205,22 @@ public class DriverPartida {
                     }
                     if (!accionValida && (num == 1 || num == 2)) {
                         num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
-                    } else if (partida.getRondas().size() > 1 && turnoActual.getTipoJugada() == Turno.TipoJugada.pasar){
-                        Turno turnoAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
-                        if (turnoAnterior.getTipoJugada() == Turno.TipoJugada.pasar) {
-                            turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
-                            enJuego = false;
-                        }
+                    }
+                    if (pasarPartidaSeguidos >= 2)
+                    {
+                        enJuego = false;
+                        mostrarResultadosFinales(partida);
+                        System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!");
+                        return;
                     }
                 }
-            } else {
+            }
+            else {
                 turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                 enJuego = false;
+                mostrarResultadosFinales(partida);
+                System.out.println("No tienes fichas en el atril. Fin de la partida!");
+                return;
             }
 
             if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
@@ -262,13 +271,16 @@ public class DriverPartida {
                         switch (num) {
                             case 1:
                                 accionValida = colocarPalabra(partida, jugador);
+                                pasarPartidaSeguidos = 0;
                                 break;
                             case 2:
                                 accionValida = cambiarFichas(partida, jugador);
+                                pasarPartidaSeguidos = 0;
                                 break;
                             case 3:
                                 turnoActual.pasarTurno();
                                 accionValida = true;
+                                ++pasarPartidaSeguidos;
                                 break;
                             case 4:
                                 System.out.println("¡Has salido de la partida!");
@@ -282,17 +294,22 @@ public class DriverPartida {
                         }
                         if (!accionValida && (num == 1 || num == 2)) {
                             num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
-                        } else if (partida.getRondas().size() > 1 && turnoActual.getTipoJugada() == Turno.TipoJugada.pasar) {
-                            Turno turnoAnterior = partida.getRondas().get(partida.getRondas().size() - 2);
-                            if (turnoAnterior.getTipoJugada() == Turno.TipoJugada.pasar) {
-                                turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
-                                enJuego = false;
-                            }
+                        }
+                        else if (pasarPartidaSeguidos >= 2)
+                        {
+                            enJuego = false;
+                            mostrarResultadosFinales(partida);
+                            System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!");
+                            return;
                         }
                     }
-                } else {
+                }
+                else {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                     enJuego = false;
+                    mostrarResultadosFinales(partida);
+                    System.out.println("No tienes fichas en el atril. Fin de la partida!");
+                    return;
                 }
                 if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
                     mostrarResultadosFinales(partida);

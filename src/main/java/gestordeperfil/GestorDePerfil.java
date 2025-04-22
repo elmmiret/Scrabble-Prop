@@ -22,8 +22,22 @@ import ranking.Ranking;
  */
 public class GestorDePerfil {
 
+    /**
+     * Mapa que almacena todos los perfiles registrados utilizando el nombre de usuario
+     * como clave única para búsquedas eficientes.
+     */
     private Map<String, Perfil> jugadores;
+
+    /**
+     * Sistema de rankings asociado donde se registran y actualizan automáticamente
+     * las puntuaciones de los jugadores.
+     */
     private Ranking ranking;
+
+    /**
+     * Scanner utilizado para la interacción con el usuario mediante entrada/salida
+     * estándar en operaciones que requieren input interactivo.
+     */
     private Scanner lector;
 
     /**

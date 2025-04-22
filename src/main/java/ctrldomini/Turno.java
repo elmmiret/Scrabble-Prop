@@ -316,6 +316,7 @@ public class Turno {
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
             if (esPrimerTurno)
             {
+                System.out.println("ES PRIMER TURNO");
                 if (orientacion.equals("vertical"))
                 {
                     if (x_ini > 7 || y_ini > 7 || (x_ini + fichas.size()) < 8) return false;

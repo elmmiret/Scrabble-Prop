@@ -27,7 +27,17 @@ import java.util.*;
  * @author Marc Ribas Acon
  */
 public class DriverRanking {
+
+    /**
+     * Scanner utilizado para leer la entrada del usuario desde la consola durante la navegación
+     * por los menús de selección de rankings.
+     */
     Scanner lector;
+
+    /**
+     * Instancia del sistema de rankings que proporciona los datos a visualizar.
+     * Contiene las clasificaciones actualizadas que se muestran al usuario.
+     */
     Ranking ranking;
 
     /**
