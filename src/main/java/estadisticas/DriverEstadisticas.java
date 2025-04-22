@@ -18,7 +18,17 @@ import java.util.Scanner;
  * @author Marc Ribas Acon
  */
 public class DriverEstadisticas {
+
+    /**
+     * Scanner para capturar la entrada del usuario durante el proceso de consulta
+     * de estadísticas. Utilizado para leer nombres de usuario y opciones del menú.
+     */
     private Scanner lector;
+
+    /**
+     * Gestor principal de perfiles que proporciona acceso a los datos almacenados.
+     * Se utiliza para verificar la existencia de jugadores y recuperar sus estadísticas.
+     */
     private GestorDePerfil gestorDePerfil;
 
     /**

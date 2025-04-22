@@ -8,12 +8,47 @@ package gestordeperfil;
  * @author Marc Ribas Acon
  */
 public class Perfil {
+
+    /**
+     * Nombre único que identifica al usuario en el sistema. Se utiliza como clave principal
+     * para todas las operaciones relacionadas con el perfil.
+     */
     private String username;
+
+    /**
+     * Contraseña de acceso asociada al perfil. Almacenada de forma privada para garantizar
+     * la seguridad de la autenticación.
+     */
     private String password;
+
+    /**
+     * Frase secreta utilizada para procesos de recuperación de cuenta. La verificación
+     * se realiza de forma case-insensitive.
+     */
     private String fraseRecuperacion;
+
+    /**
+     * Contador acumulativo del total de partidas jugadas por el usuario en todas las
+     * modalidades de juego disponibles.
+     */
     private int partidasJugadas;
+
+    /**
+     * Registro de partidas donde el usuario ha obtenido la victoria según las reglas
+     * establecidas en cada modalidad de juego.
+     */
     private int partidasGanadas;
+
+    /**
+     * Contador de partidas donde el usuario no ha cumplido los objetivos requeridos
+     * para la victoria en la correspondiente modalidad de juego.
+     */
     private int partidasPerdidas;
+
+    /**
+     * Puntuación global acumulada a través de diferentes logros y rendimiento en
+     * partidas. Utilizada para posicionamiento en rankings.
+     */
     private int puntos;
 
     /**

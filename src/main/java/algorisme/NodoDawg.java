@@ -77,43 +77,25 @@ public class NodoDawg {
 
     // Función que devuelve la string más grande lexicograficamente
     public Map.Entry<String, NodoDawg> getHijoMasGrande() {
-        if(this.hijos.isEmpty()) return null;
+        if (this.hijos.isEmpty()) return null;
 
         String letramasgrande = null;
-        for(String letra : hijos.keySet()) {
-            // siempre va a poner letramasgrande = letra ya que queremos la letra del ultimo hijo
-            letramasgrande = letra;
-        }
-
-        /*String letramasgrande = null;
-        for(String letra : hijos.keySet()) {
-            if(letramasgrande == null || letra > letramasgrande) {
+        for (String letra : hijos.keySet()) {
+            if (letramasgrande == null || letra.compareTo(letramasgrande) > 0) {
                 letramasgrande = letra;
             }
-        }*/
-
+        }
         return new AbstractMap.SimpleEntry<>(letramasgrande, hijos.get(letramasgrande));
     }
 
     public boolean esEquivalente(NodoDawg nodo) {
-        // Si los dos nodos son aceptadores o no aceptadores
-        if(this.esFinal != nodo.getEsFinal()) return false;
-
-        // si tienen diferentes cantidades de hijos
-        if(this.hijos.size() != nodo.getHijos().size()) return false;
-
-        // si tienen los mismos hijos, son equivalentes, no hace falta hacer una busqueda recursiva
-        // por cada hijo ya que al construir el DAWG incrementalmente, los hijos ya estan minimizados
-        // por lo tanto, solo hace falta comprobar que los hijos son los mismos
-
-        for(Map.Entry<String, NodoDawg> hijo : this.hijos.entrySet()) {
-            String letra = hijo.getKey();
-            NodoDawg hijo1 = hijo.getValue();
-            NodoDawg hijo2 = nodo.getHijo(letra);
-            if(hijo2 == null) {
-                return false;
-            }
-            if(hijo1 != hijo2) {
+        if (this.esFinal != nodo.getEsFinal()) return false;
+        if (this.hijos.size() != nodo.getHijos().size()) return false;
+        for (Map.Entry<String, NodoDawg> entry : this.hijos.entrySet()) {
+            String letra = entry.getKey();
+            NodoDawg miHijo = entry.getValue();
+            NodoDawg otroHijo = nodo.getHijo(letra);
+            if (otroHijo == null || !miHijo.esEquivalente(otroHijo)) {
                 return false;
             }
         }

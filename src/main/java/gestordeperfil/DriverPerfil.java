@@ -11,7 +11,15 @@ import java.util.Scanner;
  */
 public class DriverPerfil {
 
+    /**
+     * Scanner para leer la entrada del usuario desde la consola.
+     */
     private Scanner lector;
+
+    /**
+     * Instancia del gestor de perfiles que realiza las operaciones de gestión
+     * como crear, eliminar o modificar perfiles.
+     */
     private GestorDePerfil gestorDePerfil;
 
     /**
@@ -21,7 +29,6 @@ public class DriverPerfil {
      * @param gdp el gestor de perfiles a utilizar
      * @param scanner fuente de entrada para interactuar con el usuario
      */
-    // Modified constructor
     public DriverPerfil(GestorDePerfil gdp, Scanner scanner) {
         gestorDePerfil = gdp;
         lector = scanner;

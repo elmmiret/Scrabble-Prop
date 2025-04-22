@@ -22,8 +22,22 @@ import ranking.Ranking;
  */
 public class GestorDePerfil {
 
+    /**
+     * Mapa que almacena todos los perfiles registrados utilizando el nombre de usuario
+     * como clave única para búsquedas eficientes.
+     */
     private Map<String, Perfil> jugadores;
+
+    /**
+     * Sistema de rankings asociado donde se registran y actualizan automáticamente
+     * las puntuaciones de los jugadores.
+     */
     private Ranking ranking;
+
+    /**
+     * Scanner utilizado para la interacción con el usuario mediante entrada/salida
+     * estándar en operaciones que requieren input interactivo.
+     */
     private Scanner lector;
 
     /**
@@ -177,4 +191,73 @@ public class GestorDePerfil {
      * @return true si hay al menos un perfil registrado, false si está vacío
      */
     public boolean hayJugadores() { return !jugadores.isEmpty(); }
+
+    /**
+     * Incrementa los puntos de un perfil del sistema
+     *
+     * @param username Nombre del perfil al que sumarle los puntos
+     * @param puntos Puntos a sumar
+     */
+    public void incrementarPuntosJugador(String username, int puntos)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPuntos(puntos);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
+
+    /**
+     * Incrementa en 1 las partidas jugadas del usuario obtenido como parámetro
+     *
+     * @param username Nombre del perfil al que sumarle las partidas jugadas
+     */
+    public void incrementarPartidasJugadas(String username)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPartidasJugadas(1);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
+
+    /**
+     * Incrementa en 1 las partidas ganadas del usuario obtenido como parámetro
+     *
+     * @param username Nombre del perfil al que sumarle las partidas ganadas
+     */
+    public void incrementarPartidasGanadas(String username)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPartidasGanadas(1);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
+
+    /**
+     * Incrementa en 1 las partidas perdidas del usuario obtenido como parámetro
+     *
+     * @param username Nombre del perfil al que sumarle las partidas perdidas
+     */
+    public void incrementarPartidasPerdidas(String username)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPartidasPerdidas(1);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
 }
