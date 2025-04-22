@@ -1,10 +1,8 @@
 package algorisme;
 
 import ctrldomini.*;
-import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import ctrldomini.*;
 import exceptions.CoordenadaFueraDeRangoException;
 /**
  * Clase que implementa algoritmos para encontrar el mejor movimiento en un juego de Scrabble.
@@ -24,25 +22,6 @@ public class Algoritmo {
         this.partida = partida;
     }
 
-    /**
-     *
-     *  Funcion que devuelva la mejor palara a colocar
-     *  Va a devolver una lista de (string, pair<x,y>) para cada palabra, para saber sus caracteres o digrafos y su posicion
-     *  @param tablero
-     *
-     *  1. Recorremos la matriz del tablero por filas
-     *
-     *  2. Computar los cross-checks de las casillas directamente arriba y abajo de casillas colocadas, sin tener en cuenta otras filas.
-     *     Esto nos permite, a la hora de hacer movimientos, evitar poner letras que no generan palabras validas (en vertical), si estas tocan con casillas colocadas
-     *
-     *  3. A la que se encuentra una casilla ocupada, vemos si el ancla tiene una casilla ocupada a su izquierda
-     *      3.1 Si la tiene, trataremos de extender el ancla y la parte derecha solamente con esa parte izquierda
-     *      3.2 Si no la tiene, la parte izquerda sera computada con letras del atril para luego extender estas partes hacia el ancla y parte derecha
-     *         (se computa con letras del atril que existen en los cross-checks)
-     *
-     *  4. Generar la lista con la mejor palabra (pair<pair<string,bool>, pair<x,y>>)
-     *                                                (letra, esDeAtril)   (posicion)
-     */
 
     /**
      * Calcula la mejor palabra para colocar en el tablero, considerando direcciones horizontales y verticales.
@@ -61,21 +40,21 @@ public class Algoritmo {
 
         // Probar orientación horizontal y vertical (transponiendo el tablero)
         for(int i = 0; i < 2; i++) {
-            // Calcular cross-checks para restringir letras posibles
+            // Calculamos cross-checks para restringir letras posibles
             computarCrossChecks(dawg, tablero, atril);
 
-            // Obtener posiciones de anclas
+            // Obtenemos posiciones de anclas
             List<SimpleEntry<Integer, Integer>> anclas = computarAnclas(tablero);
 
             System.out.println("Orientación: " + (estaTranspuesto ? "Vertical" : "Horizontal"));
             System.out.println("Número de anclas: " + anclas.size());
 
-            // Evaluar cada posición de ancla
+            // Evaluamos cada posición de ancla
             for (SimpleEntry<Integer, Integer> ancla : anclas) {
                 int x = ancla.getKey();
                 int y = ancla.getValue();
                 if (estaTranspuesto) {
-                    // Intercambiar coordenadas si el tablero está transpuesto
+                    // Intercambiamos coordenadas si el tablero está transpuesto
                     x = ancla.getValue();
                     y = ancla.getKey();
                 }
@@ -94,7 +73,7 @@ public class Algoritmo {
                 }
             }
 
-            // Transponer el tablero para la siguiente iteración
+            // Transponemos el tablero para la siguiente iteración
             tablero.transponerTablero();
             estaTranspuesto = true;
         }
@@ -685,8 +664,7 @@ public class Algoritmo {
                     String letra = atril[i];
                     NodoDawg siguiente = nodo.getHijos().get(letra);
                     List<SimpleEntry<String, Boolean>> listaLetras = new ArrayList<>();
-                    for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry
-                            : caminoAuxPos) {
+                    for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxPos) {
                         listaLetras.add(entry.getKey());
                     }
                     if (siguiente != null && existePrefijoEnDawg(listaLetras, letra, dawg)) {
