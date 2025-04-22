@@ -6,17 +6,27 @@ import java.util.AbstractMap.SimpleEntry;
 import exceptions.CoordenadaFueraDeRangoException;
 /**
  * Clase que implementa algoritmos para encontrar el mejor movimiento en un juego de Scrabble.
- * Utiliza estructuras DAWG para validación de palabras y estrategias de backtracking para optimizar búsquedas.
+ * Utiliza estructuras DAWG para validación de palabras y estrategias de backtracking para optimizar la búsqueda.
+ * La clase gestiona la lógica principal para evaluar movimientos posibles, calcular puntuaciones y validar palabras.
  *
  * @author Albert Aulet Niubó
  * @author Arnau Miret Barrull
  */
 public class Algoritmo {
+    /** Número de filas del tablero de Scrabble. Valor constante: 15. */
     private static final int FILAS = 15;
+    /** Número de columnas del tablero de Scrabble. Valor constante: 15. */
     private static final int COLUMNAS = 15;
-    private static final Set<String> Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
+    /** Conjunto de dígrafos válidos en el idioma del juego (ej: "RR", "NY"). */
+    private static final Set<String> Digrafos = new HashSet<>(Arrays.asList("RR", "NY", "LL", "L·L", "CH"));
+    /** Instancia de la partida actual que gestiona las reglas y estado del juego. */
     private Partida partida;
 
+    /**
+     * Constructor que inicializa el algoritmo con una partida específica.
+     *
+     * @param partida Objeto Partida que contiene el estado actual del juego.
+     */
     public Algoritmo(Partida partida)
     {
         this.partida = partida;
@@ -24,12 +34,14 @@ public class Algoritmo {
 
 
     /**
-     * Calcula la mejor palabra para colocar en el tablero, considerando direcciones horizontales y verticales.
-     * @param dawg Estructura DAWG para la comprobación de palabras
-     * @param tablero Estructura del tablero actual
-     * @param atril Fichas disponibles en el atril del jugador
-     * @return Lista de entradas con la palabra, si es del atril y su posición.
-     * @throws CoordenadaFueraDeRangoException Si se accede a una posición fuera del tablero
+     * Calcula la mejor palabra para colocar en el tablero considerando direcciones horizontales y verticales.
+     * Evalúa todas las posiciones ancla y utiliza backtracking para encontrar combinaciones óptimas.
+     *
+     * @param dawg Estructura DAWG para validación de palabras.
+     * @param tablero Estado actual del tablero.
+     * @param atril Array con las fichas disponibles en el atril del jugador.
+     * @return Lista de entradas con la mejor palabra encontrada, indicando letras, posiciones y si son del atril.
+     * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida del tablero.
      * @author Albert Aulet Niubó
      * @author Arnau Miret Barrull
      */
@@ -82,13 +94,14 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula la mejor palabra para una posición ancla específica.
+     * Calcula las palabras válidas para una posición ancla específica combinando letras del atril y del tablero.
      *
-     * @param dawg Estructura DAWG para validación de palabras.
-     * @param tablero Tablero actual del juego.
-     * @param ancla Posición ancla (x, y) donde se inicia la palabra.
-     * @param atril Fichas disponibles en el atril del jugador.
-     * @return Lista de entradas con la mejor palabra para el ancla.
+     * @param dawg Estructura DAWG para validación.
+     * @param tablero Estado actual del tablero.
+     * @param ancla Posición (x,y) que actúa como punto de anclaje para la palabra.
+     * @param atril Fichas disponibles en el atril.
+     * @param estaTranspuesto Indica si el tablero está transpuesto (para evaluar vertical/horizontal).
+     * @return Lista de posibles palabras válidas para el ancla especificado.
      * @throws CoordenadaFueraDeRangoException Si la posición ancla es inválida.
      * @author Arnau Miret Barrull
      */
@@ -173,11 +186,12 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula la puntuación de una palabra considerando modificadores del tablero.
+     * Calcula la puntuación total de una palabra considerando modificadores del tablero y bonificaciones.
      *
      * @param tablero Tablero actual del juego.
-     * @param palabra Lista de entradas que representan la palabra y sus posiciones.
-     * @return Puntuación total de la palabra, incluyendo bonificaciones.
+     * @param palabra Lista de entradas con letras, posiciones y origen (atril/tablero).
+     * @return Puntuación total calculada. Retorna 0 si la palabra es inválida.
+     * @throws CoordenadaFueraDeRangoException Si alguna posición de la palabra es inválida.
      * @author Albert Aulet Niubó
      */
     public int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra)
@@ -254,13 +268,13 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula la puntuación de una palabra vertical formada en una posición específica del tablero.
-     * Considera modificadores de letra/palabra y si las fichas pertenecen al atril del jugador.
+     * Calcula la puntuación de palabras verticales formadas al colocar una letra en una posición específica.
      *
      * @param tablero Tablero actual del juego.
-     * @param x Fila inicial de la posición a evaluar.
-     * @param y Columna de la posición a evaluar.
-     * @return Puntuación total de la palabra vertical, aplicando modificadores relevantes.
+     * @param x Fila de la posición evaluada.
+     * @param y Columna de la posición evaluada.
+     * @return Puntuación de la palabra vertical formada. Retorna 0 si no es válida.
+     * @throws CoordenadaFueraDeRangoException Si (x,y) está fuera de rango.
      * @author Albert Aulet Niubó
      */
     public int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y)
@@ -324,15 +338,15 @@ public class Algoritmo {
         }
     }
     /**
-     * Valida si una palabra formada en una posición es aceptada por el DAWG.
+     * Valida si una letra colocada en una posición forma una palabra horizontal válida según el DAWG.
      *
      * @param tablero Tablero actual del juego.
-     * @param fila Fila de la posición inicial.
-     * @param columna Columna de la posición inicial.
-     * @param letra Letra a colocar.
-     * @param dawg Estructura DAWG para validación.
-     * @return true si la palabra es válida, false en caso contrario.
-     * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
+     * @param fila Fila de la posición evaluada.
+     * @param columna Columna de la posición evaluada.
+     * @param letra Letra a validar.
+     * @param dawg Estructura DAWG para verificación.
+     * @return true si la palabra horizontal es válida, false en caso contrario.
+     * @throws CoordenadaFueraDeRangoException Si (fila,columna) es inválida.
      * @author Albert Aulet Niubó
      */
     public boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
@@ -353,7 +367,7 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula los crosschecks válidos para cada posición vacía del tablero.
+     * Calcula los cross-checks para cada posición vacía del tablero, determinando letras válidas.
      *
      * @param dawg Estructura DAWG para validación.
      * @param tablero Tablero actual del juego.
@@ -402,7 +416,18 @@ public class Algoritmo {
         }
     }
 
-    // Método adicional para validar palabras verticales
+    /**
+     * Valida si una letra colocada en una posición forma una palabra vertical válida según el DAWG.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param fila Fila de la posición evaluada.
+     * @param columna Columna de la posición evaluada.
+     * @param letra Letra a validar.
+     * @param dawg Estructura DAWG para verificación.
+     * @return true si la palabra vertical es válida, false en caso contrario.
+     * @throws CoordenadaFueraDeRangoException Si (fila,columna) es inválida.
+     * @author Albert Aulet Niubó
+     */
     private boolean esPalabraValidaVertical(Tablero tablero, int fila, int columna, String letra, Dawg dawg)
             throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS)
@@ -432,11 +457,11 @@ public class Algoritmo {
     }
 
     /**
-     * Encuentra todas las posiciones ancla en el tablero (casillas vacías adyacentes a letras).
+     * Identifica todas las posiciones ancla en el tablero (casillas vacías adyacentes a letras existentes).
      *
      * @param tablero Tablero actual del juego.
-     * @return Lista de posiciones (x, y) que son anclas.
-     * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
+     * @return Lista de posiciones (x,y) que actúan como anclas.
+     * @throws CoordenadaFueraDeRangoException Si se detecta una posición inválida durante el proceso.
      * @author Albert Aulet Niubó
      */
     public List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
@@ -453,13 +478,13 @@ public class Algoritmo {
     }
 
     /**
-     * Verifica si una posición tiene casillas adyacentes ocupadas.
+     * Verifica si una posición del tablero tiene casillas adyacentes ocupadas.
      *
      * @param tablero Tablero actual del juego.
-     * @param fila Fila de la posición a verificar.
-     * @param columna Columna de la posición a verificar.
-     * @return true si hay al menos una casilla adyacente ocupada.
-     * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
+     * @param fila Fila de la posición evaluada.
+     * @param columna Columna de la posición evaluada.
+     * @return true si la casilla adyacente a su derecha está ocupada, false en caso contrario.
+     * @throws CoordenadaFueraDeRangoException Si (fila,columna) es inválida.
      * @author Albert Aulet Niubó
      */
     public boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
@@ -483,17 +508,19 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula la mejor combinación de letras del atril para formar una palabra válida en una posición ancla del tablero.
-     * Utiliza backtracking para explorar todas las combinaciones posibles dentro de la longitud máxima permitida.
+     * Genera la mejor combinación de letras del atril para formar una palabra válida desde una posición ancla.
+     * Combina backtracking con verificación en DAWG para optimizar la búsqueda de movimientos válidos.
      *
-     * @param root Nodo raíz del DAWG para validación de prefijos.
-     * @param atril Array de letras disponibles en el atril del jugador.
-     * @param longitud Longitud máxima permitida para la parte izquierda de la palabra.
-     * @param tablero Tablero actual del juego.
-     * @param x Fila de la posición ancla.
-     * @param y Columna de la posición ancla.
-     * @return Lista de entradas que representan la mejor palabra encontrada, con letras, origen (atril/tablero) y posiciones.
-     * @throws CoordenadaFueraDeRangoException Si las coordenadas (x, y) están fuera del rango del tablero.
+     * @param root Nodo raíz del DAWG para validación de prefijos
+     * @param atril Array con fichas disponibles en el atril
+     * @param longitud Máxima extensión permitida hacia la izquierda del ancla
+     * @param tablero Estado actual del tablero
+     * @param x Coordenada X (fila) de la posición ancla
+     * @param y Coordenada Y (columna) de la posición ancla
+     * @param dawg Instancia del DAWG para validación léxica
+     * @param estaTranspuesto Indica si el tablero está en orientación vertical
+     * @return Lista de entradas con estructura: ((Letra, EsDelAtril), (PosX, PosY))
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas exceden los límites del tablero
      * @author Arnau Miret Barrull
      */
     private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y, Dawg dawg, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
@@ -507,19 +534,20 @@ public class Algoritmo {
     }
 
     /**
-     * Función auxiliar recursiva que genera todas las combinaciones válidas de letras del atril para la parte izquierda de la palabra.
-     * Actualiza la mejor palabra encontrada comparando puntuaciones.
+     * Método auxiliar recursivo que genera combinaciones válidas para la parte izquierda de la palabra.
+     * Evalúa todas las permutaciones posibles del atril actualizando continuamente la mejor solución encontrada.
      *
-     * @param nodo Nodo actual del DAWG durante la exploración.
-     * @param atril Letras disponibles en el atril.
-     * @param usados Array que indica qué letras del atril han sido usadas.
-     * @param restantes Número de letras restantes por colocar en la parte izquierda.
-     * @param camino Lista temporal con las letras y su origen (atril/tablero) en la combinación actual.
-     * @param mejorPalabra Referencia a la lista que almacena la mejor palabra encontrada.
-     * @param tablero Tablero actual del juego.
-     * @param x Fila de la posición ancla.
-     * @param y Columna de la posición ancla.
-     * @throws CoordenadaFueraDeRangoException Si las coordenadas (x, y) son inválidas.
+     * @param nodo Nodo actual en el DAWG durante la exploración
+     * @param atril Conjunto de fichas disponibles
+     * @param usados Array que rastrea las fichas del atril utilizadas
+     * @param restantes Número de posiciones restantes por rellenar
+     * @param camino Lista temporal con la combinación actual de letras
+     * @param mejorPalabra Referencia mutable a la mejor solución encontrada
+     * @param tablero Estado actualizado del tablero
+     * @param x Coordenada X del ancla
+     * @param y Coordenada Y del ancla
+     * @param dawg Instancia del DAWG para validaciones
+     * @param estaTranspuesto Estado de orientación del tablero
      * @author Arnau Miret Barrull
      */
     private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y, Dawg dawg, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
@@ -572,6 +600,15 @@ public class Algoritmo {
         }
     }
 
+    /**
+     * Verifica si la combinación de letras actual más una nueva letra forman un prefijo válido en el DAWG.
+     *
+     * @param camino Lista de letras actualmente seleccionadas
+     * @param letra Nueva letra a añadir al prefijo
+     * @param dawg Instancia del DAWG para consulta
+     * @return true si el prefijo combinado existe en el DAWG
+     * @author Albert Aulet Niubó
+     */
     private boolean existePrefijoEnDawg(List<SimpleEntry<String, Boolean>> camino, String letra, Dawg dawg) {
         List<String> prefijo = new ArrayList<>();
         // por cada letra del camino la añadimos al prefijo
@@ -584,17 +621,17 @@ public class Algoritmo {
     }
 
     /**
-     * Extiende una palabra hacia la derecha desde una posición dada, validando combinaciones con el DAWG y calculando puntuaciones.
+     * Extiende una palabra hacia la derecha desde la posición actual, evaluando posibles combinaciones.
+     * Considera tanto fichas existentes en el tablero como nuevas fichas del atril.
      *
-     * @param tablero Tablero actual del juego.
-     * @param caminoAuxConPosiciones Lista temporal con letras y posiciones de la palabra en construcción.
-     * @param atril Letras disponibles en el atril.
-     * @param usados Array que indica qué letras del atril han sido usadas.
-     * @param nodo Nodo actual del DAWG durante la extensión.
-     * @param x Fila actual durante la extensión.
-     * @param y Columna actual durante la extensión.
-     * @return Puntuación máxima obtenida durante la extensión.
-     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @param tablero Estado del tablero
+     * @param caminoAuxConPosiciones Lista temporal con letras y posiciones
+     * @param atril Fichas disponibles
+     * @param usados Fichas del atril ya utilizadas
+     * @param nodo Nodo actual en el DAWG
+     * @param x Posición X actual
+     * @param y Posición Y actual
+     * @return Máxima puntuación obtenida en esta rama de exploración
      * @author Albert Aulet Niubó
      */
     private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y, Dawg dawg) throws CoordenadaFueraDeRangoException {
@@ -609,19 +646,19 @@ public class Algoritmo {
     }
 
     /**
-     * Función auxiliar recursiva para extender una palabra hacia la derecha, evaluando letras del atril y existentes en el tablero.
+     * Método auxiliar recursivo para la extensión derecha de palabras.
+     * Evalúa sistemáticamente todas las posibilidades de extensión y actualiza la mejor solución.
      *
-     * @param tablero Tablero actual del juego.
-     * @param caminoAuxPos Lista temporal con letras y posiciones de la palabra en construcción.
-     * @param atril Letras disponibles en el atril.
-     * @param usados Array que indica qué letras del atril han sido usadas.
-     * @param nodo Nodo actual del DAWG durante la extensión.
-     * @param mejorPalabra Referencia a la mejor palabra encontrada durante la extensión.
-     * @param x Fila actual durante la extensión.
-     * @param y Columna actual durante la extensión.
-     * @param puntuacion Puntuación acumulada hasta el momento.
-     * @return Puntuación máxima obtenida en esta rama de exploración.
-     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @param tablero Estado actual del tablero
+     * @param caminoAuxPos Lista temporal con la palabra en construcción
+     * @param atril Fichas disponibles
+     * @param usados Fichas del atril utilizadas
+     * @param nodo Nodo DAWG actual
+     * @param mejorPalabra Referencia a la mejor solución encontrada
+     * @param x Coordenada X actual
+     * @param y Coordenada Y actual
+     * @param puntuacion Puntuación acumulada
+     * @return Puntuación máxima alcanzada en esta rama
      * @author Albert Aulet Niubó
      */
     private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion, Dawg dawg) throws CoordenadaFueraDeRangoException {
@@ -708,14 +745,13 @@ public class Algoritmo {
     }
 
     /**
-     * Recupera las letras ya colocadas en el tablero a la izquierda de una posición ancla.
+     * Obtiene la secuencia de letras existentes a la izquierda de una posición ancla en el tablero.
      *
-     * @param tablero Tablero actual del juego.
-     * @param longitud Longitud máxima de la parte izquierda a recuperar.
-     * @param x Fila de la posición ancla.
-     * @param y Columna de la posición ancla.
-     * @return Lista de letras existentes a la izquierda del ancla, indicando que no son del atril.
-     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @param tablero Estado del tablero
+     * @param longitud Máxima longitud a recuperar
+     * @param x Fila del ancla
+     * @param y Columna del ancla
+     * @return Lista de letras preexistentes con indicador de no ser del atril
      * @author Arnau Miret Barrull
      */
     public List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
@@ -731,12 +767,11 @@ public class Algoritmo {
     }
 
     /**
-     * Verifica si una coordenada (x, y) está dentro de los límites del tablero.
+     * Valida si una posición específica se encuentra dentro de los límites del tablero.
      *
-     * @param x Fila a verificar.
-     * @param y Columna a verificar.
-     * @return true si (x, y) es una posición válida, false en caso contrario.
-     * @author Arnau Miret Barrull
+     * @param x Coordenada X (fila) a validar
+     * @param y Coordenada Y (columna) a validar
+     * @return true si la posición es válida (0 ≤ x,y < 15)
      */
     public boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
@@ -744,14 +779,14 @@ public class Algoritmo {
 
 
     /**
-     * Asigna posiciones del tablero a las letras de una palabra generada con el atril.
+     * Asigna coordenadas del tablero a cada letra de una palabra generada.
      *
-     * @param palabra Lista de letras y su origen (atril/tablero).
-     * @param max_long Longitud de la parte izquierda de la palabra.
-     * @param x Fila de la posición ancla.
-     * @param y Columna de la posición ancla.
-     * @return Lista de entradas con letras, origen y posiciones asignadas.
-     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @param palabra Lista de letras con indicador de origen
+     * @param max_long Longitud de la parte izquierda
+     * @param x Fila base del ancla
+     * @param y Columna base del ancla
+     * @param estaTranspuesto Indica orientación del tablero
+     * @return Lista de letras con sus posiciones asignadas
      * @author Arnau Miret Barrull
      */
     public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
@@ -768,13 +803,12 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula la longitud máxima posible para la parte izquierda de una palabra usando solo letras del atril.
+     * Calcula la máxima extensión posible hacia la izquierda usando solo el atril.
      *
-     * @param tablero Tablero actual del juego.
-     * @param x Fila de la posición ancla.
-     * @param y Columna de la posición ancla.
-     * @return Longitud máxima permitida para la parte izquierda con letras del atril.
-     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
+     * @param tablero Estado del tablero
+     * @param x Fila del ancla
+     * @param y Columna del ancla
+     * @return Número máximo de posiciones disponibles
      * @author Arnau Miret Barrull
      */
     public int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
@@ -795,14 +829,12 @@ public class Algoritmo {
     }
 
     /**
-     * Calcula la longitud máxima posible para la parte izquierda de una palabra usando letras existentes en el tablero.
+     * Determina la longitud de la secuencia existente de letras a la izquierda del ancla.
      *
-     * @param tablero Tablero actual del juego.
-     * @param x Fila de la posición ancla.
-     * @param y Columna de la posición ancla.
-     * @return Longitud máxima de letras consecutivas existentes a la izquierda del ancla.
-     * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
-     * @author Arnau Miret Barrull
+     * @param tablero Estado del tablero
+     * @param x Fila del ancla
+     * @param y Columna del ancla
+     * @return Cantidad de letras consecutivas existentes
      */
     public int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
         int size = 0;
