@@ -7,17 +7,48 @@ import java.util.*;
 import java.io.*;
 
 /**
+ * Clase que implementa un DAWG (Directed Acyclic Word Graph) para almacenar
+ * y validar palabras de forma eficiente. Soporta múltiples idiomas y maneja
+ * digrafos/trigrafos en la división de palabras.
+ *
  * @author Arnau Miret Barrull
  */
 public class Dawg {
+
+    /**
+     * Conjunto de digrafos/trigrafos para idiomas no ingleses
+     */
     private static Set<String> Digrafos;
+
+    /**
+     * Nodo raíz del grafo DAWG
+     */
     private final NodoDawg root;  // Nodo raíz del DAWG
+
+    /**
+     * Registro para minimización de nodos duplicados
+     */
     private final Map<NodoDawg, NodoDawg> registro;   // Mapa para evitar nodos multiplicados (minimizar)
+
+    /**
+     * Número de filas del tablero
+     */
     private static final int FILAS = 15;
+
+    /**
+     * Número de columnas del tablero
+     */
     private static final int COLUMNAS = 15;
+
+    /**
+     * Idioma actual para procesamiento de palabras
+     */
     private static Partida.Idioma idioma;
 
-    // Funcion constructora
+    /**
+     * Constructor que inicializa el DAWG para un idioma específico
+     * @param idiomaPartida Idioma para cargar el diccionario correspondiente
+     */
     public Dawg(Partida.Idioma idiomaPartida) {
         Digrafos = new HashSet<>(Arrays.asList("RR", "NY", "LL", "L·L", "CH"));
         root = new NodoDawg();
@@ -39,6 +70,11 @@ public class Dawg {
         }
     }
 
+    /**
+     * Obtiene el prefijo común más largo entre una palabra y las existentes en el DAWG
+     * @param palabra Palabra a analizar
+     * @return Lista de símbolos del prefijo común
+     */
     private List<String> getPrefijoComun(String palabra) {
         List<String> simbolos = dividirPalabra(palabra);
         List<String> prefijoComun = new ArrayList<>();
@@ -54,6 +90,11 @@ public class Dawg {
         return prefijoComun;
     }
 
+    /**
+     * Obtiene el nodo correspondiente a una secuencia de símbolos
+     * @param palabra Lista de símbolos a buscar
+     * @return Nodo final de la secuencia o null si no existe
+     */
     public NodoDawg getNodo(List<String> palabra) {
         NodoDawg nodo = root;
         for(int i = 0; i < palabra.size(); i++) {
@@ -66,6 +107,11 @@ public class Dawg {
         return nodo;
     }
 
+    /**
+     * Añade un sufijo a partir de un nodo dado
+     * @param ultimonodo Nodo donde comenzar a añadir el sufijo
+     * @param sufijoactual Secuencia de símbolos a añadir
+     */
     private void anadirSufijo(NodoDawg ultimonodo, List<String> sufijoactual) {
         NodoDawg nodo = ultimonodo;
         for(int i = 0; i < sufijoactual.size(); i++) {
@@ -77,6 +123,10 @@ public class Dawg {
         nodo.setEsFinal(true);
     }
 
+    /**
+     * Minimiza la estructura del DAWG eliminando nodos redundantes
+     * @param nodo Nodo desde el que comenzar la minimización
+     */
     private void minimizar(NodoDawg nodo) {
         Map.Entry<String, NodoDawg> hijomasgrande = nodo.getHijoMasGrande();
         if(hijomasgrande == null) return;
@@ -98,10 +148,9 @@ public class Dawg {
     }
 
     /**
-     * Función que inserta una nueva palabra String en el DAWG
-     * @param palabra
+     * Inserta una palabra en el DAWG
+     * @param palabra Palabra a insertar
      */
-
     public void insertar(String palabra) {
         List<String> palabradividida = dividirPalabra(palabra);
         List<String> prefijocomun = getPrefijoComun(palabra);
@@ -122,16 +171,16 @@ public class Dawg {
     }
 
     /**
-     * Función que finaliza la construcción del DAWG minimizando todos los nodos restantes
+     * Finaliza la construcción del DAWG aplicando minimización completa
      */
     public void acabar() {
         minimizar(root);
     }
 
     /**
-     * Función para dividir una palabra en String a una Lista de Strings con sus letras
-     * @param palabra
-     * @return
+     * Divide una palabra en símbolos según las reglas del idioma
+     * @param palabra Palabra a dividir
+     * @return Lista de símbolos resultantes
      */
     public List<String> dividirPalabra(String palabra) {
         List<String> division = new ArrayList<>();
@@ -168,27 +217,19 @@ public class Dawg {
     }
 
     /**
-     * Función para obtener el nodo raíz del DAWG
-     * @return
+     * Obtiene el nodo raíz del DAWG
+     * @return Nodo raíz del grafo
      */
     public NodoDawg getRoot() {
         return root;
     }
 
-    // Imprime todas las palabras representadas en el DAWG (para comprovar que funciona la implementación)
-    /*public void imprimir(NodoDawg nodo, String prefijo) {
-        if(nodo.getEsFinal()) System.out.println(prefijo);
-        for(Map.Entry<String, NodoDawg> hijo : nodo.getHijos().entrySet()) {
-            imprimir(hijo.getValue(), prefijo + hijo.getKey());
-        }
-    }*/
 
     /**
-     * True o false si existe el prefijo indicado en el DAWG
-     * @param prefijo
-     * @return
+     * Verifica la existencia de un prefijo en el DAWG
+     * @param prefijo Prefijo a comprobar
+     * @return true si el prefijo existe, false en caso contrario
      */
-
     public boolean existePrefijo(String prefijo) {
         List<String> simbolos = dividirPalabra(prefijo);
         NodoDawg nodo = root;
@@ -199,12 +240,10 @@ public class Dawg {
         return true; // El prefijo existe si se recorren todos los símbolos
     }
 
-
-
     /**
-     * True o false si existe la palabra indicada en el Dawg
-     * @param palabra
-     * @return
+     * Verifica la existencia de una palabra completa en el DAWG
+     * @param palabra Palabra a comprobar
+     * @return true si la palabra existe, false en caso contrario
      */
     public boolean existePalabra(String palabra) {
         List<String> simbolos = dividirPalabra(palabra);
@@ -218,6 +257,9 @@ public class Dawg {
         return nodo.getEsFinal();
     }
 
+    /**
+     * Carga el diccionario catalán desde archivo
+     */
     public void insertarDiccionarioCatalan() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/catalan.txt"))) {
             String linea;
@@ -230,6 +272,9 @@ public class Dawg {
         }
     }
 
+    /**
+     * Carga el diccionario castellano desde archivo
+     */
     public void insertarDiccionarioCastellano() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
             String linea;
@@ -242,6 +287,9 @@ public class Dawg {
         }
     }
 
+    /**
+     * Carga el diccionario inglés desde archivo
+     */
     public void insertarDiccionarioIngles() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/ingles.txt"))) {
             String linea;
@@ -255,15 +303,15 @@ public class Dawg {
     }
 
     /**
-     * Función que comprueba que la palabra que se quiere colocar en el tablero sea correcta
-     * @param tablero
-     * @param palabra
-     * @param x
-     * @param y
-     * @param modo
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
+     * Valida la colocación de una palabra en el tablero
+     * @param tablero Tablero de juego
+     * @param palabra Palabra a colocar
+     * @param x Coordenada X inicial
+     * @param y Coordenada Y inicial
+     * @param modo Dirección de colocación ("horizontal"/"vertical")
+     * @param esPrimerTurno Indica si es el primer turno del juego
+     * @return true si la colocación es válida, false en caso contrario
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero
      */
     public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -412,13 +460,13 @@ public class Dawg {
     }
 
     /**
-     * Función que comprueba que la colocación (en horizontal) de la letra en una posición del tablero es correcta
-     * @param tablero
-     * @param letra
-     * @param x
-     * @param y
-     * @return
-     * @author Arnau Miret Barrull
+     * Verifica que la colocación horizontal de una letra no forme palabras inválidas en vertical
+     * @param tablero Tablero de juego
+     * @param letra Letra a colocar
+     * @param x Coordenada X de la posición a verificar
+     * @param y Coordenada Y de la posición a verificar
+     * @return true si la colocación es válida, false si forma palabras inválidas
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero
      */
     private boolean mirarNuevasPalabrasHorizontal(Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -451,14 +499,13 @@ public class Dawg {
     }
 
     /**
-     *  Función que comprueba que la colocación (en vertical) de la letra en una posición del tablero es correcta
-     * @param tablero
-     * @param letra
-     * @param x
-     * @param y
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
+     * Verifica que la colocación vertical de una letra no forme palabras inválidas en horizontal
+     * @param tablero Tablero de juego
+     * @param letra Letra a colocar
+     * @param x Coordenada X de la posición a verificar
+     * @param y Coordenada Y de la posición a verificar
+     * @return true si la colocación es válida, false si forma palabras inválidas
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero
      */
     private boolean mirarNuevasPalabrasVertical(Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -492,22 +539,10 @@ public class Dawg {
     }
 
     /**
-     *  Función que comprueba si la palabra que se forma verticalmente en el tablero con la nueva letra es correcta
-     * @param tablero
-     * @param x
-     * @param y
-     * @param xletra
-     * @param letra
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
-     */
-
-    /**
-     * Función para saber si una casilla está dentro del tablero o no
-     * @param x
-     * @param y
-     * @return
+     * Verifica si una posición está dentro de los límites del tablero
+     * @param x Coordenada X a comprobar
+     * @param y Coordenada Y a comprobar
+     * @return true si la posición es válida, false en caso contrario
      */
     public boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
@@ -516,15 +551,14 @@ public class Dawg {
 
 
     /**
-     *  Función que comprueba si la palabra que se forma horizontalmente en el tablero con la nueva letra es correcta
-     * @param tablero
-     * @param x
-     * @param y
-     * @param yletra
-     * @param letra
-     * @return
-     * @throws CoordenadaFueraDeRangoException
-     * @author Arnau Miret Barrull
+     * Valida una palabra formada horizontalmente en el tablero
+     * @param tablero Tablero de juego
+     * @param x Coordenada X inicial
+     * @param y Coordenada Y inicial
+     * @param yletra Posición Y de la letra recién colocada
+     * @param letra Letra colocada
+     * @return true si la palabra es válida, false en caso contrario
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero
      */
     private boolean palabraHorizontalCorrecta(Tablero tablero, int x, int y, int yletra, String letra) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -541,6 +575,16 @@ public class Dawg {
         return true;
     }
 
+    /**
+     * Comprueba si una palabra cabe verticalmente y cumple las reglas de adyacencia
+     * @param tablero Tablero de juego
+     * @param divisiones Lista de símbolos de la palabra
+     * @param x Coordenada X inicial
+     * @param y Coordenada Y inicial
+     * @param esPrimerTurno Indica si es el primer turno del juego
+     * @return true si la palabra cabe y cumple las reglas, false en caso contrario
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero
+     */
     private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException{
         int size = divisiones.size();
         Integer[] X = {1, 1, 0, 0};
@@ -563,6 +607,16 @@ public class Dawg {
 
     }
 
+    /**
+     * Comprueba si una palabra cabe horizontalmente y cumple las reglas de adyacencia
+     * @param tablero Tablero de juego
+     * @param divisiones Lista de símbolos de la palabra
+     * @param x Coordenada X inicial
+     * @param y Coordenada Y inicial
+     * @param esPrimerTurno Indica si es el primer turno del juego
+     * @return true si la palabra cabe y cumple las reglas, false en caso contrario
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero
+     */
     private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException{
         int size = divisiones.size();
         Integer[] X = {1, 1, 0, 0};

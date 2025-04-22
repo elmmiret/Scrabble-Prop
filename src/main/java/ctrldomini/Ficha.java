@@ -1,22 +1,30 @@
 package ctrldomini;
 
 /**
- * Esta clase representa una Ficha de Scrabble.
- * Contiene la letra a la que representa y su puntuación.
+ * Representa una ficha del juego Scrabble con su correspondiente letra y valor de puntuación.
  *
- * @author: Paula Pérez
+ * <p>Características principales:</p>
+ * <ul>
+ *   <li>Inmutabilidad: Una vez creada, sus propiedades no pueden modificarse</li>
+ *   <li>Comparación completa: La igualdad considera tanto la letra como la puntuación</li>
+ *   <li>Normalización: Almacena siempre la letra en mayúsculas</li>
+ * </ul>
+ *
+ * @author Paula Pérez Chia
  */
 public class Ficha {
+
+    /** Letra representada, almacenada siempre en mayúscula */
     private String letra;
+
+    /** Valor numérico de la puntuación de la ficha */
     private int puntuacion;
 
-    // CREADORA
-    
     /**
-     * Crea una instancia de Ficha.
+     * Construye una ficha con las características especificadas.
      *
-     * @param letra Letra que representa la ficha
-     * @param puntuacion Puntuación de la letra
+     * @param letra Carácter que representa la ficha (se convertirá a mayúscula)
+     * @param puntuacion Valor positivo que indica su puntuación en el juego
      */
     public Ficha(String letra, int puntuacion) {
         this.letra = letra.toUpperCase();
@@ -26,23 +34,29 @@ public class Ficha {
     // MÉTODOS
 
     /**
-     * Devuelve la letra de la ficha.
+     * Obtiene la letra representada por la ficha.
      *
-     * @return la letra de la ficha
+     * @return Cadena de un solo carácter en mayúscula
      */
     public String getLetra() {
         return letra;
     }
 
     /**
-     * Devuelve la puntuación de la ficha.
+     * Obtiene el valor de puntuación asociado a la ficha.
      *
-     * @return la puntuación de la ficha
+     * @return Entero positivo con el valor de puntuación
      */
     public int getPuntuacion() {
         return puntuacion;
     }
 
+    /**
+     * Compara la igualdad completa entre dos fichas.
+     *
+     * @param obj Objeto a comparar
+     * @return true si son ambas fichas con misma letra y puntuación, false en otro caso
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -52,6 +66,11 @@ public class Ficha {
                 letra.equals(other.letra);
     }
 
+    /**
+     * Genera código hash basado en los atributos de la ficha.
+     *
+     * @return Código hash único para combinaciones letra-puntuación
+     */
     @Override
     public int hashCode() {
         return java.util.Objects.hash(letra, puntuacion);

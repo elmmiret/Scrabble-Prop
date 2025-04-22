@@ -3,7 +3,7 @@ package ctrldomini;
 import java.util.Scanner;
 
 /**
- * Driver para probar las funcionalidades de la clase Ficha
+ * Driver para probar las funcionalidades de la clase Ficha NO SE USA EN LA IMPLEMENTACIÓN
  *
  * @author: Paula Pérez
  */

@@ -10,33 +10,50 @@ import java.util.AbstractMap.SimpleEntry;
 
 /**
  * Esta clase representa el tablero de Scrabble.
- * Contiene un tablero en el que se almacena la Ficha que se coloca y su modificador, si tiene.
- * 
- * @author: Paula Pérez
+ * Gestiona la colocación de fichas, los modificadores de puntuación y la visualización del tablero.
+ * El tablero es una cuadrícula de 15x15 casillas con modificadores predefinidos según las reglas del Scrabble.
+ * Soporta múltiples idiomas (CAST, CAT, ENG) para la visualización de la leyenda.
+ *
+ * @author Paula Pérez Chia
+ * @author Albert Aulet Niubó (método transponerTablero)
  */
 public class Tablero {
+    /**
+     * Estructura principal del tablero.
+     * Cada casilla almacena una ficha con su modificador (si existe) y un conjunto de letras del abecedario.
+     */
     private List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> tablero;
+
+    /** Número de filas del tablero (valor fijo 15). */
     public static final int FILAS = 15;
+
+    /** Número de columnas del tablero (valor fijo 15). */
     public static final int COLUMNAS = 15;
+
+    /** Idioma de la partida, que afecta a la leyenda y alfabeto utilizado. */
     private Partida.Idioma idiomaPartida;
 
+    /** Conjunto de letras válidas según el idioma seleccionado. */
     private Set<String> letras;
 
+    /**
+     * Tipos de modificadores de puntuación para las casillas del tablero.
+     * <ul>
+     *   <li>dobleTantoDeLetra: Duplica el valor de la ficha en esta casilla.</li>
+     *   <li>tripleTantoDeLetra: Triplica el valor de la ficha en esta casilla.</li>
+     *   <li>dobleTantoDePalabra: Duplica el valor total de la palabra que pasa por esta casilla.</li>
+     *   <li>tripleTantoDePalabra: Triplica el valor total de la palabra que pasa por esta casilla.</li>
+     * </ul>
+     */
     public enum TipoModificador {   // si esta null es que no hay ningun bonificador en esa casilla
         dobleTantoDeLetra, tripleTantoDeLetra, dobleTantoDePalabra, tripleTantoDePalabra
     }
 
-    // TODO: Cambiar los rangos para q los usuarios puedan usar de 1 a 15 y no q empiece por 0,
-    // que por 0 solo sea cuando se necesitan bucles
-    // depende de la implementacion final
-
-
-    // CONSTRUCTORA
-
     /**
-     * Construye una instancia de Tablero.
+     * Construye un tablero vacío inicializado con los modificadores según el diseño estándar del Scrabble.
+     * Configura el alfabeto según el idioma proporcionado.
      *
-     * Todos los tableros tienen la misma estructura y distribución, por lo tanto, lo monta también.
+     * @param idiomaPartida Idioma de la partida (CAST, CAT, ENG), determina las letras válidas y la leyenda.
      */
     public Tablero(Partida.Idioma idiomaPartida) {
         tablero = new ArrayList<>();
@@ -68,9 +85,8 @@ public class Tablero {
 
 
     /**
-     * Monta el set de Letras.
-     *
-     * @param mapaFichas Mapa de Fichas que tiene el alfabeto del idioma seleccionado
+     * Inicializa el conjunto de letras válidas según el idioma.
+     * @param mapaFichas Mapa de fichas del alfabeto correspondiente.
      */
     public void setLetras(Map<Ficha, Integer> mapaFichas) {
         for (Map.Entry<Ficha, Integer> entry : mapaFichas.entrySet()) {
@@ -81,9 +97,14 @@ public class Tablero {
     }
 
     /**
-     * Monta el Tablero.
-     *
-     * Lo inicializa vacío y con los modificadores en sus respectivas casillas segun las reglas del juego de un Tablero 15x15.
+     * Configura la estructura del tablero con los modificadores en sus posiciones estándar.
+     * Distribución:
+     * <ul>
+     *   <li>Triple palabra: Esquinas y centro de los bordes.</li>
+     *   <li>Doble palabra: Diagonales excepto centro.</li>
+     *   <li>Triple letra: Posiciones específicas (ej: (5,1), (1,5)).</li>
+     *   <li>Doble letra: Dispersas simétricamente.</li>
+     * </ul>
      */
     public void montarTablero () {
         TipoModificador m;
@@ -128,11 +149,12 @@ public class Tablero {
     // MÉTODOS
 
     /**
-     * Obtiene la ficha que se encuentra en la posición (x, y) del tablero.
+     * Obtiene la ficha en la posición (x, y).
      *
-     * @param x Fila de la ficha.
-     * @param y Columna de la ficha.
-     * @return La ficha situada en la posición (x, y) o null si no hay ficha.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @return Ficha en la posición o {@code null} si está vacía.
+     * @throws CoordenadaFueraDeRangoException Si x o y están fuera del rango 0-14.
      */
     public Ficha getFicha( int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -141,11 +163,12 @@ public class Tablero {
 
 
     /**
-     * Obtiene el modificador de la casilla del tablero especificada.
+     * Obtiene el modificador de puntuación de la casilla especificada.
      *
-     * @param x Fila de la casilla.
-     * @param y Columna de la casilla.
-     * @return Tipo de modificador asignado a la posición, o null si no tiene.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @return Tipo de modificador de la casilla, o {@code null} si no tiene.
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del rango válido.
      */
     public TipoModificador getTipoModificador ( int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -153,11 +176,13 @@ public class Tablero {
     }
 
     /**
-     * Obtiene el set de letras que se encuentra en la posición (x, y) del tablero.
+     * Obtiene el conjunto de letras asociado a la casilla (x, y).
+     * Este conjunto representa caracteres válidos para restricciones de juego.
      *
-     * @param x Fila del abecedario.
-     * @param y Columna del abeceadrio.
-     * @return Set de letras situado en la posición (x, y) o null si no hay abecedario.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @return Set de letras (nunca {@code null}, puede estar vacío).
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas.
      */
     public Set<String> getAbecedario ( int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -165,14 +190,14 @@ public class Tablero {
     }
 
     /**
-     * Coloca una ficha en la posicion (x, y) del tablero.
-     * Si ya hay una ficha, lanza error ya que el juego no permite cambiar fichas una vez están bien colocadas.
+     * Coloca una ficha en la posición (x, y).
+     * La casilla debe estar vacía.
      *
-     * @pre x Está en mayúscula y pertenece al rango de letras del tablero
-     *
-     * @param f Ficha que se desea colocar.
-     * @param x Fila donde colocar la ficha.
-     * @param c Columna donde colocar la ficha.
+     * @param f Ficha a colocar.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @throws CasillaOcupadaException Si la casilla ya contiene una ficha.
+     * @throws CoordenadaFueraDeRangoException Si x o y están fuera de rango.
      */
     public void setFicha (Ficha f, int x, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -182,12 +207,13 @@ public class Tablero {
     }
 
     /**
-     * Coloca una letra en la posicion (x, y) del abecedario del tablero.
-     * Si ya existia, se ignora.
+     * Coloca una letra en el conjunto de caracteres permitidos de una casilla.
+     * Si la letra ya existe, no se realiza ninguna acción.
      *
-     * @param letra Letra que se desea colocar.
-     * @param x Fila del abecedario.
-     * @param y Columna del abeceadrio.
+     * @param letra Letra a añadir.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas.
      */
     public void setLetraAbecedario(String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -196,12 +222,13 @@ public class Tablero {
     }
 
     /**
-     * Borra una letra en la posicion (x, y) del abecedario del tablero.
-     * Si no existia, se ignora.
+     * Elimina una letra del conjunto de caracteres permitidos de una casilla.
+     * Si la letra no existe, no se realiza ninguna acción.
      *
-     * @param letra Letra que se desea borrar.
-     * @param x Fila del abecedario.
-     * @param y Columna del abeceadrio.
+     * @param letra Letra a eliminar.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas.
      */
     public void borrarLetraAbecedario(String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -210,10 +237,11 @@ public class Tablero {
     }
 
     /**
-     * Borra todo el set de abecedario entero en la posición (x, y) del tablero.
+     * Vacía el conjunto de letras permitidas en una casilla.
      *
-     * @param x Fila del abecedario.
-     * @param y Columna del abecedario.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas.
      */
     public void clearAbecedario(int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -222,11 +250,14 @@ public class Tablero {
     }
 
     /**
-     * Obtiene la casilla que se encuentra en la posición (x, y) del tablero.
+     * Obtiene toda la información de una casilla, incluyendo ficha, modificador y letras permitidas.
      *
-     * @param x Fila de la casilla.
-     * @param y Columna de la casilla.
-     * @return Casilla de la posición (x, y) del tablero.
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @return Entrada que contiene:
+     *         - Ficha y modificador (pueden ser {@code null}).
+     *         - Set de letras permitidas (nunca {@code null}).
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas.
      */
     public SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> getCasilla(int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
@@ -234,10 +265,11 @@ public class Tablero {
     }
 
     /**
-     * Indica si el tablero esta vacío o no.
-     * El tablero está vacío cuando no tiene ninguna ficha colocada ni ningun abecedario inicializado
+     * Verifica si el tablero está completamente vacío.
+     * Se considera vacío si no hay fichas colocadas y todos los conjuntos de letras están vacíos.
      *
-     * @return bool True si esta facio o False si no.
+     * @return {@code true} si el tablero está vacío, {@code false} en caso contrario.
+     * @throws CoordenadaFueraDeRangoException Si hay un error al acceder a las coordenadas (improbable).
      */
     public boolean estaVacio() throws CoordenadaFueraDeRangoException {
         for (int i = 0; i < FILAS; i++) {
@@ -254,7 +286,6 @@ public class Tablero {
      * Este método modifica la estructura interna del tablero para reorganizar las casillas.
      *
      * @pre El tablero debe ser cuadrado
-     * @author Albert Aulet Niubó (excepcionalmente en esta clase)
      */
     public void transponerTablero() {
         List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);
@@ -268,13 +299,16 @@ public class Tablero {
         this.tablero = nuevo;
     }
 
-    //  ESCRITURA
-
     /**
-     * Imprime la representación del tablero de juego.
-     *
-     * Muestra tanto las fichas colocadas como los modificadores de cada casilla en forma de color.
-     * Proveé una pequeña leyenda para asociar el color de una casilla al modificador que representa.
+     * Muestra una representación visual del tablero en la consola.
+     * Incluye colores ANSI para los modificadores y una leyenda según el idioma.
+     * Formato:
+     * <ul>
+     *   <li>Casillas vacías: "   " (3 espacios).</li>
+     *   <li>Fichas: Letra centrada (ej: " A ").</li>
+     *   <li>Colores: Indican el tipo de modificador (ver leyenda).</li>
+     * </ul>
+     * @throws CoordenadaFueraDeRangoException Si hay un error al acceder a las coordenadas.
      */
     public void imprimirTablero() throws CoordenadaFueraDeRangoException {
         // todo el texto tiene que ser de tres espacios para garantizar la representacion de todas las letras, ej: L·L

@@ -7,13 +7,37 @@ import java.io.*;
 import java.lang.String;
 import java.nio.file.*;
 
+/**
+ * La clase AlfabetoCAT gestiona el conjunto de fichas disponibles para el juego,
+ * cargando desde un archivo la frecuencia y puntuación de cada letra del alfabeto castellano.
+ * Proporciona métodos para acceder a la información de las fichas.
+ *
+ * @author Arnau Miret Barrull
+ */
 public class AlfabetoCAST {
+
+    /**
+     * Mapa que almacena las fichas como clave y su frecuencia como valor.
+     * La frecuencia indica cuántas veces aparece cada ficha en el conjunto total.
+     */
     private Map<Ficha,Integer> mapaFichas;
 
+    /**
+     * Constructor que inicializa el mapa de fichas cargando los datos desde
+     * el archivo ubicado en la ruta especificada.
+     */
     public AlfabetoCAST() {
         mapaFichas = cargarArchivo("src/main/java/archivos/letrasCAST.txt");
     }
 
+    /**
+     * Carga los datos de fichas desde un archivo de texto.
+     *
+     * @param ruta Ruta del archivo a cargar
+     * @return Mapa de fichas con sus frecuencias
+     * @throws IOException Si ocurre un error durante la lectura del archivo
+     * @throws NumberFormatException Si hay errores en el formato numérico del archivo
+     */
     private Map<Ficha,Integer> cargarArchivo(String ruta) {
         Map<Ficha,Integer> mapaFichasAux = new HashMap<>();
 
@@ -45,11 +69,12 @@ public class AlfabetoCAST {
         return mapaFichasAux;
     }
 
+    /**
+     * Devuelve el mapa completo de fichas con sus frecuencias.
+     *
+     * @return Mapa donde la clave es la ficha y el valor es su frecuencia
+     */
     public Map<Ficha,Integer> getMapaFichas() {
         return mapaFichas;
-    }
-
-    public int getFrequenciaLetra(Ficha ficha) {
-        return mapaFichas.get(ficha);
     }
 }

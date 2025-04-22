@@ -7,17 +7,40 @@ import exceptions.CoordenadaFueraDeRangoException;
 import gestordeperfil.*;
 
 /**
- * Driver para probar las funcionalidades de la clase Partida y GestorDePartida.
+ * Clase controladora para la gestión interactiva de partidas de Scrabble.
+ *
+ * <p>Funcionalidades principales:</p>
+ * <ul>
+ *   <li>Menú de gestión de partidas (crear/cargar/eliminar/consultar)</li>
+ *   <li>Autenticación de jugadores y recuperación de contraseñas</li>
+ *   <li>Flujo completo de juego para modos PvP y PvIA</li>
+ *   <li>Interacción con gestores de partidas y perfiles</li>
+ * </ul>
+ *
  * @author Albert Aulet Niubó
  * @author Paula Pérez Chia
  */
 public class DriverPartida {
+
+    /** Gestor principal de partidas */
     private static GestorDePartida gestor;
+
+    /** Gestor de perfiles de jugadores */
     private static GestorDePerfil gestorPerfiles;
+
+    /** Lector de entrada de consola */
     private static Scanner scanner;
+
+    /** Contador de turnos pasados consecutivamente para finalizar partida */
     private int pasarPartidaSeguidos;
 
-
+    /**
+     * Construye un controlador de partidas con dependencias inyectadas.
+     *
+     * @param gdp Gestor de partidas principal
+     * @param gestorp Gestor de perfiles de jugadores
+     * @param scanner Entrada de datos configurada
+     */
     public DriverPartida(GestorDePartida gdp, GestorDePerfil gestorp, Scanner scanner) {
         gestor = gdp;
         gestorPerfiles = gestorp;
@@ -25,6 +48,12 @@ public class DriverPartida {
         pasarPartidaSeguidos = 0;
     }
 
+    /**
+     * Gestiona el menú principal de operaciones con partidas.
+     *
+     * @throws CasillaOcupadaException Si se intenta colocar en casilla ocupada
+     * @throws CoordenadaFueraDeRangoException Si se usan coordenadas inválidas
+     */
     public void partidaManagement() throws CasillaOcupadaException, CoordenadaFueraDeRangoException{
         if (gestorPerfiles.hayJugadores()){
             Scanner scanner = new Scanner(System.in);
@@ -44,6 +73,12 @@ public class DriverPartida {
         else System.out.println("\nNo hay ningún perfil en el sistema para jugar!");
     }
 
+    /**
+     * Crea una nueva partida con configuración interactiva.
+     *
+     * @throws CasillaOcupadaException Error en colocación inicial
+     * @throws CoordenadaFueraDeRangoException Coordenadas fuera de rango
+     */
     private void crearNuevaPartida() throws CasillaOcupadaException, CoordenadaFueraDeRangoException{
         System.out.println("\n=== CREAR PARTIDA ===");
 
@@ -92,6 +127,11 @@ public class DriverPartida {
         System.out.print("\n");
     }
 
+    /**
+     * Autentica un usuario mediante credenciales.
+     *
+     * @return Perfil autenticado o null si se cancela
+     */
     private Perfil autenticarUsuario() {
         while (true) {
             String username = leerCadena("Username: ");
@@ -120,6 +160,12 @@ public class DriverPartida {
         }
     }
 
+    /**
+     * Gestiona el proceso de recuperación de contraseña de un usuario.
+     *
+     * @param username Nombre de usuario que solicita la recuperación
+     * @return true si la recuperación fue exitosa, false si se superaron los intentos
+     */
     private boolean manejarRecuperacionContraseña (String username) {
         String frase = leerCadena("\nIntroduce la frase de recuperación: ");
         int intentos = 3;
@@ -139,6 +185,13 @@ public class DriverPartida {
         System.out.println("¡Password actualizada correctamente!");
         return true;
     }
+
+    /**
+     * Carga una partida existente desde el sistema.
+     *
+     * @throws CasillaOcupadaException Si se detectan colocaciones inválidas al cargar
+     * @throws CoordenadaFueraDeRangoException Si hay coordenadas corruptas en el estado guardado
+     */
     private void cargarPartidaExistente() throws CoordenadaFueraDeRangoException, CasillaOcupadaException{
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -161,6 +214,11 @@ public class DriverPartida {
 
     }
 
+    /**
+     * Maneja el flujo de juego contra otro jugador humano.
+     *
+     * @param partida Partida en curso
+     */
     private void jugar(Partida partida) {
         boolean enJuego = true;
         while (enJuego) {
@@ -270,6 +328,13 @@ public class DriverPartida {
         }
     }
 
+    /**
+     * Gestiona el flujo de juego contra la IA.
+     *
+     * @param partida Partida en curso
+     * @throws CasillaOcupadaException Si la IA intenta colocar en casilla ocupada
+     * @throws CoordenadaFueraDeRangoException Si la IA usa coordenadas inválidas
+     */
     private void jugarIA(Partida partida) throws CasillaOcupadaException, CoordenadaFueraDeRangoException {
         boolean enJuego = true;
         while (enJuego) {
@@ -398,7 +463,13 @@ public class DriverPartida {
         }
     }
 
-
+    /**
+     * Gestiona la colocación de una palabra en el tablero durante un turno.
+     *
+     * @param partida Partida en curso
+     * @param jugador Perfil del jugador activo
+     * @return true si la colocación fue exitosa, false en caso contrario
+     */
     private boolean colocarPalabra(Partida partida, Perfil jugador) {
         String palabra = leerCadena("Palabra: ").toUpperCase();
         String x_string = leerCadena("Fila (A, B...): ").toUpperCase();
@@ -416,6 +487,13 @@ public class DriverPartida {
         return false;
     }
 
+    /**
+     * Gestiona el intercambio de fichas del jugador durante su turno.
+     *
+     * @param partida Partida en curso
+     * @param jugador Perfil del jugador activo
+     * @return true si el intercambio se realizó correctamente
+     */
     private boolean cambiarFichas(Partida partida, Perfil jugador) {
         Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
         System.out.print("Letras a cambiar (separadas por espacio): ");
@@ -433,6 +511,9 @@ public class DriverPartida {
         return exito;
     }
 
+    /**
+     * Muestra el listado completo de partidas asociadas a un jugador.
+     */
     private void consultarPartidas() {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -445,6 +526,11 @@ public class DriverPartida {
         });
     }
 
+    /**
+     * Elimina permanentemente una partida del sistema.
+     *
+     * @return void Muestra mensajes de éxito/error por consola
+     */
     private void eliminarPartida() {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -456,11 +542,23 @@ public class DriverPartida {
         }
     }
 
+    /**
+     * Utilidad para lectura de cadenas con mensaje personalizado.
+     *
+     * @param mensaje Texto a mostrar antes de la entrada
+     * @return Cadena introducida por el usuario (sin trim)
+     */
     private String leerCadena(String mensaje) {
         System.out.print(mensaje);
         return scanner.nextLine();
     }
 
+    /**
+     * Utilidad para lectura de enteros con validación.
+     *
+     * @param mensaje Texto a mostrar antes de la entrada
+     * @return Entero válido introducido por el usuario
+     */
     private int leerEntero(String mensaje) {
         while (true) {
             try {
@@ -472,6 +570,11 @@ public class DriverPartida {
         }
     }
 
+    /**
+     * Muestra visualmente las fichas disponibles en el atril.
+     *
+     * @param atril Mapa de fichas con sus cantidades
+     */
     private void mostrarAtril(Map<Ficha, Integer> atril) {
         System.out.println("\n=== TUS FICHAS ===");
         atril.forEach((f, c) -> {
@@ -482,6 +585,11 @@ public class DriverPartida {
         System.out.println("\n==================");
     }
 
+    /**
+     * Presenta los resultados finales de una partida concluida.
+     *
+     * @param partida Partida finalizada
+     */
     private void mostrarResultadosFinales(Partida partida) {
         System.out.println("\n=== PUNTOS ===");
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
