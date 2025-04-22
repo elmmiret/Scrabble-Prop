@@ -130,7 +130,7 @@ public class Turno {
     /**
      * Establece el tipo de jugada realizada en el turno.
      *
-     * @param tipoJugada El tipo de jugada a establecer.
+     * @param tipojugada El tipo de jugada a establecer.
      */
     public void setTipoJugada(TipoJugada tipojugada) {
         this.tipoJugada = tipoJugada;
