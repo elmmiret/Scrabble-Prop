@@ -134,7 +134,7 @@ public class Tablero {
      * @param y Columna de la ficha.
      * @return La ficha situada en la posición (x, y) o null si no hay ficha.
      */
-    public Ficha getFicha ( int x, int y) throws CoordenadaFueraDeRangoException {
+    public Ficha getFicha( int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         return tablero.get(x).get(y).getKey().getKey();
     }
