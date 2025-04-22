@@ -5,6 +5,7 @@ import algorisme.Dawg;
 import ctrldomini.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
+import gestordeperfil.Perfil;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.AbstractMap.SimpleEntry;
@@ -15,13 +16,17 @@ public class AlgoritmoTest {
     private Algoritmo algoritmo;
     private Dawg dawg;
     private Tablero tablero;
+    private Perfil creador;
+    private Perfil oponente;
 
     @Before
     public void setUp() throws Exception {
         // Inizializar con el diccionario catalán para el testing
+        creador = new Perfil("Creador", "123", "azul");
+        oponente = new Perfil("Oponente", "321", "verde");
         dawg = new Dawg(Partida.Idioma.CAT);
         tablero = new Tablero(Partida.Idioma.CAT);
-        algoritmo = new Algoritmo();
+        algoritmo = new Algoritmo(new Partida(creador, oponente, 1, "test", Partida.Modo.PvP,Partida.Idioma.CAT));
     }
 
     @Test

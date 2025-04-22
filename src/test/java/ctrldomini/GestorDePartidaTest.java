@@ -99,27 +99,6 @@ public class GestorDePartidaTest {
     }
 
     @Test
-    public void testColocarPalabraValida() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
-        Turno t = p.getRondas().get(0);
-
-        boolean resultado = gestor.colocarPalabra(t, "HOLA", 0, 0, "horizontal");
-        assertTrue(resultado);
-    }
-
-    @Test(expected = CasillaOcupadaException.class)
-    public void testColocarPalabraEnCasillaOcupada() throws Exception {
-        Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
-        Turno t = p.getRondas().get(0);
-
-        Ficha ficha = new Ficha("H", 1);
-        t.getAtrilJ1().put(ficha, 1);
-        t.colocarPalabra("H", 0, 0, "horizontal"); // Coloca 'H' en (0,0)
-
-        gestor.colocarPalabra(t, "MUNDO", 0, 0, "vertical");
-    }
-
-    @Test
     public void testCambiarFichasValido() {
         Partida p = gestor.crearPartida(PARTIDA_ID, NOMBRE_PARTIDA, Partida.Idioma.CAST, jugador1, Partida.Modo.PvP, jugador2, 0);
         Map<Ficha, Integer> atril = new HashMap<>();

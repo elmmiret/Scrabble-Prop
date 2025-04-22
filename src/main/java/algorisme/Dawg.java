@@ -509,7 +509,7 @@ public class Dawg {
      * @param y
      * @return
      */
-    private boolean casillaCorrecta(Integer x, Integer y) {
+    public boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
