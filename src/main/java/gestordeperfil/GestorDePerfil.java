@@ -191,4 +191,23 @@ public class GestorDePerfil {
      * @return true si hay al menos un perfil registrado, false si está vacío
      */
     public boolean hayJugadores() { return !jugadores.isEmpty(); }
+
+    /**
+     * Incrementa los puntos de un perfil del sistema
+     *
+     * @param username Nombre del perfil al que sumarle los puntos
+     * @param puntos Puntos a sumar
+     * @return true si hay al menos un perfil registrado, false si está vacío
+     */
+    public void incrementarPuntosJugador(String username, int puntos)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPuntos(puntos);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
 }

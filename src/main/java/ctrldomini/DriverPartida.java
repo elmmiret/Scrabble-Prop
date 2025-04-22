@@ -214,6 +214,8 @@ public class DriverPartida {
                         mostrarResultadosFinales(partida);
                         if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                         else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
+                        gestorPerfiles.incrementarPuntosJugador(partida.getCreador().getUsername(), turnoActual.getPuntuacionJ1());
+                        gestorPerfiles.incrementarPuntosJugador(partida.getOponente().getUsername(), turnoActual.getPuntuacionJ2());
                         return;
                     }
                 }
@@ -225,6 +227,10 @@ public class DriverPartida {
                 mostrarResultadosFinales(partida);
                 if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                 else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
+
+                gestorPerfiles.incrementarPuntosJugador(partida.getCreador().getUsername(), turnoActual.getPuntuacionJ1());
+                gestorPerfiles.incrementarPuntosJugador(partida.getOponente().getUsername(), turnoActual.getPuntuacionJ2());
+
                 return;
             }
 
@@ -308,6 +314,8 @@ public class DriverPartida {
                             mostrarResultadosFinales(partida);
                             if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                             else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
+                            gestorPerfiles.incrementarPuntosJugador(partida.getCreador().getUsername(), turnoActual.getPuntuacionJ1());
+                            gestorPerfiles.incrementarPuntosJugador(partida.getOponente().getUsername(), turnoActual.getPuntuacionJ2());
                             return;
                         }
                     }
@@ -319,6 +327,8 @@ public class DriverPartida {
                     mostrarResultadosFinales(partida);
                     if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                     else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
+                    gestorPerfiles.incrementarPuntosJugador(partida.getCreador().getUsername(), turnoActual.getPuntuacionJ1());
+                    gestorPerfiles.incrementarPuntosJugador(partida.getOponente().getUsername(), turnoActual.getPuntuacionJ2());
                     return;
                 }
                 if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {

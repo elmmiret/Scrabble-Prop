@@ -319,12 +319,12 @@ public class Turno {
                 System.out.println("ES PRIMER TURNO");
                 if (orientacion.equals("vertical"))
                 {
-                    if (x_ini > 7 || y_ini > 7 || (x_ini + fichas.size()) < 8) return false;
+                    if (x_ini > 7 || y_ini != 7 || (x_ini + fichas.size()) < 8) return false;
 
                 }
                 else if (orientacion.equals("horizontal"))
                 {
-                    if (x_ini > 7 || y_ini > 7 || (y_ini + fichas.size()) < 8) return false;
+                    if (x_ini != 7 || y_ini > 7 || (y_ini + fichas.size()) < 8) return false;
                 }
             }
 
