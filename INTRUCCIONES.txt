@@ -1,3 +1,16 @@
+INSTRUCCIONES DICCIONARIOS
+
+    Al escoger un idioma para jugar, el sistema pedira la entrada de la ruta al diccionario del idioma especificado.
+    La ruta debe ser relativa al ejecutable (o al ./gradlew run en su defecto). Si la ruta no es correcta, el DAWG estara
+    vacio y no encontrara ninguna palabra.
+
+    Por ejemplo desde la carpeta del proyecto de Gradle, la ruta es "src/main/java/archivos/castellano.txt" en el caso
+    del diccionario castellano
+
+    En el caso del diccionario catalan, la comprobacion de palabras tarda un poco mas, unos 10 segundos.
+
+    Es recomendado usar los diccionarios proporcionados para asegurarse que la codificacion del archivo no es erronea.
+
 INSTRUCCIONES PARA JUGAR
 
 1-  COLOCAR PALABRA
