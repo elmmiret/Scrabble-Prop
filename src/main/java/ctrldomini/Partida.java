@@ -56,14 +56,14 @@ public class Partida {
      *
      * Se inicializan tablero y bolsa segun el idioma seleccionado.
      */
-    public Partida(Perfil creador, Perfil oponente, int id, String nombre, Modo modoPartida, Idioma idiomaPartida) {
+    public Partida(Perfil creador, Perfil oponente, int id, String nombre, Modo modoPartida, Idioma idiomaPartida, String ruta) {
         this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
         idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
-        dawg = new Dawg(idiomaPartida);
+        dawg = new Dawg(idiomaPartida,ruta);
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();
@@ -80,17 +80,14 @@ public class Partida {
      *
      * Se inicializan tablero y bolsa segun el idioma seleccionado.
      */
-    public Partida(Perfil creador, int id, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad) {
+    public Partida(Perfil creador, int id, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad, String ruta) {
         this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
         idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
-        dawg = new Dawg(idiomaPartida);
-        //-------------------------------------------------
-        System.out.println("Dawg llega a cargarse\n");
-        //-------------------------------------------------
+        dawg = new Dawg(idiomaPartida,ruta);
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();

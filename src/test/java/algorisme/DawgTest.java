@@ -2,7 +2,6 @@ package algorisme;
 
 import static org.junit.Assert.*;
 
-import algorisme.Dawg;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
@@ -15,14 +14,14 @@ public class DawgTest {
     @Before
     public void setUp() {
         // Usamos un DAWG pequeño para pruebas
-        dawg = new Dawg(Partida.Idioma.CAST);
+        dawg = new Dawg(Partida.Idioma.CAST, "src/main/java/archivos/castellano.txt");
 
         // Insertamos algunas palabras manualmente para pruebas
-        dawg.insertar2("IL·LOGICO");
-        dawg.insertar2("IL·LEGIBLE");
-        dawg.insertar2("IL·LEGAL");
-        dawg.insertar2("DIARREA"); // prueba con dígrafo "ll"
-        dawg.acabar2(); // Finalizamos la construcción
+        dawg.insertar("IL·LOGICO");
+        dawg.insertar("IL·LEGIBLE");
+        dawg.insertar("IL·LEGAL");
+        dawg.insertar("CARRERA"); // prueba con dígrafo "ll"
+        dawg.acabar(); // Finalizamos la construcción
     }
 
     @Test
@@ -38,20 +37,13 @@ public class DawgTest {
     public void testExistePalabra() {
         assertTrue(dawg.existePalabra("IL·LOGICO"));
         assertTrue(dawg.existePalabra("IL·LEGIBLE"));
-        /*assertTrue(dawg.existePalabra("perro"));
-        assertTrue(dawg.existePalabra("lluvia"));
+        assertTrue(dawg.existePalabra("PERRO"));
+        assertTrue(dawg.existePalabra("LLUVIA"));
 
-        assertFalse(dawg.existePalabra("cas"));
+        assertFalse(dawg.existePalabra("uyuyu"));
         assertFalse(dawg.existePalabra("perros"));
         assertFalse(dawg.existePalabra(""));
-        assertFalse(dawg.existePalabra("xyz"));*/
-    }
-
-    @Test
-    public void testInsertarDiccionario() {
-        // Verificamos que las palabras insertadas en el setUp existen
-        assertTrue(dawg.existePalabra("DIARREA"));
-        assertTrue(dawg.existePalabra("IL·LEGAL"));
+        assertFalse(dawg.existePalabra("xyz"));
     }
 
     @Test
@@ -60,11 +52,5 @@ public class DawgTest {
         assertTrue(dawg.casillaCorrecta(14, 14));
         assertFalse(dawg.casillaCorrecta(-1, 0));
         assertFalse(dawg.casillaCorrecta(15, 15));
-    }
-
-    @Test
-    public void testGetNumeroNodes() {
-        int numNodes = dawg.getNumeroNodes();
-        assertTrue(numNodes > 0);
     }
 }

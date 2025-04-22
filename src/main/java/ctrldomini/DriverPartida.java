@@ -60,6 +60,9 @@ public class DriverPartida {
             default -> throw new IllegalArgumentException("Idioma inválido");
         };
 
+        System.out.print("\nIntroduce la ruta al diccionario: ");
+        String ruta = scanner.nextLine();
+
         System.out.println("\n=== AUTENTIFICACIÓN JUGADOR 1 ===");
         Perfil jugador = autenticarUsuario();
         if (jugador == null) {
@@ -78,11 +81,11 @@ public class DriverPartida {
                 System.out.println("\nNo puedes jugar contra ti mismo!\n");
                 return;
             }
-            partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvP, oponente, 0);
+            partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvP, oponente, 0, ruta);
             jugar(partida);
         } else {
             int dificultad = leerEntero("Dificultad IA (1-3): ");
-            partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvIA, null, dificultad);
+            partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvIA, null, dificultad, ruta);
             jugarIA(partida);
         }
 

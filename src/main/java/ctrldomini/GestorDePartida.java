@@ -63,12 +63,12 @@ public class GestorDePartida {
 
     public Partida crearPartida(int id, String nombre, Partida.Idioma idioma,
                                 Perfil jugadorPrincipal, Partida.Modo modo,
-                                Perfil oponente, int dificultad) {
+                                Perfil oponente, int dificultad, String ruta) {
         Partida nuevaPartida;
         if (modo == Partida.Modo.PvP) {
-            nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma);
+            nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma, ruta);
         } else {
-            nuevaPartida = new Partida(jugadorPrincipal, id, nombre, modo, idioma, dificultad);
+            nuevaPartida = new Partida(jugadorPrincipal, id, nombre, modo, idioma, dificultad, ruta);
         }
         partidas.put(id, nuevaPartida);
         return nuevaPartida;

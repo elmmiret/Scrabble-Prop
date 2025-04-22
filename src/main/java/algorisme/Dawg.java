@@ -18,7 +18,7 @@ public class Dawg {
     private static final int COLUMNAS = 15;
 
     // Funcion constructora
-    public Dawg(Partida.Idioma idiomaPartida) {
+    public Dawg(Partida.Idioma idiomaPartida, String ruta) {
         Digrafos = new HashSet<>(Arrays.asList("RR", "NY", "LL", "L·L", "CH"));
         root = new NodoDawg();
         registro = new HashMap<>();
@@ -26,13 +26,13 @@ public class Dawg {
 
         switch (idiomaPartida) {
             case CAT:
-                insertarDiccionarioCatalan();
+                insertarDiccionarioCatalan(ruta);
                 break;
             case CAST:
-                insertarDiccionarioCastellano();
+                insertarDiccionarioCastellano(ruta);
                 break;
             case ENG:
-                insertarDiccionarioIngles();
+                insertarDiccionarioIngles(ruta);
                 break;
             default:
                 break;
@@ -80,14 +80,51 @@ public class Dawg {
         nodo.setEsFinal(true);
     }
 
-    private void minimizar2(NodoDawg nodo) {
+    // Inserta una nueva palabra en el DAWG
+
+    /**
+     * Función que inserta una nueva palabra String en el DAWG
+     * @param palabra
+     */
+
+    public void insertar(String palabra) {
+        List<String> palabradividida = dividirPalabra(palabra);
+        List<String> prefijocomun = getPrefijoComun(palabra);
+        NodoDawg ultimonodo = getNodo(prefijocomun);
+
+        // Este if va a saltar si la nueva palabra tiene un sufijo diferente al de las palabras añadidas previamente
+        if(ultimonodo.tieneHijos()) {
+            minimizar(ultimonodo);
+        }
+
+        // Se crea una nueva rama con el sufijo que es diferente de las palabras anteriores
+        // Esta rama se minimizara cuando entre una palabra con sufijo diferente a este
+        List<String> sufijo = new ArrayList<>();
+        for(int i = prefijocomun.size(); i < palabradividida.size(); i++) {
+            sufijo.add(palabradividida.get(i));
+        }
+        anadirSufijo(ultimonodo,sufijo);
+    }
+
+    /**
+     * Función que finaliza la construcción del DAWG minimizando todos los nodos restantes
+     */
+    public void acabar() {
+        minimizar(root);
+    }
+
+    /**
+     * Función que minimiza los nodos desde el último insertado hasta el índice dado
+     * @param nodo
+     */
+    private void minimizar(NodoDawg nodo) {
         Map.Entry<String, NodoDawg> hijomasgrande = nodo.getHijoMasGrande();
         if(hijomasgrande == null) return;
 
         NodoDawg hijo = hijomasgrande.getValue();
         // Si tiene hijos, minimizamos recursivamente
         if(hijo.tieneHijos()) {
-            minimizar2(hijo);
+            minimizar(hijo);
         }
 
         // Si el hijo esta en el registro, el hijo se puede intercambiar por el nodo
@@ -99,101 +136,6 @@ public class Dawg {
             registro.put(hijo,hijo);
         }
     }
-
-    // Inserta una nueva palabra en el DAWG
-
-    /**
-     * Función que inserta una nueva palabra String en el DAWG
-     * @param palabra
-     */
-
-    public void insertar2(String palabra) {
-        List<String> palabradividida = dividirPalabra(palabra);
-        List<String> prefijocomun = getPrefijoComun(palabra);
-        NodoDawg ultimonodo = getNodo(prefijocomun);
-
-        // Este if va a saltar si la nueva palabra tiene un sufijo diferente al de las palabras añadidas previamente
-        if(ultimonodo.tieneHijos()) {
-            minimizar2(ultimonodo);
-        }
-
-        // Se crea una nueva rama con el sufijo que es diferente de las palabras anteriores
-        // Esta rama se minimizara cuando entre una palabra con sufijo diferente a este
-        List<String> sufijo = new ArrayList<>();
-        for(int i = prefijocomun.size(); i < palabradividida.size(); i++) {
-            sufijo.add(palabradividida.get(i));
-        }
-        anadirSufijo(ultimonodo,sufijo);
-
-        //palabraAnterior = palabradividida;
-    }
-
-    /*public void insertar(String palabra) {
-        List<String> simbolos = dividirPalabra(palabra);
-        int prefijosComunes = 0;
-
-        // Encuentra la logitud del prefijo común con la palabra anterior
-        while(prefijosComunes < simbolos.size() && prefijosComunes < palabraAnterior.size() && simbolos.get(prefijosComunes).equals(palabraAnterior.get(prefijosComunes))) {
-            prefijosComunes++;
-        }
-
-        // Minimiza nodos que ya no serán modificados;
-        minimizar(prefijosComunes);
-
-        // Empieza desde la raíz y avanza hasta el nodo correspondiente al prefijo común
-        NodoDawg nodo = root;
-        for(int i = 0; i < prefijosComunes && nodo != null; i++) {
-            nodo = nodo.getHijos().get(palabraAnterior.get(i));
-        }
-
-        // Agrega nuevos nodos para los simbolos restantes
-        for(int i = prefijosComunes; i < simbolos.size() && nodo != null; i++) {
-            NodoDawg siguiente = new NodoDawg();
-            nodo.getHijos().put(simbolos.get(i), siguiente);
-            nodo = siguiente;
-        }
-
-        // Marca el último nodo como final
-        if(nodo != null) nodo.setEsFinal(true);
-        palabraAnterior = new ArrayList<>(simbolos);
-    }*/
-
-    /**
-     * Función que finaliza la construcción del DAWG minimizando todos los nodos restantes
-     */
-    /*public void acabar() {
-        minimizar(0);
-    }*/
-
-    public void acabar2() {
-        minimizar2(root);
-    }
-
-    /**
-     * Función que minimiza los nodos desde el último insertado hasta el índice dado
-     * @param hasta
-     */
-    /*private void minimizar(int hasta) {
-        NodoDawg nodo = root;
-        for(int i = 0; i < palabraAnterior.size() - hasta; i++) {
-            String simbolo = palabraAnterior.get(palabraAnterior.size() - 1 - i);
-            NodoDawg hijo = nodo.getHijos().get(simbolo);
-            if(hijo != null) {
-                NodoDawg nodoregistrado = registro.get(hijo);
-                if(nodoregistrado != null) {
-                    // Reutiliza un nodo ya registrado
-                    nodo.getHijos().put(simbolo, nodoregistrado);
-                }
-                else {
-                    // Registra un nuevo nood como canónico
-                    registro.put(hijo, hijo);
-                }
-                nodo = hijo;
-            }
-        }
-    }*/
-
-    // Divide una palabra en símbolos, reconociendo dígrafos de 2 y 3 letras como unidades
 
     /**
      * Función para dividir una palabra en String a una Lista de Strings con sus letras
@@ -238,35 +180,6 @@ public class Dawg {
         return root;
     }
 
-    // Imprime todas las palabras representadas en el DAWG (para comprovar que funciona la implementación)
-    /*public void imprimir(NodoDawg nodo, String prefijo) {
-        if(nodo.getEsFinal()) System.out.println(prefijo);
-        for(Map.Entry<String, NodoDawg> hijo : nodo.getHijos().entrySet()) {
-            imprimir(hijo.getValue(), prefijo + hijo.getKey());
-        }
-    }*/
-
-    /**
-     * True o false si existe el prefijo indicado en el DAWG
-     * @param prefijo
-     * @return
-     */
-    /*
-    public boolean existePrefijo(String prefijo) {
-        List<String> simbolos = dividirPalabra(prefijo);
-        NodoDawg nodo = root;
-
-        for(String simbolo : simbolos) {
-            if(nodo.getHijos().get(simbolo) == null) {
-                return false;
-            }
-            nodo = nodo.getHijos().get(simbolo);
-        }
-        return true;
-    }
-    */
-
-
     /**
      * True o false si existe la palabra indicada en el Dawg
      * @param palabra
@@ -284,42 +197,38 @@ public class Dawg {
         return nodo.getEsFinal();
     }
 
-    public void insertarDiccionarioCatalan() {
-        try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/catalan.txt"))) {
+    public void insertarDiccionarioCatalan(String ruta) {
+        try (BufferedReader entrada = new BufferedReader (new FileReader(ruta))) {
             String linea;
-            //int numero = 0;
+            int numero = 0;
             while((linea = entrada.readLine()) != null) {
-                //System.out.println("linea insertada " + numero++ + "\n");
-                insertar2(linea);
+                insertar(linea);
             }
-            acabar2();
-            //dawg.imprimir(dawg.getRoot(), "");
+            acabar();
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 
-    public void insertarDiccionarioCastellano() {
-        try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
+    public void insertarDiccionarioCastellano(String ruta) {
+        try (BufferedReader entrada = new BufferedReader (new FileReader(ruta))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                insertar2(linea);
+                insertar(linea);
             }
-            acabar2();
-            //dawg.imprimir(dawg.getRoot(), "");
+            acabar();
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 
-    public void insertarDiccionarioIngles() {
-        try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/ingles2.txt"))) {
+    public void insertarDiccionarioIngles(String ruta) {
+        try (BufferedReader entrada = new BufferedReader (new FileReader(ruta))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                insertar2(linea);
+                insertar(linea);
             }
-            acabar2();
-            //dawg.imprimir(dawg.getRoot(), "");
+            acabar();
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }

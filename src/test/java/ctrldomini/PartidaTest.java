@@ -30,8 +30,8 @@ public class PartidaTest {
     public void setUp() {
         creador = new Perfil("Creador", "123", "azul");
         oponente = new Perfil("Oponente", "321", "verde");
-        partidaPvP = new Partida(creador, oponente, 0, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST);
-        partidaPvIA = new Partida(creador, 1, "Partida PvIA", Partida.Modo.PvIA, Partida.Idioma.CAST, 2);
+        partidaPvP = new Partida(creador, oponente, 0, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST, "src/main/java/archivos/castellano.txt");
+        partidaPvIA = new Partida(creador, 1, "Partida PvIA", Partida.Modo.PvIA, Partida.Idioma.CAST, 2, "src/main/java/archivos/castellano.txt");
     }
 
     /**
@@ -60,7 +60,7 @@ public class PartidaTest {
     @Test
     public void testGetFechaHoraCreacion() {
         LocalDateTime before = LocalDateTime.now();
-        Partida p = new Partida(creador, oponente, 0, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST);
+        Partida p = new Partida(creador, oponente, 0, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST, "src/main/java/archivos/castellano.txt");
         LocalDateTime after = LocalDateTime.now();
 
         assertFalse(p.getFechaHoraCreacion().isBefore(before));

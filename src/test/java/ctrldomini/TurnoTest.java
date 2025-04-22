@@ -25,8 +25,8 @@ public class TurnoTest {
     public void setUp() {
         jugador1 = new Perfil("Jugador1", "123", "azul");
         jugador2 = new Perfil("Jugador2", "321", "verde");
-        partidaPvP = new Partida(jugador1, jugador2 , 123, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST);
-        partidaPvIA = new Partida(jugador1, 1234, "Partida PvIA", Partida.Modo.PvIA, Partida.Idioma.CAST, 1);
+        partidaPvP = new Partida(jugador1, jugador2 , 123, "Partida PvP", Partida.Modo.PvP, Partida.Idioma.CAST,"src/main/java/archivos/castellano.txt");
+        partidaPvIA = new Partida(jugador1, 1234, "Partida PvIA", Partida.Modo.PvIA, Partida.Idioma.CAST, 1, "src/main/java/archivos/castellano.txt");
         turno = new Turno(partidaPvP, jugador1, 0, 0);
 
         fichaA = new Ficha("A", 1);
