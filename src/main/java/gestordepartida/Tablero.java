@@ -1,4 +1,4 @@
-package partida;
+package gestordepartida;
 import algorisme.AlfabetoCAST;
 import algorisme.AlfabetoCAT;
 import algorisme.AlfabetoING;

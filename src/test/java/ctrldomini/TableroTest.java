@@ -7,9 +7,9 @@ import exceptions.*;
 import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
 
-import partida.Ficha;
-import partida.Partida;
-import partida.Tablero;
+import gestordepartida.Ficha;
+import gestordepartida.Partida;
+import gestordepartida.Tablero;
 
 /**
  * Tests para probar las funcionalidades de la clase Tablero

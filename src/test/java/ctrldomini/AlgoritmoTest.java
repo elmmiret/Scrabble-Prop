@@ -7,9 +7,9 @@ import exceptions.CoordenadaFueraDeRangoException;
 import gestordeperfil.Perfil;
 import org.junit.Before;
 import org.junit.Test;
-import partida.Ficha;
-import partida.Partida;
-import partida.Tablero;
+import gestordepartida.Ficha;
+import gestordepartida.Partida;
+import gestordepartida.Tablero;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;

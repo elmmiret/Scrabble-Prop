@@ -8,9 +8,9 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-import partida.Ficha;
-import partida.Partida;
-import partida.Turno;
+import gestordepartida.Ficha;
+import gestordepartida.Partida;
+import gestordepartida.Turno;
 
 public class TurnoTest {
 

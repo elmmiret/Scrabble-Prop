@@ -1,4 +1,4 @@
-package partida;
+package gestordepartida;
 
 import java.util.HashMap;
 import java.util.Map;

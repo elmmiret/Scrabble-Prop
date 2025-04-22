@@ -1,6 +1,6 @@
 package algorisme;
 
-import partida.Ficha;
+import gestordepartida.Ficha;
 
 import java.util.*;
 import java.io.*;

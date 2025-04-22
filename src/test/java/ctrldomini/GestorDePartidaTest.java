@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import partida.Ficha;
-import partida.GestorDePartida;
-import partida.Partida;
+import gestordepartida.Ficha;
+import gestordepartida.GestorDePartida;
+import gestordepartida.Partida;
 import ranking.Ranking;
 
 /**

@@ -1,4 +1,4 @@
-package partida;
+package gestordepartida;
 
 import exceptions.*;
 import java.util.Scanner;

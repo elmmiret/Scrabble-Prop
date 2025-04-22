@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import partida.Partida;
+import gestordepartida.Partida;
 
 public class DawgTest {
     private Dawg dawgING;

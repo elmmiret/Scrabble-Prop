@@ -1,7 +1,7 @@
 package algorisme;
 import exceptions.CoordenadaFueraDeRangoException;
-import partida.Partida;
-import partida.Tablero;
+import gestordepartida.Partida;
+import gestordepartida.Tablero;
 
 //import java.lang.reflect.Array;
 import java.util.*;

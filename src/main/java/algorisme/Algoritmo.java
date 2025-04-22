@@ -4,9 +4,9 @@ import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 
 import exceptions.CoordenadaFueraDeRangoException;
-import partida.Ficha;
-import partida.Partida;
-import partida.Tablero;
+import gestordepartida.Ficha;
+import gestordepartida.Partida;
+import gestordepartida.Tablero;
 
 /**
  * Clase que implementa algoritmos para encontrar el mejor movimiento en un juego de Scrabble.

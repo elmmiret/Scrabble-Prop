@@ -5,8 +5,8 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.Queue;
 import gestordeperfil.Perfil;
-import partida.Ficha;
-import partida.Partida;
+import gestordepartida.Ficha;
+import gestordepartida.Partida;
 
 import static org.junit.Assert.*;
 
