@@ -84,7 +84,7 @@ public class Main {
             driverEstadisticas.estadisticasManagement();
             break;
           case 5:
-            System.out.println("Chau!\n");
+            System.out.println("¡Adiós!\n");
             System.exit(0);
             break;
           default: //Error option

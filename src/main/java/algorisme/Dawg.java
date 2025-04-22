@@ -318,11 +318,7 @@ public class Dawg {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<String> division = dividirPalabra(palabra);
         int size = division.size();
-        if(!existePalabra(palabra))
-        {
-            System.out.println("PALABRA NO EXISTE\n");
-            return false;
-        }
+        if(!existePalabra(palabra)) return false;
 
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
@@ -492,10 +488,7 @@ public class Dawg {
         }
 
         // Si se forma una palabra de más de una letra, comprobar si es válida
-        if (palabra.length() > 1) {
-            System.out.println("Palabra formada en vertical (por horizontal): " + palabra);
-            return existePalabra(palabra.toString());
-        }
+        if (palabra.length() > 1) return existePalabra(palabra.toString());
         return true;
     }
 

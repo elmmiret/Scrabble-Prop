@@ -139,10 +139,8 @@ public class GestorDePartida {
         Partida nuevaPartida;
         if (modo == Partida.Modo.PvP) {
             nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma);
-            System.out.println("HE CREADO LA PARTIDA DE PVP");
         } else {
             nuevaPartida = new Partida(jugadorPrincipal, id, nombre, modo, idioma, dificultad);
-            System.out.println("He creado la partida");
         }
         partidas.put(id, nuevaPartida);
         return nuevaPartida;

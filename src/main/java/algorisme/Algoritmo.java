@@ -62,9 +62,6 @@ public class Algoritmo {
             // Obtenemos posiciones de anclas
             List<SimpleEntry<Integer, Integer>> anclas = computarAnclas(tablero);
 
-            System.out.println("Orientación: " + (estaTranspuesto ? "Vertical" : "Horizontal"));
-            System.out.println("Número de anclas: " + anclas.size());
-
             // Evaluamos cada posición de ancla
             for (SimpleEntry<Integer, Integer> ancla : anclas) {
                 int x = ancla.getKey();
@@ -74,17 +71,14 @@ public class Algoritmo {
                     x = ancla.getValue();
                     y = ancla.getKey();
                 }
-                System.out.printf("Evaluando ancla: %d,%d\n", x, y);
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraAncla =
                         computarPalabraAncla(dawg, tablero, new SimpleEntry<>(x, y), atril, estaTranspuesto);
                 if (!palabraAncla.isEmpty()) {
                     int puntuacion = obtenerPuntuacion(tablero, palabraAncla);
-                    System.out.printf("Palabra encontrada con puntuación: %d\n", puntuacion);
 
                     if (puntuacion > mejorPuntuacion) {
                         mejorPuntuacion = puntuacion;
                         mejorPalabra = new ArrayList<>(palabraAncla);
-                        System.out.println("¡Nueva mejor palabra encontrada!");
                     }
                 }
             }
