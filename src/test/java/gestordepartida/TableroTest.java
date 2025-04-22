@@ -10,7 +10,7 @@ import java.util.AbstractMap.SimpleEntry;
 /**
  * Tests para probar las funcionalidades de la clase Tablero
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class TableroTest {
     private Tablero tablero;

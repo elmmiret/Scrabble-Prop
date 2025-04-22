@@ -769,7 +769,7 @@ public class Algoritmo {
      *
      * @param x Coordenada X (fila) a validar
      * @param y Coordenada Y (columna) a validar
-     * @return true si la posición es válida (0 ≤ x,y < 15)
+     * @return true si la posición es válida
      */
     public boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;

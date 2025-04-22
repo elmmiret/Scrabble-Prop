@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * Driver para probar las funcionalidades de la clase Ficha NO SE USA EN LA IMPLEMENTACIÓN
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class DriverFicha {
 

@@ -1,7 +1,7 @@
 package exceptions;
 
 /**
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class CasillaOcupadaException extends ExceptionCtrDominio {
     public CasillaOcupadaException(int x, int y) {

@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 /**
  * Tests para probar las funcionalidades de la clase Partida
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class PartidaTest {
 
