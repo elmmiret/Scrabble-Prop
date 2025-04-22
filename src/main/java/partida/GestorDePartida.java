@@ -1,9 +1,10 @@
-package ctrldomini;
+package partida;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+
 import gestordeperfil.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;

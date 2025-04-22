@@ -1,20 +1,21 @@
-package ctrldomini;
+package algorisme;
+
+import partida.Ficha;
 
 import java.util.*;
-import java.util.AbstractMap.SimpleEntry;
 import java.io.*;
 
 import java.lang.String;
 import java.nio.file.*;
 
 /**
- * La clase AlfabetoCAT gestiona el conjunto de fichas disponibles para el juego,
- * cargando desde un archivo la frecuencia y puntuación de cada letra del alfabeto castellano.
+ * La clase AlfabetoING gestiona el conjunto de fichas disponibles para el juego,
+ * cargando desde un archivo la frecuencia y puntuación de cada letra del alfabeto inglés.
  * Proporciona métodos para acceder a la información de las fichas.
  *
  * @author Arnau Miret Barrull
  */
-public class AlfabetoCAST {
+public class AlfabetoING {
 
     /**
      * Mapa que almacena las fichas como clave y su frecuencia como valor.
@@ -26,8 +27,8 @@ public class AlfabetoCAST {
      * Constructor que inicializa el mapa de fichas cargando los datos desde
      * el archivo ubicado en la ruta especificada.
      */
-    public AlfabetoCAST() {
-        mapaFichas = cargarArchivo("src/main/java/archivos/letrasCAST.txt");
+    public AlfabetoING() {
+        mapaFichas = cargarArchivo("src/main/java/archivos/letrasENG.txt");
     }
 
     /**
@@ -77,4 +78,5 @@ public class AlfabetoCAST {
     public Map<Ficha,Integer> getMapaFichas() {
         return mapaFichas;
     }
+
 }

@@ -1,6 +1,7 @@
 package algorisme;
-import ctrldomini.*;
 import exceptions.CoordenadaFueraDeRangoException;
+import partida.Partida;
+import partida.Tablero;
 
 //import java.lang.reflect.Array;
 import java.util.*;

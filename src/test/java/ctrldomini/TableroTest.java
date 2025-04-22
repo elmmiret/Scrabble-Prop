@@ -6,7 +6,10 @@ import org.junit.Before;
 import exceptions.*;
 import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
-import ctrldomini.Tablero;
+
+import partida.Ficha;
+import partida.Partida;
+import partida.Tablero;
 
 /**
  * Tests para probar las funcionalidades de la clase Tablero

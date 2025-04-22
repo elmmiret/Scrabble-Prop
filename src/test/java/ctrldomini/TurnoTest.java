@@ -1,15 +1,16 @@
 package ctrldomini;
 
 import gestordeperfil.*;
-import exceptions.*;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
+
 import static org.junit.Assert.*;
-import algorisme.*;
+
+import partida.Ficha;
+import partida.Partida;
+import partida.Turno;
 
 public class TurnoTest {
 

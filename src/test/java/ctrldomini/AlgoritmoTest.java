@@ -2,12 +2,15 @@ package ctrldomini;
 
 import algorisme.Algoritmo;
 import algorisme.Dawg;
-import ctrldomini.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 import gestordeperfil.Perfil;
 import org.junit.Before;
 import org.junit.Test;
+import partida.Ficha;
+import partida.Partida;
+import partida.Tablero;
+
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import static org.junit.Assert.*;

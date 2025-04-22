@@ -2,7 +2,8 @@ package ctrldomini;
 
 import gestordeperfil.DriverPerfil;
 import gestordeperfil.GestorDePerfil;
-import gestordeperfil.Perfil;
+import partida.DriverPartida;
+import partida.GestorDePartida;
 import ranking.DriverRanking;
 import ranking.Ranking;
 import estadisticas.DriverEstadisticas;
