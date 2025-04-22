@@ -309,13 +309,45 @@ public class Turno {
         if (getTablero().estaVacio()) esPrimerTurno = true;
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
             System.out.println("La he comprobado y esta bien");
+
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
+            if (esPrimerTurno)
+            {
+                if (orientacion.equals("vertical"))
+                {
+                    if (x_ini > 7 || (x_ini + fichas.size()) < 8) return false;
+                }
+                else if (orientacion.equals("horizontal"))
+                {
+                    if (y_ini > 7 || (y_ini + fichas.size()) < 8) return false;
+                }
+            }
+
             if ("vertical".equals(orientacion)) {
+
+                //mirar si tiene las fichas en el atril
+                System.out.println("MIRANDO SI ESTA TODO EN EL ATRIL VERTICAL");
+                Map<Ficha, Integer> atrilCheck;
+                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
+                else atrilCheck = new HashMap<>(atrilJ2);
+                for (int i = 0; i < fichas.size(); ++i)
+                {
+                    if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {
+                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(i));
+                        if (fichaCheck == null) {
+                            System.out.println("La letra '" + fichas.get(i) + "' no está en el atril.");
+                            return false;
+                        }
+                    }
+                }
+                System.out.println("ESTA TODO EN EL ATRIL");
+
                 for (int i = 0; i < fichas.size(); i++) { // por cada ficha
                     String letraBuscada = fichas.get(i);
                     Ficha f;
                     if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal y los modificadores
                         Ficha fichaEncontrada;
+
                         if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                         else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
                         if (fichaEncontrada == null) {
@@ -385,6 +417,24 @@ public class Turno {
                 else puntosJ2 += puntosPorSumar;
             }
             else { // horizontal
+
+                //mirar si tiene las fichas en el atril
+                System.out.println("MIRANDO SI ESTA TODO EN EL ATRIL HORIZONTAL");
+                Map<Ficha, Integer> atrilCheck;
+                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
+                else atrilCheck = new HashMap<>(atrilJ2);
+                for (int i = 0; i < fichas.size(); ++i)
+                {
+                    if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {
+                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(i));
+                        if (fichaCheck == null) {
+                            System.out.println("La letra '" + fichas.get(i) + "' no está en el atril.");
+                            return false;
+                        }
+                    }
+                }
+                System.out.println("ESTA TODO EN EL ATRIL");
+
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
                     Ficha f;
