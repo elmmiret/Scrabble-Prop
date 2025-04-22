@@ -16,29 +16,9 @@ public class DawgTest {
 
     @Before
     public void setUp() {
-        // Usamos un DAWG pequeño para pruebas
         dawgING = new Dawg(Partida.Idioma.ENG);
         dawgCAST = new Dawg(Partida.Idioma.CAST);
         dawgCAT = new Dawg(Partida.Idioma.CAT);
-
-        // Insertamos algunas palabras manualmente para pruebas
-        /*dawgING.insertar("IL·LOGICO");
-        dawgING.insertar("IL·LEGIBLE");
-        dawgING.insertar("IL·LEGAL");
-        dawgING.insertar("PERRO");
-        dawgING.acabar();
-
-        dawgCAST.insertar("IL·LOGICO");
-        dawgCAST.insertar("IL·LEGIBLE");
-        dawgCAST.insertar("IL·LEGAL");
-        dawgCAST.insertar("PERRO");
-        dawgCAST.acabar();
-
-        dawgCAT.insertar("IL·LOGICO");
-        dawgCAT.insertar("IL·LEGIBLE");
-        dawgCAT.insertar("IL·LEGAL");
-        dawgCAT.insertar("PERRO");
-        dawgCAT.acabar();*/
     }
 
     @Test

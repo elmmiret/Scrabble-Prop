@@ -88,9 +88,6 @@ public class Partida {
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         dawg = new Dawg(idiomaPartida);
-        //-------------------------------------------------
-        System.out.println("Dawg llega a cargarse\n");
-        //-------------------------------------------------
         tablero = new Tablero(idiomaPartida);
         mapaFichas = new HashMap<>();
         bolsa = new LinkedList<Ficha>();

@@ -60,6 +60,9 @@ public class DriverPartida {
             default -> throw new IllegalArgumentException("Idioma inválido");
         };
 
+        System.out.print("\nIntroduce la ruta al diccionario: ");
+        String ruta = scanner.nextLine();
+
         System.out.println("\n=== AUTENTIFICACIÓN JUGADOR 1 ===");
         Perfil jugador = autenticarUsuario();
         if (jugador == null) {

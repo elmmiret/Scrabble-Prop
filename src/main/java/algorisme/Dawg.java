@@ -55,7 +55,6 @@ public class Dawg {
     }
 
     public NodoDawg getNodo(List<String> palabra) {
-        //List<String> simbolos = dividirPalabra(palabra);
         NodoDawg nodo = root;
         for(int i = 0; i < palabra.size(); i++) {
             String letra = palabra.get(i);
@@ -68,7 +67,6 @@ public class Dawg {
     }
 
     private void anadirSufijo(NodoDawg ultimonodo, List<String> sufijoactual) {
-        //List<String> sufijosimbolos = dividirPalabra(sufijoactual);
         NodoDawg nodo = ultimonodo;
         for(int i = 0; i < sufijoactual.size(); i++) {
             String letra = sufijoactual.get(i);
@@ -99,8 +97,6 @@ public class Dawg {
         }
     }
 
-    // Inserta una nueva palabra en el DAWG
-
     /**
      * Función que inserta una nueva palabra String en el DAWG
      * @param palabra
@@ -128,10 +124,6 @@ public class Dawg {
     /**
      * Función que finaliza la construcción del DAWG minimizando todos los nodos restantes
      */
-    /*public void acabar() {
-        minimizar(0);
-    }*/
-
     public void acabar() {
         minimizar(root);
     }
@@ -203,9 +195,7 @@ public class Dawg {
     public void insertarDiccionarioCatalan() {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/catalan.txt"))) {
             String linea;
-            //int numero = 0;
             while((linea = entrada.readLine()) != null) {
-                //System.out.println("linea insertada " + numero++ + "\n");
                 insertar(linea);
             }
             acabar();
@@ -303,8 +293,6 @@ public class Dawg {
                     if(nodo == null) return false;
                     ++pos_division;
                 }
-
-
                     // Si vamos a una posición que no tiene una ficha colocada
                     else {
                         if(!mirarNuevasPalabrasVertical(tablero, division.get(pos_division),fil,y)) return false;
