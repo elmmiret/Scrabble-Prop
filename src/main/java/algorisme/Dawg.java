@@ -1,5 +1,6 @@
 package algorisme;
 import ctrldomini.*;
+import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
 //import java.lang.reflect.Array;
@@ -11,18 +12,18 @@ import java.io.*;
  */
 public class Dawg {
     private static Set<String> Digrafos;
-    private final NodoDawg root;  // Nodo raíz del DAWG
-    private final Map<NodoDawg, NodoDawg> registro;   // Mapa para evitar nodos multiplicados (minimizar)
-    //private List<String> palabraAnterior;   // Última palabra insertada
+    private NodoDawg root;  // Nodo raíz del DAWG
+    private Map<NodoDawg, NodoDawg> registro;   // Mapa para evitar nodos multiplicados (minimizar)
+    private List<String> palabraAnterior;   // Última palabra insertada
     private static final int FILAS = 15;
     private static final int COLUMNAS = 15;
 
     // Funcion constructora
     public Dawg(Partida.Idioma idiomaPartida) {
-        Digrafos = new HashSet<>(Arrays.asList("rr", "ny", "ll", "l·l", "ch"));
+        Digrafos = new HashSet<>(Arrays.asList("RR", "NY", "LL", "L·L", "CH"));
         root = new NodoDawg();
         registro = new HashMap<>();
-        //palabraAnterior = new ArrayList<>();
+        palabraAnterior = new ArrayList<>();
 
         switch (idiomaPartida) {
             case CAT:
@@ -106,29 +107,7 @@ public class Dawg {
      * Función que inserta una nueva palabra String en el DAWG
      * @param palabra
      */
-
-    public void insertar2(String palabra) {
-        List<String> palabradividida = dividirPalabra(palabra);
-        List<String> prefijocomun = getPrefijoComun(palabra);
-        NodoDawg ultimonodo = getNodo(prefijocomun);
-
-        // Este if va a saltar si la nueva palabra tiene un sufijo diferente al de las palabras añadidas previamente
-        if(ultimonodo.tieneHijos()) {
-            minimizar2(ultimonodo);
-        }
-
-        // Se crea una nueva rama con el sufijo que es diferente de las palabras anteriores
-        // Esta rama se minimizara cuando entre una palabra con sufijo diferente a este
-        List<String> sufijo = new ArrayList<>();
-        for(int i = prefijocomun.size(); i < palabradividida.size(); i++) {
-            sufijo.add(palabradividida.get(i));
-        }
-        anadirSufijo(ultimonodo,sufijo);
-
-        //palabraAnterior = palabradividida;
-    }
-
-    /*public void insertar(String palabra) {
+    public void insertar(String palabra) {
         List<String> simbolos = dividirPalabra(palabra);
         int prefijosComunes = 0;
 
@@ -155,25 +134,21 @@ public class Dawg {
 
         // Marca el último nodo como final
         if(nodo != null) nodo.setEsFinal(true);
-        palabraAnterior = new ArrayList<>(simbolos);
-    }*/
+        palabraAnterior = simbolos;
+    }
 
     /**
      * Función que finaliza la construcción del DAWG minimizando todos los nodos restantes
      */
-    /*public void acabar() {
+    public void acabar() {
         minimizar(0);
-    }*/
-
-    public void acabar2() {
-        minimizar2(root);
     }
 
     /**
      * Función que minimiza los nodos desde el último insertado hasta el índice dado
      * @param hasta
      */
-    /*private void minimizar(int hasta) {
+    private void minimizar(int hasta) {
         NodoDawg nodo = root;
         for(int i = 0; i < palabraAnterior.size() - hasta; i++) {
             String simbolo = palabraAnterior.get(palabraAnterior.size() - 1 - i);
@@ -191,7 +166,7 @@ public class Dawg {
                 nodo = hijo;
             }
         }
-    }*/
+    }
 
     // Divide una palabra en símbolos, reconociendo dígrafos de 2 y 3 letras como unidades
 
@@ -239,30 +214,30 @@ public class Dawg {
     }
 
     // Imprime todas las palabras representadas en el DAWG (para comprovar que funciona la implementación)
-    /*public void imprimir(NodoDawg nodo, String prefijo) {
+    public void imprimir(NodoDawg nodo, String prefijo) {
         if(nodo.getEsFinal()) System.out.println(prefijo);
         for(Map.Entry<String, NodoDawg> hijo : nodo.getHijos().entrySet()) {
             imprimir(hijo.getValue(), prefijo + hijo.getKey());
         }
-    }*/
+    }
 
     /**
      * True o false si existe el prefijo indicado en el DAWG
      * @param prefijo
      * @return
      */
-
     public boolean existePrefijo(String prefijo) {
         List<String> simbolos = dividirPalabra(prefijo);
         NodoDawg nodo = root;
-        for (String simbolo : simbolos) {
-            nodo = nodo.getHijo(simbolo);
-            if (nodo == null) return false;
+
+        for(String simbolo : simbolos) {
+            if(!nodo.getHijos().containsKey(simbolo)) {
+                return false;
+            }
+            nodo = nodo.getHijos().get(simbolo);
         }
-        return true; // El prefijo existe si se recorren todos los símbolos
+        return true;
     }
-
-
 
     /**
      * True o false si existe la palabra indicada en el Dawg
@@ -272,6 +247,7 @@ public class Dawg {
     public boolean existePalabra(String palabra) {
         List<String> simbolos = dividirPalabra(palabra);
         NodoDawg nodo = root;
+
         for(String simbolo : simbolos) {
             if(nodo.getHijos().get(simbolo) == null) {
                 return false;
@@ -285,9 +261,9 @@ public class Dawg {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/catalan.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                insertar2(linea);
+                insertar(linea);
             }
-            acabar2();
+            acabar();
             //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
@@ -298,9 +274,9 @@ public class Dawg {
         try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/castellano.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                insertar2(linea);
+                insertar(linea);
             }
-            acabar2();
+            acabar();
             //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
@@ -308,12 +284,12 @@ public class Dawg {
     }
 
     public void insertarDiccionarioIngles() {
-        try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/ingles2.txt"))) {
+        try (BufferedReader entrada = new BufferedReader (new FileReader("src/main/java/archivos/ingles.txt"))) {
             String linea;
             while((linea = entrada.readLine()) != null) {
-                insertar2(linea);
+                insertar(linea);
             }
-            acabar2();
+            acabar();
             //dawg.imprimir(dawg.getRoot(), "");
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
@@ -331,147 +307,114 @@ public class Dawg {
      * @throws CoordenadaFueraDeRangoException
      * @author Arnau Miret Barrull
      */
-    public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo) throws CoordenadaFueraDeRangoException {
+    public boolean comprobarPalabra(Tablero tablero, String palabra, int x, int y, String modo, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<String> division = dividirPalabra(palabra);
         int size = division.size();
-        if(!existePalabra(palabra))
-        {
-            System.out.println("PALABRA NO EXISTE\n");
-            return false;
-        }
+        if (!existePalabra(palabra)) return false;  // Asegurarse de que la palabra existe
+        System.out.println("La palabra existe");
 
-        // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
-        if(tablero.getFicha(x,y) == null) {
-            if("horizontal".equals(modo)) {
-                if(!cabePalabraHorizontal(division,x,y)) return false;
+        // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahí
+        if (tablero.getFicha(x, y) == null) {
+            if ("horizontal".equals(modo)) {
+                if (!cabePalabraHorizontal(tablero, division, x, y, esPrimerTurno)) return false;
+                System.out.println("No hay ficha colocada en la casilla y cabe palabra Horizontal");
 
-                // Desde la posición y ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
+                // Recorremos las casillas horizontales y verificamos las nuevas palabras formadas
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-                for(int col = y; col < y + size && casillaCorrecta(x,col); col++) {
-                    // Si vamos a una posición que tiene una ficha ya colocada
-                    if(tablero.getFicha(x,col) != null) {
-                        if (!tablero.getFicha(x,col).getLetra().equals(division.get(pos_division))) {
+                for (int col = y; col < y + size && casillaCorrecta(x, col); col++) {
+                    if (tablero.getFicha(x, col) != null) {
+                        if (!tablero.getFicha(x, col).getLetra().equals(division.get(pos_division))) {
                             return false;
                         }
                         nodo = nodo.getHijos().get(division.get(pos_division));
-                        if(nodo == null) return false;
+                        if (nodo == null) return false;
+                        ++pos_division;
+                    } else {
+                        if (!mirarNuevasPalabrasHorizontal(tablero, division.get(pos_division), x, col)) return false;
                         ++pos_division;
                     }
+                }
+            } else if ("vertical".equals(modo)) {
+                if (!cabePalabraVertical(tablero, division, x, y, esPrimerTurno)) return false;
+                System.out.println("No hay ficha colocada en la casilla y cabe palabra Vertical");
 
-                    // Si vamos a una posición que no tiene una ficha colocada
-                    else {
-                        if(!mirarNuevasPalabrasHorizontal(tablero, division.get(pos_division),x,col)) return false;
+                // Recorremos las casillas verticales y verificamos las nuevas palabras formadas
+                NodoDawg nodo = getRoot();
+                int pos_division = 0;
+
+                for (int fil = x; fil < x + size && casillaCorrecta(fil, y); fil++) {
+                    if (tablero.getFicha(fil, y) != null) {
+                        if (!tablero.getFicha(fil, y).getLetra().equals(division.get(pos_division))) {
+                            System.out.println("No Coincide la ficha ");
+                            return false;
+                        }
+                        nodo = nodo.getHijos().get(division.get(pos_division));
+                        if (nodo == null) return false;
+                        ++pos_division;
+                    } else {
+                        if (!mirarNuevasPalabrasVertical(tablero, division.get(pos_division), fil, y)) return false;
                         ++pos_division;
                     }
                 }
             }
-            else if("vertical".equals(modo)) {
-                if(!cabePalabraVertical(division,x,y)) return false;
-
-                // Desde esa posición ir poniendo las letras en el tablero, teniendo en cuenta que algunas letras pueden estar ya en el tablero
+        } else {
+            // Si hay ficha colocada en la casilla, verifica si puede extenderse
+            if (modo.equals("horizontal")) {
+                if (!cabePalabraHorizontal(tablero, division, x, y, esPrimerTurno)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-            for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
-                // Si vamos a una posición que tiene una ficha ya colocada
-                if(tablero.getFicha(fil,y) != null) {
-                    if (!tablero.getFicha(fil,y).getLetra().equals(division.get(pos_division))) {
-                        return false;
-                    }
-                    nodo = nodo.getHijos().get(division.get(pos_division));
-                    if(nodo == null) return false;
-                    ++pos_division;
-                }
-
-
-                    // Si vamos a una posición que no tiene una ficha colocada
-                    else {
-                        if(!mirarNuevasPalabrasVertical(tablero, division.get(pos_division),fil,y)) return false;
-                        ++pos_division;
-                    }
-                }
-            }
-        }
-
-        // Si hay ficha colocada en la casilla, ir hasta el final de la palabra para ver si se puede extender
-        else {
-            if(modo.equals("horizontal")){
-                if(!cabePalabraHorizontal(division,x,y)) return false;
-                NodoDawg nodo = getRoot();
-                int pos_division = 0;
-
-                // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
-                for(int col = y; tablero.getFicha(x,col) != null && casillaCorrecta(x,col); col++) {
+                // Recorre la semi palabra en el tablero y validamos las nuevas palabras horizontales formadas
+                for (int col = y; tablero.getFicha(x, col) != null && casillaCorrecta(x, col); col++) {
+                    String letraTablero = tablero.getFicha(x, col).getLetra();
+                    if (!letraTablero.equals(division.get(pos_division))) return false; // si no es la misma letra,
                     nodo = nodo.getHijos().get(division.get(pos_division));
                     pos_division++;
                 }
 
-                // Mirar por cada letra que le quede a division, que pueda extenderse
-                // Si la casilla es vacia, mirar si extiende palabras desde arriba o abajo
-                // Si la casilla esta ocupada, ver si esta es la misma que la letra que toca
-
-                for(int col = y + pos_division; col < y + size && casillaCorrecta(x,col); col++) {
-                    // En el caso de que no haya una ficha en esa nueva posicion
-                    if(tablero.getFicha(x,col) == null) {
-                        // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasHorizontal(tablero, division.get(pos_division),x,col)) return false;
+                // Ahora, mira por cada letra restante de la palabra y si puede extenderse
+                for (int col = y + pos_division; col < y + size && casillaCorrecta(x, col); col++) {
+                    if (tablero.getFicha(x, col) == null) {
+                        if (!mirarNuevasPalabrasHorizontal(tablero, division.get(pos_division), x, col)) return false;
+                        pos_division++;
+                    } else {
+                        String letra = tablero.getFicha(x, col).getLetra();
+                        if (!letra.equals(division.get(pos_division))) return false;
+                        nodo = nodo.getHijos().get(division.get(pos_division));
                         pos_division++;
                     }
-
-                    // En el caso de que ya haya una ficha en esa nueva posicion
-                    else {
-                        // Si la letra del tablero coincide con la letra de la palabra
-                        String letra = tablero.getFicha(x,col).getLetra();
-                        if(letra != division.get(pos_division)) return false;
-                        else {
-                            nodo = nodo.getHijos().get(division.get(pos_division));
-                            pos_division++;
-                        }
-                    }
                 }
-            }
-
-            else if(modo.equals("vertical")) {
-                if(!cabePalabraVertical(division,x,y)) return false;
+            } else if (modo.equals("vertical")) {
+                if (!cabePalabraVertical(tablero, division, x, y, esPrimerTurno)) return false;
                 NodoDawg nodo = getRoot();
                 int pos_division = 0;
 
-                // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
-                for(int fil = x; tablero.getFicha(fil,y) != null && casillaCorrecta(fil,y); fil++) {
+                for (int fil = x; tablero.getFicha(fil, y) != null && casillaCorrecta(fil, y); fil++) {
+                    String letraTablero = tablero.getFicha(fil, y).getLetra();
+                    if (!letraTablero.equals(division.get(pos_division))) return false; // si no es la misma letra,
                     nodo = nodo.getHijos().get(division.get(pos_division));
                     pos_division++;
                 }
 
-                // Mirar por cada letra que le quede a division, que pueda extenderse
-                // Si la casilla es vacia, mirar si extiende palabras desde arriba o abajo
-                // Si la casilla esta ocupada, ver si esta es la misma que la letra que toca
-
-                for(int fil = x + pos_division; fil < x + size && casillaCorrecta(fil,y); fil++) {
-                    // En el caso de que no haya una ficha en esa nueva posición
-                    if(tablero.getFicha(fil,y) == null) {
-                        // Mirar por posibles nuevas palabras arriba y abajo
-                        if(!mirarNuevasPalabrasVertical(tablero, division.get(pos_division),fil,y)) return false;
+                for (int fil = x + pos_division; fil < x + size && casillaCorrecta(fil, y); fil++) {
+                    if (tablero.getFicha(fil, y) == null) {
+                        if (!mirarNuevasPalabrasVertical(tablero, division.get(pos_division), fil, y)) return false;
                         ++pos_division;
-                    }
-
-                    // En el caso de que ya haya una ficha en esa nueva posición
-                    else {
-                        // Si la letra del tablero coincide con la letra de la palabra
-                        String letra = tablero.getFicha(fil,y).getLetra();
-                        if(letra != division.get(pos_division)) return false;
-                        else {
-                            nodo = nodo.getHijos().get(division.get(pos_division));
-                            ++pos_division;
-                        }
+                    } else {
+                        String letra = tablero.getFicha(fil, y).getLetra();
+                        if (!letra.equals(division.get(pos_division))) return false;
+                        nodo = nodo.getHijos().get(division.get(pos_division));
+                        ++pos_division;
                     }
                 }
             }
         }
         return true;
     }
+
 
     /**
      * Función que comprueba que la colocación (en horizontal) de la letra en una posición del tablero es correcta
@@ -484,24 +427,30 @@ public class Dawg {
      */
     private boolean mirarNuevasPalabrasHorizontal(Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        StringBuilder palabra = new StringBuilder();
+        int fila = x;
 
-        // En el caso de que la casilla de arriba esté ocupada, ver si se crea una palaba correcta
-        if(casillaCorrecta(x-1,y)) {
-            if(tablero.getFicha(x-1,y) != null) {
-                // Ir hacia arriba hasta el principio de la palabra y mirar que sea correcta
-                int fil = x;
-                while(tablero.getFicha(fil-1,y) != null && casillaCorrecta(fil-1,y)) fil--;
-
-                if(!palabraVerticalCorrecta(tablero,fil,y,x,letra)) return false;
-            }
+        // Recorre hacia arriba
+        int f = fila - 1;
+        while (f >= 0 && tablero.getFicha(f, y) != null) {
+            palabra.insert(0, tablero.getFicha(f, y).getLetra());
+            f--;
         }
 
-        // En el caso de que solo la casilla de abajo esté ocupada, ver si crea una palabra correcta
-        else if(casillaCorrecta(x+1,y)) {
-            if(tablero.getFicha(x+1,y) != null) {
-                // Ir hacia abajo para comprobar que la palabra existe
-                if(!palabraVerticalCorrecta(tablero,x,y,x,letra)) return false;
-            }
+        // Añade la letra que se quiere colocar
+        palabra.append(letra);
+
+        // Recorre hacia abajo
+        f = fila + 1;
+        while (f < FILAS && tablero.getFicha(f, y) != null) {
+            palabra.append(tablero.getFicha(f, y).getLetra());
+            f++;
+        }
+
+        // Si se forma una palabra de más de una letra, comprobar si es válida
+        if (palabra.length() > 1) {
+            System.out.println("Palabra formada en vertical (por horizontal): " + palabra);
+            return existePalabra(palabra.toString());
         }
         return true;
     }
@@ -518,22 +467,30 @@ public class Dawg {
      */
     private boolean mirarNuevasPalabrasVertical(Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        StringBuilder palabra = new StringBuilder();
+        int columna = y;
 
-        // En el caso de que la casilla de la izquierda esté ocupada, ver si se crea una palabra correcta
-        if(casillaCorrecta(x,y-1)) {
-            if(tablero.getFicha(x,y-1) != null) {
-                int col = y;
-                while(tablero.getFicha(x,col-1) != null && casillaCorrecta(x,col-1)) col--;
-
-                if(!palabraHorizontalCorrecta(tablero,x,col,y,letra)) return false;
-            }
-
+        // Recorre hacia la izquierda
+        int c = columna - 1;
+        while (c >= 0 && tablero.getFicha(x, c) != null) {
+            palabra.insert(0, tablero.getFicha(x, c).getLetra());
+            c--;
         }
-        else if(casillaCorrecta(x,y+1)) {
-            if(tablero.getFicha(x,y+1) != null) {
-                // Ir hacia la derecha para comprobar que la palabra existe
-                if(!palabraHorizontalCorrecta(tablero,x,y,y,letra)) return false;
-            }
+
+        // Añade la letra que se quiere colocar
+        palabra.append(letra);
+
+        // Recorre hacia la derecha
+        c = columna + 1;
+        while (c < COLUMNAS && tablero.getFicha(x, c) != null) {
+            palabra.append(tablero.getFicha(x, c).getLetra());
+            c++;
+        }
+
+        // Si se forma una palabra de más de una letra, comprobar si es válida
+        if (palabra.length() > 1) {
+            System.out.println("Palabra formada en horizontal (por vertical): " + palabra);
+            return existePalabra(palabra.toString());
         }
         return true;
     }
@@ -590,21 +547,49 @@ public class Dawg {
         return true;
     }
 
-    private boolean cabePalabraVertical(List<String> divisiones, int x, int y) {
+    private boolean cabePalabraVertical(Tablero tablero, List<String> divisiones, int x, int y, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         int size = divisiones.size();
-        for(int fil = x; fil < x + size; fil++) {
-            if(!casillaCorrecta(fil,y)) return false;
+        Integer[] X = {1, 1, 0, 0};
+        Integer[] Y = {0, 0, 1, 1};
+        boolean adyacente_a_algo = false;
+
+        for (int fil = x; fil < x + size; fil++) {  // recorrer desde x hasta x + tamaño de palabra
+            if (!casillaCorrecta(fil, y)) return false;
+
+            if (tablero.getFicha(fil, y) != null) adyacente_a_algo = true;
+
+            for (int i = 0; i < 4 && !adyacente_a_algo; i++) {
+                if (casillaCorrecta(fil + X[i], y + Y[i])) {
+                    if (tablero.getFicha(fil + X[i], y + Y[i]) != null) adyacente_a_algo = true;
+                }
+            }
         }
-        return true;
+
+        return esPrimerTurno || adyacente_a_algo;
     }
 
-    private boolean cabePalabraHorizontal(List<String> divisiones, int x, int y) {
+
+    private boolean cabePalabraHorizontal(Tablero tablero, List<String> divisiones, int x, int y, boolean esPrimerTurno) throws CoordenadaFueraDeRangoException {
         int size = divisiones.size();
-        for(int col = y; col < y + size; col++) {
-            if(!casillaCorrecta(x,col)) return false;
+        Integer[] X = {1, 1, 0, 0};
+        Integer[] Y = {0, 0, 1, 1};
+        boolean adyacente_a_algo = false;
+
+        for (int col = y; col < y + size; col++) {  // recorrer desde y hasta y + tamaño de palabra
+            if (!casillaCorrecta(x, col)) return false;
+
+            if (tablero.getFicha(x, col) != null) adyacente_a_algo = true;
+
+            for (int i = 0; i < 4 && !adyacente_a_algo; i++) {
+                if (casillaCorrecta(x + X[i], col + Y[i])) {
+                    if (tablero.getFicha(x + X[i], col + Y[i]) != null) adyacente_a_algo = true;
+                }
+            }
         }
-        return true;
+
+        return esPrimerTurno || adyacente_a_algo;
     }
+
 
     /**
      * Función para saber si una casilla está dentro del tablero o no
@@ -612,7 +597,7 @@ public class Dawg {
      * @param y
      * @return
      */
-    public boolean casillaCorrecta(Integer x, Integer y) {
+    private boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
@@ -622,20 +607,21 @@ public class Dawg {
      * @author Albert Aulet Niubó
      */
     public int getNumeroNodes() {
-        Set<NodoDawg> visited = new HashSet<>();
-        return getNumeroNodesRec(root, visited);
-    }
+        Set<NodoDawg> visitados = new HashSet<>();
+        Deque<NodoDawg> pila = new ArrayDeque<>();
+        pila.push(root);
+        int contador = 0;
 
-    // Función recursiva para contar los nodos únicos en el DAWG.
-    private int getNumeroNodesRec(NodoDawg node, Set<NodoDawg> visited) {
-        if (visited.contains(node)) {
-            return 0;
+        while (!pila.isEmpty()) {
+            NodoDawg nodo = pila.pop();
+            if (visitados.add(nodo)) {
+                contador++;
+                for (NodoDawg hijo : nodo.getHijos().values()) {
+                    pila.push(hijo);
+                }
+            }
         }
-        visited.add(node);
-        int count = 1; // Contamos el nodo actual.
-        for (NodoDawg child : node.getHijos().values()) {
-            count += getNumeroNodesRec(child, visited);
-        }
-        return count;
+
+        return contador;
     }
 }

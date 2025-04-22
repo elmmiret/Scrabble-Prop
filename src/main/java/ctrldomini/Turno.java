@@ -56,6 +56,7 @@ public class Turno {
         this.puntosJ2 = puntosJ2;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
+        this.tipoJugada = tipoJugada;
     }
 
     public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
@@ -167,6 +168,7 @@ public class Turno {
         for (Map.Entry<Ficha, Integer> entry : cambioReal.entrySet()) {
             Ficha ficha = entry.getKey();
             int cantidad = entry.getValue();
+
             for (int i = 0; i < cantidad; i++) {
                 if (atril.containsKey(ficha) && atril.get(ficha) > 0) {
                     colaTemporal.add(ficha);
@@ -302,112 +304,230 @@ public class Turno {
         int modificadorPalabra = 1;
         int puntosVerticalExtra = 0;
         int puntosHorizontalExtra = 0;
+        int puntosBasePalabra = 0;
+
         System.out.println("Entro a colocar palabra");
-        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion)) {
+        // pasarle si es el primer turno o no
+        boolean esPrimerTurno = false;
+        if (getTablero().estaVacio()) esPrimerTurno = true;
+        if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
             System.out.println("La he comprobado y esta bien");
+
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
+            if (esPrimerTurno)
+            {
+                if (orientacion.equals("vertical"))
+                {
+                    if (x_ini > 7 || (x_ini + fichas.size()) < 8) return false;
+                }
+                else if (orientacion.equals("horizontal"))
+                {
+                    if (y_ini > 7 || (y_ini + fichas.size()) < 8) return false;
+                }
+            }
+
             if ("vertical".equals(orientacion)) {
-                for (int i = 0; i < fichas.size(); i++) {
-                    String letraBuscada = fichas.get(i);
-                    Ficha fichaEncontrada;
-                    if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
-                    else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
-                    if (fichaEncontrada == null) return false;
-                    System.out.println("Tengo la ficha en el atril y la he quitado");
 
-
-                    Ficha f = fichaEncontrada;
-                    partida.getTablero().setFicha( f, x_ini + i, y_ini);
-                    if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
-                    else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
-                    else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
-                    else if (partida.getTablero().getTipoModificador(x_ini + i, y_ini) == Tablero.TipoModificador.dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2;
-                    else puntosPorSumar += f.getPuntuacion();
-
-                    // Explorar horizontalmente (izquierda)
-                    int x = x_ini + i - 1;
-                    while (x >= 0) {
-                        Ficha fIzq = partida.getTablero().getFicha(x, y_ini);
-                        if (fIzq == null) break;
-                        puntosPorSumar += fIzq.getPuntuacion();
-                        x--;
-                    }
-
-                    // Explorar horizontalmente (derecha)
-                    x = x_ini + i + 1;
-                    while (x < Tablero.COLUMNAS) {
-                        Ficha fDer = partida.getTablero().getFicha(x, y_ini);
-                        if (fDer == null) break;
-                        puntosPorSumar += fDer.getPuntuacion();
-                        x++;
+                //mirar si tiene las fichas en el atril
+                System.out.println("MIRANDO SI ESTA TODO EN EL ATRIL VERTICAL");
+                Map<Ficha, Integer> atrilCheck;
+                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
+                else atrilCheck = new HashMap<>(atrilJ2);
+                for (int i = 0; i < fichas.size(); ++i)
+                {
+                    if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {
+                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(i));
+                        if (fichaCheck == null) {
+                            System.out.println("La letra '" + fichas.get(i) + "' no está en el atril.");
+                            return false;
+                        }
                     }
                 }
+                System.out.println("ESTA TODO EN EL ATRIL");
+
+                for (int i = 0; i < fichas.size(); i++) { // por cada ficha
+                    String letraBuscada = fichas.get(i);
+                    Ficha f;
+                    if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal y los modificadores
+                        Ficha fichaEncontrada;
+
+                        if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
+                        else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
+                        if (fichaEncontrada == null) {
+                            System.out.println("La letra '" + letraBuscada + "' no está en el atril.");
+                            return false;
+                        }
+                        System.out.println("Tengo la ficha en el atril y la he quitado");
+                        System.out.println("Puntos de la letra '" + letraBuscada + fichaEncontrada.getPuntuacion());
+                        f = fichaEncontrada;
+                        partida.getTablero().setFicha( f, x_ini + i, y_ini);
+
+                        Tablero.TipoModificador mod = partida.getTablero().getTipoModificador(x_ini + i, y_ini);
+                        if (mod != null) { // si tiene modificador
+                            if (mod == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
+                            else if (mod == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra != 3) modificadorPalabra = 2;
+                            else if (mod == Tablero.TipoModificador.tripleTantoDeLetra) puntosBasePalabra += f.getPuntuacion() * 3;
+                            else if (mod == Tablero.TipoModificador.dobleTantoDeLetra) puntosBasePalabra += f.getPuntuacion() * 2;
+                            else puntosBasePalabra += f.getPuntuacion();
+                        }// si no hay modificador
+                        else puntosBasePalabra += f.getPuntuacion();
+                    }
+                    else { // si esta ya puesta, solo se suman los puntos de la ficha, sin modificadores
+                        f = partida.getTablero().getFicha(x_ini + i, y_ini);
+                        puntosBasePalabra += f.getPuntuacion();
+                        System.out.println("Puntos de la letra '" + letraBuscada + f.getPuntuacion());
+                    }
+
+                    System.out.println("Puntos a sumar de cada iteracion'" + puntosBasePalabra + "'.");
+
+                    // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
+                    // no se multiplican por el modificador de palabra
+                    // explorar horizontalmente (izquierda)
+                    if (partida.getTablero().getFicha(x_ini + i, y_ini - 1) != null || partida.getTablero().getFicha(x_ini + i, y_ini + 1) != null) {
+                        int x = x_ini + i - 1;
+                        while (x >= 0) {
+                            Ficha fIzq = partida.getTablero().getFicha(x, y_ini);
+                            if (fIzq == null) break;
+                            puntosHorizontalExtra += fIzq.getPuntuacion();
+                            x--;
+                        }
+
+                        // explorar horizontalmente (derecha)
+                        x = x_ini + i + 1;
+                        while (x < Tablero.COLUMNAS) {
+                            Ficha fDer = partida.getTablero().getFicha(x, y_ini);
+                            if (fDer == null) break;
+                            puntosHorizontalExtra += fDer.getPuntuacion();
+                            x++;
+                        }
+                    }
+                }
+                System.out.println("Acabo el for y puntos base palabra es:" + puntosBasePalabra);
+                System.out.println("Acabo el for y puntos por sumar es: '" + puntosPorSumar);
+
+                // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
+                // y se le suman los puntos totales al jugador que le pertoca.
 
                 // puntos de juntar con palabras ya hechas
-                puntosPorSumar += calculoPuntosExtraVertical(x_ini, y_ini, palabra);
-                if (modificadorPalabra != 1) puntosPorSumar *= modificadorPalabra;
+                puntosBasePalabra += calculoPuntosExtraVertical(x_ini, y_ini, palabra);
+                puntosPorSumar = puntosBasePalabra * modificadorPalabra;
                 puntosPorSumar += puntosHorizontalExtra;
+
+                System.out.println("Despues de multiplicar y sumar extras puntos base palabra es:" + puntosBasePalabra);
+                System.out.println("Despues de multiplicar y sumar extras puntos por sumar es: '" + puntosPorSumar);
 
                 if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
                 else puntosJ2 += puntosPorSumar;
             }
             else { // horizontal
+
+                //mirar si tiene las fichas en el atril
+                System.out.println("MIRANDO SI ESTA TODO EN EL ATRIL HORIZONTAL");
+                Map<Ficha, Integer> atrilCheck;
+                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
+                else atrilCheck = new HashMap<>(atrilJ2);
+                for (int i = 0; i < fichas.size(); ++i)
+                {
+                    if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {
+                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(i));
+                        if (fichaCheck == null) {
+                            System.out.println("La letra '" + fichas.get(i) + "' no está en el atril.");
+                            return false;
+                        }
+                    }
+                }
+                System.out.println("ESTA TODO EN EL ATRIL");
+
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
-                    Ficha fichaEncontrada;
-                    if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
-                    else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
-                    if (fichaEncontrada == null) return false;
-                    System.out.println("Tengo la ficha en el atril y la he quitado");
+                    Ficha f;
+                    if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal
+                        Ficha fichaEncontrada;
+                        if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
+                        else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
+                        if (fichaEncontrada == null) {
+                            System.out.println("La letra '" + letraBuscada + "' no está en el atril.");
+                            return false;
+                        }
+                        System.out.println("Tengo la ficha en el atril y la he quitado");
+                        System.out.println("Puntos de la letra '" + letraBuscada + fichaEncontrada.getPuntuacion());
+                        f = fichaEncontrada;
+                        partida.getTablero().setFicha( f, x_ini, y_ini + i);
 
-
-                    Ficha f = fichaEncontrada;
-                    partida.getTablero().setFicha( f, x_ini, y_ini + i);
-                    if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra!= 3) modificadorPalabra = 2;
-                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
-                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.tripleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*3;
-                    else if (partida.getTablero().getTipoModificador(x_ini, y_ini + i) == Tablero.TipoModificador.dobleTantoDeLetra) puntosPorSumar += f.getPuntuacion()*2;
-                    else puntosPorSumar += f.getPuntuacion();
-
-                    // Explorar verticalmente (arriba)
-                    int y = y_ini + i - 1;
-                    while (y >= 0) {
-                        Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
-                        if (fArriba == null) break;
-                        puntosVerticalExtra += fArriba.getPuntuacion();
-                        y--;
+                        Tablero.TipoModificador mod = partida.getTablero().getTipoModificador(x_ini, y_ini + i);
+                        if (mod != null) { // si tiene modificador
+                            System.out.println("El modificador no es null y es: " + mod);
+                            if (mod == Tablero.TipoModificador.tripleTantoDePalabra) modificadorPalabra = 3;
+                            else if (mod == Tablero.TipoModificador.dobleTantoDePalabra && modificadorPalabra != 3) modificadorPalabra = 2;
+                            else if (mod == Tablero.TipoModificador.tripleTantoDeLetra) puntosBasePalabra += f.getPuntuacion() * 3;
+                            else if (mod == Tablero.TipoModificador.dobleTantoDeLetra) puntosBasePalabra += f.getPuntuacion() * 2;
+                            else puntosBasePalabra += f.getPuntuacion();
+                        }// si no hay modificador
+                        else puntosBasePalabra += f.getPuntuacion();
+                    }
+                    else { // si esta ya puesta, solo se suman los puntos de la ficha, sin modificadores
+                        f = partida.getTablero().getFicha(x_ini, y_ini + i);
+                        puntosBasePalabra += f.getPuntuacion();                          System.out.println("Puntos de la letra '" + letraBuscada + f.getPuntuacion());
                     }
 
-                    // Explorar verticalmente (abajo)
-                    y = y_ini + i + 1;
-                    while (y < Tablero.FILAS) {
-                        Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
-                        if (fAbajo == null) break;
-                        puntosVerticalExtra += fAbajo.getPuntuacion();
-                        y++;
+                    System.out.println("Puntos a sumar de cada iteracion'" + puntosBasePalabra + "'.");
+
+                    // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
+                    // no se multiplican por el modificador de palabra
+                    // Explorar verticalmente (arriba)
+                    if (partida.getTablero().getFicha(x_ini - 1, y_ini + i) != null || partida.getTablero().getFicha(x_ini + 1, y_ini + i) != null) {
+                        int y = y_ini + i - 1;
+                        while (y >= 0) {
+                            Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
+                            if (fArriba == null) break;
+                            puntosVerticalExtra += fArriba.getPuntuacion();
+                            y--;
+                        }
+
+                        // Explorar verticalmente (abajo)
+                        y = y_ini + i + 1;
+                        while (y < Tablero.FILAS) {
+                            Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
+                            if (fAbajo == null) break;
+                            puntosVerticalExtra += fAbajo.getPuntuacion();
+                            y++;
+                        }
                     }
 
                 }
-                if (modificadorPalabra != 1) puntosPorSumar *= modificadorPalabra;
-                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
-                else puntosJ2 += puntosPorSumar;
+                System.out.println("Acabo el for y puntos base palabra es:" + puntosBasePalabra);
+                System.out.println("Acabo el for y puntos por sumar es: '" + puntosPorSumar);
+
+
+                // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
+                // y se le suman los puntos totales al jugador que le pertoca.
 
                 // puntos de juntar con palabras ya hechas
-                puntosPorSumar += calculoPuntosExtraHorizontal(x_ini, y_ini, palabra);
-                if (modificadorPalabra != 1) puntosPorSumar *= modificadorPalabra;
+                puntosBasePalabra += calculoPuntosExtraHorizontal(x_ini, y_ini, palabra);
+                puntosPorSumar = puntosBasePalabra * modificadorPalabra;  // **Cambio aquí: calculamos puntosPorSumar al final**
+                System.out.println("hago puntosbase *modificador puntos por sumar es: '" + puntosPorSumar);
                 puntosPorSumar += puntosVerticalExtra;
+                System.out.println("le sumo puntosVericales puntos por sumar es: '" + puntosPorSumar);
+
+                System.out.println("Despues de multiplicar y sumar extras puntos base palabra es:" + puntosBasePalabra);
+                System.out.println("Despues de multiplicar y sumar extras puntos por sumar es: '" + puntosPorSumar);
 
                 if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
                 else puntosJ2 += puntosPorSumar;
+
             }
+            System.out.println("Puntos a sumar '" + puntosPorSumar + "'.");
+            System.out.println("Puntos modificador '" + modificadorPalabra + "'.");
         }
         else return false;
+
         setTipoJugada(TipoJugada.colocar);
         if (jugador == partida.getCreador()) robarFichas(atrilJ1);
         else robarFichas(atrilJ2);
         avanzarTurno();
         return true;
     }
+
 
     // la necesitare?
     /**
@@ -490,11 +610,9 @@ public class Turno {
             int x1 = mejorPalabra.get(0).getValue().getKey();
             int y1 = mejorPalabra.get(0).getValue().getValue();
             int x2 = x1;
-            //int y2 = y1;
 
             if (mejorPalabra.size() > 1) {
                 x2 = mejorPalabra.get(1).getValue().getKey();
-                //y2 = mejorPalabra.get(1).getValue().getValue();
             }
 
             String orientacion;
