@@ -309,7 +309,20 @@ public class Turno {
         if (getTablero().estaVacio()) esPrimerTurno = true;
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
             System.out.println("La he comprobado y esta bien");
+
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
+            if (esPrimerTurno)
+            {
+                if (orientacion.equals("vertical"))
+                {
+                    if (x_ini > 7 || (x_ini + fichas.size()) < 8) return false;
+                }
+                else if (orientacion.equals("horizontal"))
+                {
+                    if (y_ini > 7 || (y_ini + fichas.size()) < 8) return false;
+                }
+            }
+
             if ("vertical".equals(orientacion)) {
                 for (int i = 0; i < fichas.size(); i++) { // por cada ficha
                     String letraBuscada = fichas.get(i);
