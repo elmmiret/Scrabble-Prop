@@ -197,7 +197,6 @@ public class GestorDePerfil {
      *
      * @param username Nombre del perfil al que sumarle los puntos
      * @param puntos Puntos a sumar
-     * @return true si hay al menos un perfil registrado, false si está vacío
      */
     public void incrementarPuntosJugador(String username, int puntos)
     {
@@ -205,6 +204,57 @@ public class GestorDePerfil {
 
         Perfil perfil = jugadores.get(username);
         perfil.incrementarPuntos(puntos);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
+
+    /**
+     * Incrementa en 1 las partidas jugadas del usuario obtenido como parámetro
+     *
+     * @param username Nombre del perfil al que sumarle las partidas jugadas
+     */
+    public void incrementarPartidasJugadas(String username)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPartidasJugadas(1);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
+
+    /**
+     * Incrementa en 1 las partidas ganadas del usuario obtenido como parámetro
+     *
+     * @param username Nombre del perfil al que sumarle las partidas ganadas
+     */
+    public void incrementarPartidasGanadas(String username)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPartidasGanadas(1);
+        jugadores.remove(username);
+        jugadores.put(username, perfil);
+
+        ranking.addToRankings(jugadores.get(username));
+    }
+
+    /**
+     * Incrementa en 1 las partidas perdidas del usuario obtenido como parámetro
+     *
+     * @param username Nombre del perfil al que sumarle las partidas perdidas
+     */
+    public void incrementarPartidasPerdidas(String username)
+    {
+        ranking.deleteFromRankings(jugadores.get(username));
+
+        Perfil perfil = jugadores.get(username);
+        perfil.incrementarPartidasPerdidas(1);
         jugadores.remove(username);
         jugadores.put(username, perfil);
 
