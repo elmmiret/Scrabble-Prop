@@ -2,12 +2,12 @@ INSTRUCCIONES PARA JUGAR
 
 1-  COLOCAR PALABRA
 
-    -Introducir una palabra válida COMPLETA a escribir (usando solamente fichas del atril o usando también las del tablero).
-    -Introducir la FILA donde irá la primera letra de la palabra en caso de querer colocarla en vertical o la FILA donde irá
-    la palabra entera en caso de querer colocarla en horizontal. En el caso de que el tablero esté vacío tendrá que haber al menos
+    -Introducir una palabra valida COMPLETA a escribir (usando solamente fichas del atril o usando tambien las del tablero).
+    -Introducir la FILA donde ira la primera letra de la palabra en caso de querer colocarla en vertical o la FILA donde ira
+    la palabra entera en caso de querer colocarla en horizontal. En el caso de que el tablero este vacío tendrá que haber al menos
     una ficha en el centro.
-    -Introducir la COLUMNA donde irá la palabra entera en caso de querer colocarla en vertical o la COLUMNA donde irá la primera
-    letra de la palabra en caso de querer colocarla en horizontal. En el caso de que el tablero esté vacío tendrá que haber al menos
+    -Introducir la COLUMNA donde ira la palabra entera en caso de querer colocarla en vertical o la COLUMNA donde ira la primera
+    letra de la palabra en caso de querer colocarla en horizontal. En el caso de que el tablero este vacio tendra que haber al menos
     una ficha en el centro.
     -Introducir la orientación de la palabra (V o H)
 
