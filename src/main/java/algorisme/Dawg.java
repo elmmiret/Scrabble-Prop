@@ -287,6 +287,7 @@ public class Dawg {
                 for (int fil = x; fil < x + size && casillaCorrecta(fil, y); fil++) {
                     if (tablero.getFicha(fil, y) != null) {
                         if (!tablero.getFicha(fil, y).getLetra().equals(division.get(pos_division))) {
+                            System.out.println("No Coincide la ficha ");
                             return false;
                         }
                         nodo = nodo.getHijos().get(division.get(pos_division));
@@ -307,6 +308,8 @@ public class Dawg {
 
                 // Recorre la semi palabra en el tablero y validamos las nuevas palabras horizontales formadas
                 for (int col = y; tablero.getFicha(x, col) != null && casillaCorrecta(x, col); col++) {
+                    String letraTablero = tablero.getFicha(x, col).getLetra();
+                    if (!letraTablero.equals(division.get(pos_division))) return false; // si no es la misma letra,
                     nodo = nodo.getHijos().get(division.get(pos_division));
                     pos_division++;
                 }
@@ -329,6 +332,8 @@ public class Dawg {
                 int pos_division = 0;
 
                 for (int fil = x; tablero.getFicha(fil, y) != null && casillaCorrecta(fil, y); fil++) {
+                    String letraTablero = tablero.getFicha(fil, y).getLetra();
+                    if (!letraTablero.equals(division.get(pos_division))) return false; // si no es la misma letra,
                     nodo = nodo.getHijos().get(division.get(pos_division));
                     pos_division++;
                 }
@@ -361,27 +366,34 @@ public class Dawg {
      */
     private boolean mirarNuevasPalabrasHorizontal(Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        StringBuilder palabra = new StringBuilder();
+        int fila = x;
 
-        // En el caso de que la casilla de arriba esté ocupada, ver si se crea una palaba correcta
-        if(casillaCorrecta(x-1,y)) {
-            if(tablero.getFicha(x-1,y) != null) {
-                // Ir hacia arriba hasta el principio de la palabra y mirar que sea correcta
-                int fil = x;
-                while(tablero.getFicha(fil-1,y) != null && casillaCorrecta(fil-1,y)) fil--;
-
-                if(!palabraVerticalCorrecta(tablero,fil,y,x,letra)) return false;
-            }
+        // Recorre hacia arriba
+        int f = fila - 1;
+        while (f >= 0 && tablero.getFicha(f, y) != null) {
+            palabra.insert(0, tablero.getFicha(f, y).getLetra());
+            f--;
         }
 
-        // En el caso de que solo la casilla de abajo esté ocupada, ver si crea una palabra correcta
-        else if(casillaCorrecta(x+1,y)) {
-            if(tablero.getFicha(x+1,y) != null) {
-                // Ir hacia abajo para comprobar que la palabra existe
-                if(!palabraVerticalCorrecta(tablero,x,y,x,letra)) return false;
-            }
+        // Añade la letra que se quiere colocar
+        palabra.append(letra);
+
+        // Recorre hacia abajo
+        f = fila + 1;
+        while (f < FILAS && tablero.getFicha(f, y) != null) {
+            palabra.append(tablero.getFicha(f, y).getLetra());
+            f++;
+        }
+
+        // Si se forma una palabra de más de una letra, comprobar si es válida
+        if (palabra.length() > 1) {
+            System.out.println("Palabra formada en vertical (por horizontal): " + palabra);
+            return existePalabra(palabra.toString());
         }
         return true;
     }
+
 
     /**
      *  Función que comprueba que la colocación (en vertical) de la letra en una posición del tablero es correcta
@@ -395,25 +407,34 @@ public class Dawg {
      */
     private boolean mirarNuevasPalabrasVertical(Tablero tablero, String letra, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        StringBuilder palabra = new StringBuilder();
+        int columna = y;
 
-        // En el caso de que la casilla de la izquierda esté ocupada, ver si se crea una palabra correcta
-        if(casillaCorrecta(x,y-1)) {
-            if(tablero.getFicha(x,y-1) != null) {
-                int col = y;
-                while(tablero.getFicha(x,col-1) != null && casillaCorrecta(x,col-1)) col--;
-
-                if(!palabraHorizontalCorrecta(tablero,x,col,y,letra)) return false;
-            }
-
+        // Recorre hacia la izquierda
+        int c = columna - 1;
+        while (c >= 0 && tablero.getFicha(x, c) != null) {
+            palabra.insert(0, tablero.getFicha(x, c).getLetra());
+            c--;
         }
-        else if(casillaCorrecta(x,y+1)) {
-            if(tablero.getFicha(x,y+1) != null) {
-                // Ir hacia la derecha para comprobar que la palabra existe
-                if(!palabraHorizontalCorrecta(tablero,x,y,y,letra)) return false;
-            }
+
+        // Añade la letra que se quiere colocar
+        palabra.append(letra);
+
+        // Recorre hacia la derecha
+        c = columna + 1;
+        while (c < COLUMNAS && tablero.getFicha(x, c) != null) {
+            palabra.append(tablero.getFicha(x, c).getLetra());
+            c++;
+        }
+
+        // Si se forma una palabra de más de una letra, comprobar si es válida
+        if (palabra.length() > 1) {
+            System.out.println("Palabra formada en horizontal (por vertical): " + palabra);
+            return existePalabra(palabra.toString());
         }
         return true;
     }
+
 
     /**
      *  Función que comprueba si la palabra que se forma verticalmente en el tablero con la nueva letra es correcta
