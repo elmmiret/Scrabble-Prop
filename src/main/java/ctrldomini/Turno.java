@@ -12,42 +12,58 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.util.AbstractMap.SimpleEntry;
 
-
 /**
- * Esta clase representa un turno dentro de una partida de Scrabble.
- * Gestiona las acciones realizadas por los jugadores como cambiar fichas,
- * pasar el turno, colocar palabras, y robar fichas.
- * Contiene información sobre las fichas que hay en los atriles y los puntos de cada jugador.
+ * Clase que representa un turno dentro de una partida de Scrabble.
+ * Gestiona las acciones realizadas por los jugadores, como colocar palabras, cambiar fichas,
+ * pasar turnos, calcular puntos y manejar la lógica de la IA. También administra los atriles
+ * de fichas y las interacciones con el tablero y la bolsa de fichas.
  *
- * @author Paula Pérez
+ * <p>Incluye métodos para validar movimientos, aplicar modificadores de puntuación,
+ * y gestionar el flujo del juego entre jugadores humanos y/o IA.</p>
+ *
+ * @author Paula Pérez Chia
  */
 public class Turno {
+
+    /** Partida actual asociada al turno. */
     private Partida partida;
-    // private int numero; no cal pq lo podemos buscar en el indice ed la estructura rondas en partida
-    // TODO: cambiar a solo id de jugador
-    private Perfil jugador; // null si es la IA
-    // TODO: mirar si es mas facil hacerr que el atril sea un set de strings solo
+
+    /** Perfil del jugador actual (null si es IA). */
+    private Perfil jugador;
+
+    /** Mapa de fichas en el atril del jugador creador (clave: Ficha, valor: cantidad). */
     private Map<Ficha,Integer> atrilJ1; // creador
+
+    /** Mapa de fichas en el atril del oponente o IA (clave: Ficha, valor: cantidad). */
     private Map<Ficha,Integer> atrilJ2; // oponente oi IA
+
+    /** Puntuación acumulada del jugador creador. */
     private Integer puntosJ1; // creador
+
+    /** Puntuación acumulada del oponente o IA. */
     private Integer puntosJ2; // oponente oi IA
+
+    /** Número máximo de fichas permitidas en un atril. */
     public static final int MAX_FICHAS = 7;
 
+    /** Tipo de jugada realizada en el turno (cambiar, pasar, colocar, finalizar). */
+    private TipoJugada tipoJugada;
+
+    /**
+     * Enumeración que representa los tipos de acciones disponibles en un turno.
+     */
     // TODO: añadir finalizarpartida cuando se finalice
     public enum TipoJugada {
         cambiar, pasar, colocar, finalizar
     }
-    private TipoJugada tipoJugada;
-
-
-    // CONSTRUCTORA
 
     /**
-     * Construye una instancia de Turno.
-     * Inicializa un nuevo turno con la partida y el jugador actual.
+     * Construye un nuevo Turno inicializando atriles vacíos.
      *
-     * @param partida La partida en la que se está jugando.
-     * @param jugador El perfil del jugador que realiza el turno.
+     * @param partida   Partida asociada al turno.
+     * @param jugador   Jugador actual.
+     * @param puntosJ1  Puntuación inicial del jugador creador.
+     * @param puntosJ2  Puntuación inicial del oponente/IA.
      */
     public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2) {
         this.partida = partida;
@@ -59,6 +75,16 @@ public class Turno {
         this.tipoJugada = tipoJugada;
     }
 
+    /**
+     * Construye un Turno con atriles específicos.
+     *
+     * @param partida   Partida asociada al turno.
+     * @param jugador   Jugador actual.
+     * @param puntosJ1  Puntuación inicial del jugador creador.
+     * @param puntosJ2  Puntuación inicial del oponente/IA.
+     * @param atrilJ1   Atril del jugador creador.
+     * @param atrilJ2   Atril del oponente/IA.
+     */
     public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
         this.partida = partida;
         this.jugador = jugador;
@@ -67,9 +93,6 @@ public class Turno {
         this.atrilJ1 = atrilJ1;
         this.atrilJ2 = atrilJ2;
     }
-
-
-    // MÉTODOS
 
     /**
      * Obtiene el jugador actual del turno.
@@ -80,14 +103,29 @@ public class Turno {
         return jugador;
     }
 
+    /**
+     * Obtiene la puntuación del creador
+     *
+     * @return Puntuación del jugador creador.
+     */
     public int getPuntuacionJ1() {
         return puntosJ1;
     }
 
+    /**
+     * Obtiene la puntuación del oponente o la IA
+     *
+     * @return Puntuación del jugador oponente o IA.
+     */
     public int getPuntuacionJ2() {
         return puntosJ2;
     }
 
+    /**
+     * Obtiene la instancia de la partida a la que pertenece el turno.
+     *
+     * @return La instancia a la que pertenece el turno
+     */
     public Partida getPartida() {
         return partida;
     }
@@ -129,6 +167,21 @@ public class Turno {
     }
 
     /**
+     * Obtiene el número de fichas que hay en el atril.
+     *
+     * @param atril El atril del jugador.
+     * @return El número de fichas que hay.
+     */
+    public int getTotalFichas(Map<Ficha, Integer> atril) {
+        if (atril == null) return 0;
+        int total = 0;
+        for (Integer cantidad : atril.values()) {
+            total += cantidad;
+        }
+        return total;
+    }
+
+    /**
      * Establece el tipo de jugada realizada en el turno.
      *
      * @param tipojugada El tipo de jugada a establecer.
@@ -138,11 +191,10 @@ public class Turno {
     }
 
     /**
-     * Cambia un conjunto de fichas del atril por otras nuevas de la bolsa.
-     * Primero se apartan, luego se roba, y por último se vuelven a insertar en la bolsa.
+     * Cambia fichas del atril por nuevas de la bolsa.
      *
-     * @param atril El atril del jugador.
-     * @param fichasParaCambiar Un mapa de fichas y la cantidad que desea cambiar.
+     * @param atril              Atril del jugador.
+     * @param fichasParaCambiar  Mapa de fichas y cantidades a cambiar.
      */
     public void cambiarFichas(Map<Ficha,Integer> atril, Map<Ficha,Integer> fichasParaCambiar) {
         // Reconstruir el mapa usando las instancias reales del atril
@@ -196,21 +248,6 @@ public class Turno {
     }
 
     /**
-     * Obtiene el numero de fichas que hay en el atril.
-     *
-     * @param atril El atril del jugador.
-     * @return El numero de fichas que hay.
-     */
-    public int getTotalFichas(Map<Ficha, Integer> atril) {
-        if (atril == null) return 0;
-        int total = 0;
-        for (Integer cantidad : atril.values()) {
-            total += cantidad;
-        }
-        return total;
-    }
-
-    /**
      * Roba fichas de la bolsa.
      * Acaba cuando llena al máximo el atril o no quedan mas fichas en la bolsa.
      *
@@ -242,6 +279,13 @@ public class Turno {
         partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
     }
 
+    /**
+     * Retira una ficha específica del atril.
+     *
+     * @param atril          Atril del jugador.
+     * @param letraBuscada   Letra de la ficha a retirar.
+     * @return               Ficha retirada, o null si no se encontró.
+     */
     private Ficha quitarFichaDelAtril(Map<Ficha, Integer> atril, String letraBuscada) {
         for (Map.Entry<Ficha, Integer> entry : atril.entrySet()) {
             if (entry.getKey().getLetra().equals(letraBuscada)) {
@@ -255,6 +299,15 @@ public class Turno {
         return null;
     }
 
+    /**
+     * Calcula puntos adicionales por fichas adyacentes en dirección horizontal.
+     *
+     * @param x_ini    Coordenada X inicial.
+     * @param y_ini    Coordenada Y inicial.
+     * @param palabra  Palabra colocada.
+     * @return         Puntos extra calculados.
+     * @throws CoordenadaFueraDeRangoException Si se accede a coordenadas inválidas.
+     */
     private int calculoPuntosExtraHorizontal(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
         // explorar horizontal hacia la izquierda
@@ -290,13 +343,15 @@ public class Turno {
     }
 
     /**
-     * Coloca una palabra en el tablero, calcula y asigna los puntos correspondientes.
+     * Coloca una palabra en el tablero y calcula los puntos.
      *
-     * @param palabra La palabra que se quiere colocar.
-     * @param x_ini La coordenada X inicial en el tablero.
-     * @param y_ini La coordenada Y inicial en el tablero.
-     * @param orientacion La dirección en la que se colocará la palabra ("vertical" u "horizontal").
-     * @return true si se ha colocado correctamente la palabra o false si no.
+     * @param palabra      Palabra a colocar.
+     * @param x_ini        Coordenada X inicial.
+     * @param y_ini        Coordenada Y inicial.
+     * @param orientacion  Dirección de colocación ("vertical" u "horizontal").
+     * @return             true si la palabra se colocó correctamente, false en caso contrario.
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero.
+     * @throws CasillaOcupadaException         Si una casilla ya está ocupada.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
 
@@ -530,27 +585,6 @@ public class Turno {
         return true;
     }
 
-
-    // la necesitare?
-    /**
-     * Retira una ficha del tablero.
-     *
-     * @param x La coordenada X de la ficha a retirar.
-     * @param y La coordenada Y de la ficha a retirar.
-     */
-    public void retirarFicha(int x, int y) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        if (!(partida.getTablero().getFicha(x, y) == null)) partida.getTablero().setFicha(null, x, y+1);
-    }
-
-    /**
-     * Solicita una pista para el jugador actual.
-     *
-     * @return Una pista.
-     */
-    public String pedirPista() {
-        return null; // no implementado aun
-    }
-
     /**
      * Inicializa los atriles de ambos jugadores con fichas de la bolsa.
      */
@@ -567,10 +601,10 @@ public class Turno {
     }
 
     /**
-     * Realiza el movimiento de la inteligencia artificial en el juego.
+     * Ejecuta la lógica de la IA para seleccionar y colocar la mejor palabra posible.
      *
-     * La IA selecciona la mejor palabra posible para colocar en el tablero, usando el algoritmo de backtraking.
-     * Si no se puede formar una palabra válida, la IA pasa el turno o cambiaa consonantes.
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas generadas son inválidas.
+     * @throws CasillaOcupadaException         Si se intenta colocar en una casilla ocupada.
      */
     public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int nroFichas = getTotalFichas(atrilJ2);

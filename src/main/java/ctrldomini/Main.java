@@ -10,11 +10,39 @@ import exceptions.*;
 
 import java.util.Scanner;
 
+/**
+ * Clase principal que actúa como controlador del flujo del programa.
+ * Gestiona el menú principal y coordina las diferentes funcionalidades del sistema,
+ * delegando acciones a módulos específicos según la opción seleccionada por el usuario.
+ *
+ * <p>El programa permite gestionar perfiles, partidas, visualizar rankings y estadísticas,
+ * así como salir de la aplicación. Utiliza varios gestores y drivers para interactuar
+ * con las capas de dominio y presentación.</p>
+ *
+ * @author Marc Ribas Acon
+ */
 public class Main {
 
+  /**
+   * Método principal que inicia la ejecución del programa.
+   * <p>
+   * Inicializa los componentes necesarios (scanner, gestores, drivers) y muestra un menú interactivo.
+   * Según la opción seleccionada, delega la ejecución a los módulos correspondientes:
+   * <ul>
+   *   <li>1: Gestión de perfiles (crear, modificar, eliminar).</li>
+   *   <li>2: Gestión de partidas (iniciar, pausar, reanudar).</li>
+   *   <li>3: Visualización de rankings.</li>
+   *   <li>4: Visualización de estadísticas.</li>
+   *   <li>5: Salir del programa.</li>
+   * </ul>
+   * </p>
+   *
+   * @param args Argumentos de línea de comandos (no utilizados en este programa).
+   * @throws CasillaOcupadaException Si se intenta ocupar una casilla ya ocupada en el tablero.
+   * @throws CoordenadaFueraDeRangoException Si se proporcionan coordenadas inválidas durante una partida.
+   */
   public static void main(String[] args) throws CasillaOcupadaException, CoordenadaFueraDeRangoException
   {
-
     // INIT
     Scanner scanner = new Scanner(System.in);
     Ranking ranking = new Ranking();
