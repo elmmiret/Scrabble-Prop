@@ -1,10 +1,8 @@
 package algorisme;
 
 import ctrldomini.*;
-import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import ctrldomini.*;
 import exceptions.CoordenadaFueraDeRangoException;
 /**
  * Clase que implementa algoritmos para encontrar el mejor movimiento en un juego de Scrabble.
@@ -24,25 +22,6 @@ public class Algoritmo {
         this.partida = partida;
     }
 
-    /**
-     *
-     *  Funcion que devuelva la mejor palara a colocar
-     *  Va a devolver una lista de (string, pair<x,y>) para cada palabra, para saber sus caracteres o digrafos y su posicion
-     *  @param tablero
-     *
-     *  1. Recorremos la matriz del tablero por filas
-     *
-     *  2. Computar los cross-checks de las casillas directamente arriba y abajo de casillas colocadas, sin tener en cuenta otras filas.
-     *     Esto nos permite, a la hora de hacer movimientos, evitar poner letras que no generan palabras validas (en vertical), si estas tocan con casillas colocadas
-     *
-     *  3. A la que se encuentra una casilla ocupada, vemos si el ancla tiene una casilla ocupada a su izquierda
-     *      3.1 Si la tiene, trataremos de extender el ancla y la parte derecha solamente con esa parte izquierda
-     *      3.2 Si no la tiene, la parte izquerda sera computada con letras del atril para luego extender estas partes hacia el ancla y parte derecha
-     *         (se computa con letras del atril que existen en los cross-checks)
-     *
-     *  4. Generar la lista con la mejor palabra (pair<pair<string,bool>, pair<x,y>>)
-     *                                                (letra, esDeAtril)   (posicion)
-     */
 
     /**
      * Calcula la mejor palabra para colocar en el tablero, considerando direcciones horizontales y verticales.
@@ -55,52 +34,51 @@ public class Algoritmo {
      * @author Arnau Miret Barrull
      */
     public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorMovimiento(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
-
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
         int mejorPuntuacion = 0;
         boolean estaTranspuesto = false;
-        // HORIZONTAL Y VERTICALMENTE (TRANSPUESTO)
 
+        // Probar orientación horizontal y vertical (transponiendo el tablero)
         for(int i = 0; i < 2; i++) {
-            // Modificamos los cross-check sets para no computar con letras que no generan palabras válidas
-            computarCrossChecks(dawg,tablero,atril);
+            // Calculamos cross-checks para restringir letras posibles
+            computarCrossChecks(dawg, tablero, atril);
 
-            // Obtenemos las posiciones de las anclas del tablero
-            List<SimpleEntry<Integer, Integer>> anclas = new ArrayList<>();
-            anclas = computarAnclas(tablero);
-            //if (!anclas.isEmpty()) {
-            // elimina y devuelve el último elemento
-            //            anclas.remove(anclas.size() - 1);
-            //}
-            for (SimpleEntry<Integer, Integer> pos : anclas)
-            {
-                System.out.printf("ANCLA: %d %d\n", pos.getKey(), pos.getValue());
-            }
-            System.out.println("----- DESPUES DEL FOR -----");
-            // Por cada ancla, obtenemos la mejor palaba
-            for(SimpleEntry<Integer, Integer> ancla : anclas) {
-                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = computarPalabraAncla(dawg,tablero,ancla,atril);
+            // Obtenemos posiciones de anclas
+            List<SimpleEntry<Integer, Integer>> anclas = computarAnclas(tablero);
 
-                int puntuacionPalabra = obtenerPuntuacion(tablero,mejorPalabraAncla);
-                for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : mejorPalabraAncla) {
-                    String palabra = entry.getKey().getKey(); // Access the String from the inner SimpleEntry
-                    System.out.println(palabra);
+            System.out.println("Orientación: " + (estaTranspuesto ? "Vertical" : "Horizontal"));
+            System.out.println("Número de anclas: " + anclas.size());
+
+            // Evaluamos cada posición de ancla
+            for (SimpleEntry<Integer, Integer> ancla : anclas) {
+                int x = ancla.getKey();
+                int y = ancla.getValue();
+                if (estaTranspuesto) {
+                    // Intercambiamos coordenadas si el tablero está transpuesto
+                    x = ancla.getValue();
+                    y = ancla.getKey();
                 }
-                System.out.println(puntuacionPalabra);
-                if(puntuacionPalabra > mejorPuntuacion) {
-                    mejorPalabra = mejorPalabraAncla;
+                System.out.printf("Evaluando ancla: %d,%d\n", x, y);
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraAncla =
+                        computarPalabraAncla(dawg, tablero, new SimpleEntry<>(x, y), atril, estaTranspuesto);
+                if (!palabraAncla.isEmpty()) {
+                    int puntuacion = obtenerPuntuacion(tablero, palabraAncla);
+                    System.out.printf("Palabra encontrada con puntuación: %d\n", puntuacion);
+
+                    if (puntuacion > mejorPuntuacion) {
+                        mejorPuntuacion = puntuacion;
+                        mejorPalabra = new ArrayList<>(palabraAncla);
+                        System.out.println("¡Nueva mejor palabra encontrada!");
+                    }
                 }
             }
 
-            // Transponemos la matriz del tablero
+            // Transponemos el tablero para la siguiente iteración
             tablero.transponerTablero();
             estaTranspuesto = true;
-
-            System.out.println("-----  HA LLEGADO A TRANSPONER --------");
         }
 
         return mejorPalabra;
-
     }
 
     /**
@@ -114,7 +92,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si la posición ancla es inválida.
      * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) throws CoordenadaFueraDeRangoException {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
 
         //backtracking
@@ -135,17 +113,17 @@ public class Algoritmo {
             if(tablero.getFicha(x,y-1) != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
-                //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
+
 
                 // Computar la parte izquierda con las casillas del tablero
-                int max_long = tamañoParteIzquierdaTablero(tablero,x,y); //HECHA
+                int max_long = tamañoParteIzquierdaTablero(tablero,x,y);
 
                 // Funcion que devuelve la parte izquierda ya en el tablero
-                parteIzquierda = computarParteIzquierdaTablero(tablero,max_long,x,y); //HECHA
+                parteIzquierda = computarParteIzquierdaTablero(tablero,max_long,x,y);
 
                 // Asignamos las posiciones del tablero a la parte izquierda
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
-                mejorPalabra = asignarPosiciones(parteIzquierda,max_long,x,y);
+                mejorPalabra = asignarPosiciones(parteIzquierda,max_long,x,y, estaTranspuesto);
 
                 // Obtenemos el nodo de la última letra de la parte izquierda
                 NodoDawg nodo = dawg.getRoot();
@@ -174,7 +152,7 @@ public class Algoritmo {
 
                 // Backtracking de las partes izquierdas posibles con las fichas del atril y tamaño indicado
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
-                mejorPalabra = computarMejorPalabraDelAtril(dawg.getRoot(),atril,max_long,tablero,x,y, dawg);
+                mejorPalabra = computarMejorPalabraDelAtril(dawg.getRoot(),atril,max_long,tablero,x,y, dawg, estaTranspuesto);
 
                 mejorPalabraAncla = mejorPalabra;
             }
@@ -189,63 +167,6 @@ public class Algoritmo {
 
             int puntuacion = extenderParteDerecha(tablero,mejorPalabra,atril,usados,dawg.getRoot(),x,y, dawg);
 
-            // Computación únicamente de la parte derecha
-            //mejorPalabraAncla = computarParteDerechaUnicamente(tablero,dawg,atril,x,y);
-
-        }
-
-        return mejorPalabraAncla;
-    }
-    /*
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) throws CoordenadaFueraDeRangoException {
-        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
-        int x = ancla.getKey();
-        int y = ancla.getValue();
-
-        // Validate coordinates
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) {
-            throw new CoordenadaFueraDeRangoException(x, y);
-        }
-
-        // Check left anchor expansion
-        if (casillaCorrecta(x, y - 1)) {
-            if (tablero.getFicha(x, y - 1) != null) {
-                // Case 1: Left part uses existing tiles
-                int maxLeftLength = tamañoParteIzquierdaTablero(tablero, x, y);
-                List<SimpleEntry<String, Boolean>> leftPart = computarParteIzquierdaTablero(tablero, maxLeftLength, x, y);
-
-                // Assign positions to left part
-                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> currentWord =
-                        asignarPosiciones(leftPart, maxLeftLength, x, y - maxLeftLength);
-
-                // Traverse DAWG for valid prefixes
-                NodoDawg node = dawg.getRoot();
-                for (SimpleEntry<String, Boolean> entry : leftPart) {
-                    node = node.getHijos().get(entry.getKey());
-                    if (node == null) break;
-                }
-
-                // Extend right part with rack tiles
-                boolean[] used = new boolean[atril.length];
-                int score = extenderParteDerecha(tablero, currentWord, atril, used, node, x, y);
-
-                if (!currentWord.isEmpty()) {
-                    mejorPalabraAncla = currentWord;
-                }
-            } else {
-                // Case 2: Left part uses rack tiles
-                int maxLeftLength = tamañoParteIzquierdaAtril(tablero, x, y);
-                mejorPalabraAncla = computarMejorPalabraDelAtril(dawg.getRoot(), atril, maxLeftLength, tablero, x,y);
-            }
-        } else {
-            // Case 3: No left expansion - use pure right extension
-            boolean[] used = new boolean[atril.length];
-            List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> currentWord = new ArrayList<>();
-            int score = extenderParteDerecha(tablero, currentWord, atril, used, dawg.getRoot(), x, y);
-
-            if (!currentWord.isEmpty()) {
-                mejorPalabraAncla = currentWord;
-            }
         }
 
         return mejorPalabraAncla;
@@ -267,41 +188,61 @@ public class Algoritmo {
         int multiplicadorPalabra = 1;
         int fichasAtril = 0;
 
-        // FIX 1: Reverse null check to process valid words
-        if (palabra != null) { // Changed from == null to != null
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
-                String letra = letra_i.getKey().getKey();
-                boolean esDelAtril = letra_i.getKey().getValue();
-                int pos_x = letra_i.getValue().getKey();
-                int pos_y = letra_i.getValue().getValue();
+        if (palabra == null || palabra.isEmpty()) {
+            return 0; // Si la palabra es nula o vacía entonces devolvemos 0
+        }
 
-                int valor_letra = partida.getPuntuacionFicha(letra);
-                //System.out.printf("Valor ficha %s: %d\n", letra, valor_letra);
-
-                if (esDelAtril) {
-                    Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
-                    if (mod != null)
-                    {
-                        switch (mod) {
-                            case dobleTantoDeLetra:
-                                valor_letra *= 2;
-                                break;
-                            case tripleTantoDeLetra:
-                                valor_letra *= 3;
-                                break;
-                            case dobleTantoDePalabra:
-                                multiplicadorPalabra *= 2;
-                                break;
-                            case tripleTantoDePalabra:
-                                multiplicadorPalabra *= 3;
-                                break;
-                        }
-                    }
-                    puntuacion_vertical += obtenerPuntuacionPalabraVertical(tablero, pos_x, pos_y);
-                    fichasAtril++;
-                }
-                puntuacion += valor_letra;
+        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
+            if (letra_i == null || letra_i.getKey() == null) {
+                continue; // saltamos elementos nulos (auqneu teoricamente no deberia ser null
             }
+
+            String letra = letra_i.getKey().getKey();
+            if (letra == null) {
+                continue; // idem que arriba
+            }
+            // obtenemos la posición donde teóricamente estaría esa letra en el tablero si colocáramos la palabra
+            boolean esDelAtril = letra_i.getKey().getValue();
+            int pos_x = letra_i.getValue().getKey();
+            int pos_y = letra_i.getValue().getValue();
+
+            int valor_letra = 0;
+            try {
+                valor_letra = partida.getPuntuacionFicha(letra);
+            } catch (Exception e) {
+                System.out.println("Error al obtener puntuación para: " + letra);
+                continue; // Continuar con la siguiente letra si hay error
+            }
+            // en caso de ser del atril, miramos si hay modificador ya que le afectaría
+            if (esDelAtril) {
+                Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
+                if (mod != null) {
+                    switch (mod) {
+                        case dobleTantoDeLetra:
+                            valor_letra *= 2;
+                            break;
+                        case tripleTantoDeLetra:
+                            valor_letra *= 3;
+                            break;
+                        case dobleTantoDePalabra:
+                            multiplicadorPalabra *= 2;
+                            break;
+                        case tripleTantoDePalabra:
+                            multiplicadorPalabra *= 3;
+                            break;
+                    }
+                }
+
+                try {
+                    // miramos si esa letra también forma alguna palabra vertical y de ser así calculamos su puntuación
+                    puntuacion_vertical += obtenerPuntuacionPalabraVertical(tablero, pos_x, pos_y);
+                } catch (Exception e) {
+                    System.out.println("Error al calcular puntuación vertical en: " + pos_x + "," + pos_y);
+                }
+
+                fichasAtril++;
+            }
+            puntuacion += valor_letra;
         }
 
         puntuacion *= multiplicadorPalabra;
@@ -325,57 +266,63 @@ public class Algoritmo {
     public int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y)
             throws CoordenadaFueraDeRangoException {
 
-        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
-        int originalX = x;
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS)
+            throw new CoordenadaFueraDeRangoException(x, y);
 
-        // FIX 2: Proper vertical word traversal
-        // Find topmost tile
-        while (casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
-            x--;
-        }
-        x++; // Adjust to first valid position
-
-        // Collect all vertical tiles
-        while (casillaCorrecta(x, y) && tablero.getFicha(x, y) != null) {
-            boolean esDelAtril = (x == originalX); // Mark anchor position
-            Ficha f = tablero.getFicha(x, y);
-
-            palabra.add(new SimpleEntry<>(
-                    new SimpleEntry<>(f.getLetra(), esDelAtril),
-                    new SimpleEntry<>(x, y)
-            ));
-            x++;
+        // Si no hay letra en esta posición o en posiciones adyacentes verticales entonces significa que no hay palabras verticales
+        if ((tablero.getFicha(x, y) == null) && (x <= 0 || tablero.getFicha(x-1, y) == null) && (x >= FILAS-1 || tablero.getFicha(x+1, y) == null)) {
+            return 0;
         }
 
-        // Calculate vertical score
-        int puntuacion = 0;
-        int multiplicadorPalabra = 1;
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraVertical = new ArrayList<>();
+        int filaInicio = x;
 
-        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> letra_i : palabra) {
-            boolean esDelAtril = letra_i.getKey().getValue();
-            int pos_x = letra_i.getValue().getKey();
-            int pos_y = letra_i.getValue().getValue();
+        // Encontramos el inicio de la palabra vertical
+        while (filaInicio > 0 && tablero.getFicha(filaInicio-1, y) != null) {
+            filaInicio--;
+        }
 
-            Ficha f = tablero.getFicha(pos_x, pos_y);
-            if (f == null) continue;
+        int filaActual = filaInicio;
+        boolean incluyeNuevaLetra = false;
+        String letraActual = "?"; // Placeholder para la letra que estamos probando
 
-            int valor_letra = f.getPuntuacion();
+        // Construimos la palabra vertical
+        while (filaActual < FILAS) {
+            Ficha ficha = tablero.getFicha(filaActual, y);
 
-            if (esDelAtril) {
-                Tablero.TipoModificador mod = tablero.getTipoModificador(pos_x, pos_y);
-                switch (mod) {
-                    case dobleTantoDeLetra -> valor_letra *= 2;
-                    case tripleTantoDeLetra -> valor_letra *= 3;
-                    case dobleTantoDePalabra -> multiplicadorPalabra *= 2;
-                    case tripleTantoDePalabra -> multiplicadorPalabra *= 3;
-                }
+            if (ficha == null && filaActual != x) {
+                break; // Fin de la palabra
             }
-            puntuacion += valor_letra;
+
+            boolean esNuevaLetra = (filaActual == x && tablero.getFicha(filaActual, y) == null);
+            String letra;
+
+            if (esNuevaLetra) {
+                letra = letraActual; // Usar la letra que estamos considerando
+                incluyeNuevaLetra = true;
+            } else if (ficha != null) {
+                letra = ficha.getLetra();
+            } else {
+                break;
+            }
+
+            palabraVertical.add(new SimpleEntry<>(new SimpleEntry<>(letra, esNuevaLetra), new SimpleEntry<>(filaActual, y)));
+
+            filaActual++;
         }
 
-        return puntuacion * multiplicadorPalabra;
+        // Si la palabra solo tiene una letra o no incluye la nueva letra, no es válida
+        if (palabraVertical.size() <= 1 || !incluyeNuevaLetra) {
+            return 0;
+        }
+        // una vez construida la palabra obtenemos su puntuacion
+        try {
+            return obtenerPuntuacion(tablero, palabraVertical);
+        } catch (Exception e) {
+            System.out.println("Error al calcular puntuación de palabra vertical");
+            return 0;
+        }
     }
-
     /**
      * Valida si una palabra formada en una posición es aceptada por el DAWG.
      *
@@ -417,16 +364,71 @@ public class Algoritmo {
     public void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
         for (int f = 0; f < FILAS; ++f) {
             for (int c = 0; c < COLUMNAS; ++c) {
+                if (tablero.getFicha(f, c) == null) {
+                    tablero.clearAbecedario(f, c);
 
-                if (tablero.getFicha(f,c) == null) {
-                    tablero.clearAbecedario(f,c);
-                    for (String letra : atril) {
-                        if (esPalabraValida(tablero,f,c,letra,dawg))
-                            tablero.setLetraAbecedario(letra,f,c);
+                    // Si hay fichas adyacentes en vertical u horizontal, necesitamos validar
+                    boolean tieneAdyacenteVertical = (casillaCorrecta(f-1, c) && tablero.getFicha(f-1, c) != null) || (casillaCorrecta(f+1, c) && tablero.getFicha(f+1, c) != null);
+                    boolean tieneAdyacenteHorizontal = (casillaCorrecta(f, c-1) && tablero.getFicha(f, c-1) != null) || (casillaCorrecta(f, c+1) && tablero.getFicha(f, c+1) != null);
+
+                    if (tieneAdyacenteVertical || tieneAdyacenteHorizontal) {
+                        for (String letra : atril) {
+                            boolean palabraHorizontalValida = true;
+                            boolean palabraVerticalValida = true;
+
+                            // Validar palabra horizontal
+                            if (tieneAdyacenteHorizontal) {
+                                palabraHorizontalValida = esPalabraValida(tablero, f, c, letra, dawg);
+                            }
+
+                            // Validar palabra vertical
+                            if (tieneAdyacenteVertical) {
+                                palabraVerticalValida = esPalabraValidaVertical(tablero, f, c, letra, dawg);
+                            }
+
+                            // Si ambas direcciones son válidas entonces se añade la letra al set de crossChecks de esa casilla del tablero (o si solo necesitamos validar una)
+                            if (palabraHorizontalValida && palabraVerticalValida) {
+                                tablero.setLetraAbecedario(letra, f, c);
+                            }
+                        }
+                    } else {
+                        // Si no hay adyacentes, todas las letras son válidas
+                        for (String letra : atril) {
+                            tablero.setLetraAbecedario(letra, f, c);
+                        }
                     }
                 }
             }
         }
+    }
+
+    // Método adicional para validar palabras verticales
+    private boolean esPalabraValidaVertical(Tablero tablero, int fila, int columna, String letra, Dawg dawg)
+            throws CoordenadaFueraDeRangoException {
+        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS)
+            throw new CoordenadaFueraDeRangoException(fila, columna);
+
+        int filaInicial = fila;
+        // Encontramos el inicio de la palabra vertical
+        while (fila > 0 && tablero.getFicha(fila-1, columna) != null) {
+            --fila;
+        }
+
+        StringBuilder palabra = new StringBuilder();
+        // Construimos la palabra vertical
+        while (fila < FILAS && (tablero.getFicha(fila, columna) != null || fila == filaInicial)) {
+            if (fila != filaInicial)
+                palabra.append(tablero.getFicha(fila, columna).getLetra());
+            else
+                palabra.append(letra);
+            ++fila;
+        }
+
+        // Si la palabra es de longitud 1, no necesita validación
+        if (palabra.length() <= 1) return true;
+
+        // en caso contrario miramos si existe en el dawg
+        return dawg.existePalabra(palabra.toString());
     }
 
     /**
@@ -441,7 +443,8 @@ public class Algoritmo {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>();
         for (int f = 0; f < FILAS; f++) {
             for (int c = 0; c < COLUMNAS; c++) {
-                if (tablero.getFicha(f, c) == null && tieneAdyacentes(tablero, f, c)) {
+                // si la casilla es null entonces miramos si tiene casillas adyacentes ya que entonces sera ancla, tambien se añade el centro ya que para la ia, en caso de ser primer turno, necesitara una ancla para empezar
+                if (tablero.getFicha(f, c) == null && (tieneAdyacentes(tablero, f, c) || (f == 7 && c == 7))) { // Incluir centro si está vacío
                     listaAnchors.add(new SimpleEntry<>(f, c));
                 }
             }
@@ -464,11 +467,17 @@ public class Algoritmo {
             throw new CoordenadaFueraDeRangoException(fila, columna);
         }
 
-        // Solo verificar la casilla a la derecha (columna + 1)
-        int newColumna = columna + 1;
-        if (casillaCorrecta(fila, newColumna) && tablero.getFicha(fila, newColumna) != null) {
+        // Comprobamos solo si tiene adyacente a la derecha ya que solo queremos anclas izquierdas
+        int[] dir = {0, 1};
+
+        int newFila = fila + dir[0];
+        int newColumna = columna + dir[1];
+
+        // en caso de que esa posicion este dentro de los limites del tablero y haya ficha en esa casilla signifca que es ancla izquierda
+        if (casillaCorrecta(newFila, newColumna) && tablero.getFicha(newFila, newColumna) != null) {
             return true;
         }
+
 
         return false;
     }
@@ -487,13 +496,12 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si las coordenadas (x, y) están fuera del rango del tablero.
      * @author Arnau Miret Barrull
      */
-    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y, Dawg dawg) throws CoordenadaFueraDeRangoException {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarMejorPalabraDelAtril(NodoDawg root, String[] atril, int longitud, Tablero tablero, int x, int y, Dawg dawg, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
         boolean[] usados = new boolean[atril.length];
-        System.out.println("LONGITUD PARTE IZQUIERDA ----------------");
-        System.out.print(longitud);
-        computarMejorPalabraDelAtrilAux(root,atril,usados,longitud,new ArrayList<>(),mejorPalabra,tablero,x,y, dawg);
+
+        computarMejorPalabraDelAtrilAux(root,atril,usados,longitud,new ArrayList<>(),mejorPalabra,tablero,x,y, dawg, estaTranspuesto);
 
         return mejorPalabra;
     }
@@ -514,36 +522,27 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si las coordenadas (x, y) son inválidas.
      * @author Arnau Miret Barrull
      */
-    private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y, Dawg dawg) throws CoordenadaFueraDeRangoException {
+    private void computarMejorPalabraDelAtrilAux(NodoDawg nodo, String[] atril, boolean[] usados, int restantes, List<SimpleEntry<String, Boolean>> camino, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, Tablero tablero, int x, int y, Dawg dawg, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         if(!camino.isEmpty()) {
             List<SimpleEntry<String, Boolean>> caminoAux = new ArrayList<>(camino);
-            /*
-            for (SimpleEntry<String, Boolean> entry : caminoAux) {
-                System.out.print(entry.getKey());
-            }
-            System.out.print("\n");
-            */
-
 
             List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones = new ArrayList<>();
-            caminoAuxConPosiciones = asignarPosiciones(caminoAux,caminoAux.size(),x,y);
+            caminoAuxConPosiciones = asignarPosiciones(caminoAux,caminoAux.size(),x,y, estaTranspuesto);
 
-            // extenderParteDerecha devuelve CaminoAuxConPosiciones entero y su puntuacion
+            // extenderParteDerecha devuelve CaminoAuxConPosiciones extendido entero, que seria la mejor palabra con el caminoAuxConPosiciones actual, y su puntuacion
             int puntuacionCamino = extenderParteDerecha(tablero,caminoAuxConPosiciones,atril,usados,nodo,x,y, dawg);
             StringBuilder sb = new StringBuilder();
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry
-                    : caminoAuxConPosiciones) {
+            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxConPosiciones) {
                 sb.append(entry.getKey().getKey());
             }
-            System.out.println("Mejor palabra: " + sb.toString());
 
             // Si mejorPalabra no esta asignada, se le asigna la primera palabra que llegue
             if(mejorPalabra.isEmpty()) {
                 mejorPalabra.addAll(caminoAuxConPosiciones);;
             }
 
-            // Si mejorPalabra ya esta asignada, comparar valores y asignar la palabra de mayor puntuación
+            // Si mejorPalabra ya esta asignada, comparar valores y asigna la palabra de mayor puntuación
             else {
                 if(puntuacionCamino > obtenerPuntuacion(tablero,mejorPalabra)) {
                     mejorPalabra.clear();
@@ -551,37 +550,21 @@ public class Algoritmo {
                 }
             }
 
-            /*
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxConPosiciones) {
-                System.out.print(entry.getKey().getKey());
-            }
-            System.out.print("\n");
-
-             */
         }
+
+        // si restantes es 0 entonces no tenemos espacio para poner fichas y hace return
         if(restantes == 0) return;
 
         for(int i = 0; i < atril.length; i++) {
             if(!usados[i]) {
                 String letra = atril[i];
+                // miramos que el nodo actual tenga como un hijo la letra en la que estamos en el for, ya que de ser así significaría que existe prefijo/palabra con esa combinación
                 NodoDawg siguiente = nodo.getHijos().get(letra);
-
+                // comprobamos que realmente tiene prefijos ya que nos daba error solo con el nodo.getHijos
                 if(siguiente != null &&  existePrefijoEnDawg(camino, letra, dawg)) {
-                    System.out.println("He entrado en if nodo.getHijos");
-                    usados[i] = true;
-                    System.out.println("CAMINO ANTES DE AÑADIR LETRA ----------------");
-                    for (SimpleEntry<String, Boolean> entry : camino) {
-                        System.out.print(entry.getKey());
-                    }
+                    // añadimos esa letra a camino y hacemos backtracking
                     camino.add(new SimpleEntry<>(letra, true));
-
-                    System.out.print("CAMINO DESPUES DE AÑADIR LETRA ----------------");
-
-                    for (SimpleEntry<String, Boolean> entry : camino) {
-                        System.out.print(entry.getKey());
-                    }
-                    System.out.print("\n");
-                    computarMejorPalabraDelAtrilAux(siguiente,atril,usados,restantes-1,camino,mejorPalabra,tablero,x,y, dawg);
+                    computarMejorPalabraDelAtrilAux(siguiente,atril,usados,restantes-1,camino,mejorPalabra,tablero,x,y, dawg, estaTranspuesto);
                     if (camino.size() > 0) camino.remove(camino.size() - 1);
                     usados[i] = false;
                 }
@@ -591,9 +574,11 @@ public class Algoritmo {
 
     private boolean existePrefijoEnDawg(List<SimpleEntry<String, Boolean>> camino, String letra, Dawg dawg) {
         List<String> prefijo = new ArrayList<>();
+        // por cada letra del camino la añadimos al prefijo
         for (SimpleEntry<String, Boolean> entry : camino) {
             prefijo.add(entry.getKey());
         }
+        // añadimos la letra con la que queremos combinar camino y miramos si existe el prefijo en el dawg
         prefijo.add(letra);
         return dawg.existePrefijo(String.join("", prefijo));
     }
@@ -648,9 +633,9 @@ public class Algoritmo {
         if (!casillaCorrecta(x,y)) {
             return mejorPuntuacion;
         }
+        // a partir de caminoAuxPos creamos un string que sea la palabra y comprobamos que exista en el dawg, ya que solo mirando si nodo.getEsFinal() devolvía true hacía que se colaran palabras que no eran palabra correctas
         List<SimpleEntry<String, Boolean>> listaLetras1 = new ArrayList<>();
-        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry
-                : caminoAuxPos) {
+        for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxPos) {
             listaLetras1.add(entry.getKey());
         }
         StringBuilder sb = new StringBuilder();
@@ -660,7 +645,6 @@ public class Algoritmo {
         String palabra = sb.toString();
         if (nodo.getEsFinal() && dawg.existePalabra(palabra))
         {
-            // lo de mejor palabra vi que era mejor hacerlo de esta forma porque si haces mejorPalabra = caminoAuxPos, lo que haces es "linkarlas" y si caminoAuxPos cambia mejorPalabra también cambia ya que estan linkadas. Asi mejorPalabra guarda lo que tiene caminoAuxPos pero si este cambia mejorPalabra sigue como tendria que estar
             int puntuacionCamino = obtenerPuntuacion(tablero, caminoAuxPos);
             if (puntuacionCamino > mejorPuntuacion)
             {
@@ -670,17 +654,17 @@ public class Algoritmo {
             }
         }
 
-        // si el tablero con posicion x  y (que hago que sea la posicion en la que estamos de la palabra en construccion) esta vacia probamos todas las letras y lo hacemos recursivamente
+        // si el tablero con posicion x  y esta vacia probamos todas las letras y lo hacemos recursivamente
         String letraTablero = null;
         if (tablero.getFicha(x, y) != null) letraTablero =  tablero.getFicha(x,y).getLetra();
         if (letraTablero == null) {
             for (int i = 0; i < atril.length; i++) {
-                if (!usados[i] && tablero.getAbecedario(x,y).contains(atril[i]) /*comprovar si esta en el cross check*/) {
+                // para cada letra del atril y que no haya sido usada, miramos si está en el crossCheck Set de esa posición y de ser así miramos si existe un prefijo con esa letra combinada con el caminoAuxPos actual
+                if (!usados[i] && tablero.getAbecedario(x,y).contains(atril[i])) {
                     String letra = atril[i];
                     NodoDawg siguiente = nodo.getHijos().get(letra);
                     List<SimpleEntry<String, Boolean>> listaLetras = new ArrayList<>();
-                    for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry
-                            : caminoAuxPos) {
+                    for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxPos) {
                         listaLetras.add(entry.getKey());
                     }
                     if (siguiente != null && existePrefijoEnDawg(listaLetras, letra, dawg)) {
@@ -770,21 +754,16 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y, boolean estaTranspuesto) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraFinal = new ArrayList<>();
-        int columna_inicial = y - max_long;
-
-        int size = palabra.size();
-        for(int i = 0; i < size; i++) {
-            SimpleEntry<String, Boolean> letra = new SimpleEntry<>(palabra.getFirst().getKey(), palabra.getFirst().getValue());
-            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(x, columna_inicial);
-            ++columna_inicial;
-            SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> conjunto = new SimpleEntry<>(letra, posicion);
-            palabraFinal.add(conjunto);
-            palabra.removeFirst();
+        int posInicial = estaTranspuesto ? x - max_long : y - max_long;
+        for (int i = 0; i < palabra.size(); i++) {
+            int posX = estaTranspuesto ? posInicial + i : x;
+            int posY = estaTranspuesto ? y : posInicial + i;
+            if (!casillaCorrecta(posX, posY)) continue;
+            SimpleEntry<Integer, Integer> posicion = new SimpleEntry<>(posX, posY);
+            palabraFinal.add(new SimpleEntry<>(palabra.get(i), posicion));
         }
-
         return palabraFinal;
     }
 

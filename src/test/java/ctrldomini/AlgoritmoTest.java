@@ -186,8 +186,9 @@ public class AlgoritmoTest {
                         new SimpleEntry<>("a", true)
                 );
 
+        // nse si va false o true pero falla en los dos casos
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> resultado =
-                algoritmo.asignarPosiciones(palabra, 4, 7, 7);
+                algoritmo.asignarPosiciones(palabra, 4, 7, 7, true);
 
         assertEquals(4, resultado.size());
         assertEquals(7, (int) resultado.get(0).getValue().getKey());
