@@ -69,7 +69,7 @@ public class Algoritmo {
             List<SimpleEntry<Integer, Integer>> anclas = new ArrayList<>();
             anclas = computarAnclas(tablero);
             //if (!anclas.isEmpty()) {
-                // elimina y devuelve el último elemento
+            // elimina y devuelve el último elemento
             //            anclas.remove(anclas.size() - 1);
             //}
             for (SimpleEntry<Integer, Integer> pos : anclas)
@@ -80,6 +80,7 @@ public class Algoritmo {
             // Por cada ancla, obtenemos la mejor palaba
             for(SimpleEntry<Integer, Integer> ancla : anclas) {
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = computarPalabraAncla(dawg,tablero,ancla,atril);
+
                 int puntuacionPalabra = obtenerPuntuacion(tablero,mejorPalabraAncla);
                 for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : mejorPalabraAncla) {
                     String palabra = entry.getKey().getKey(); // Access the String from the inner SimpleEntry
@@ -93,6 +94,9 @@ public class Algoritmo {
 
             // Transponemos la matriz del tablero
             tablero.transponerTablero();
+            estaTranspuesto = true;
+
+            System.out.println("-----  HA LLEGADO A TRANSPONER --------");
         }
 
         return mejorPalabra;
@@ -119,6 +123,7 @@ public class Algoritmo {
         int x = ancla.getKey();
         int y = ancla.getValue();
 
+
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x,y);
 
         // Si la casilla a la izquierda del ancla queda fuera de los límites, la parte izquierda no se computa
@@ -130,6 +135,7 @@ public class Algoritmo {
             if(tablero.getFicha(x,y-1) != null) {
 
                 List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
+                //List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> parteDerecha = new ArrayList<>();
 
                 // Computar la parte izquierda con las casillas del tablero
                 int max_long = tamañoParteIzquierdaTablero(tablero,x,y); //HECHA
@@ -163,10 +169,8 @@ public class Algoritmo {
             // Si la casilla no esta ocupada (parte izq. compuesta de letras del atril)
             else {
 
-                List<List<SimpleEntry<String, Boolean>>> partesIzquierdas = new ArrayList<>();
-
                 // Funcion para saber la logitud maxima de la parte izquierda
-                int max_long = tamañoParteIzquierdaAtril(tablero,x,y);
+                int max_long = tamañoParteIzquierdaAtril(tablero,x,y); //HECHA
 
                 // Backtracking de las partes izquierdas posibles con las fichas del atril y tamaño indicado
                 List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra = new ArrayList<>();
@@ -192,6 +196,60 @@ public class Algoritmo {
 
         return mejorPalabraAncla;
     }
+    /*
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> computarPalabraAncla(Dawg dawg, Tablero tablero, SimpleEntry<Integer, Integer> ancla, String[] atril) throws CoordenadaFueraDeRangoException {
+        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabraAncla = new ArrayList<>();
+        int x = ancla.getKey();
+        int y = ancla.getValue();
+
+        // Validate coordinates
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) {
+            throw new CoordenadaFueraDeRangoException(x, y);
+        }
+
+        // Check left anchor expansion
+        if (casillaCorrecta(x, y - 1)) {
+            if (tablero.getFicha(x, y - 1) != null) {
+                // Case 1: Left part uses existing tiles
+                int maxLeftLength = tamañoParteIzquierdaTablero(tablero, x, y);
+                List<SimpleEntry<String, Boolean>> leftPart = computarParteIzquierdaTablero(tablero, maxLeftLength, x, y);
+
+                // Assign positions to left part
+                List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> currentWord =
+                        asignarPosiciones(leftPart, maxLeftLength, x, y - maxLeftLength);
+
+                // Traverse DAWG for valid prefixes
+                NodoDawg node = dawg.getRoot();
+                for (SimpleEntry<String, Boolean> entry : leftPart) {
+                    node = node.getHijos().get(entry.getKey());
+                    if (node == null) break;
+                }
+
+                // Extend right part with rack tiles
+                boolean[] used = new boolean[atril.length];
+                int score = extenderParteDerecha(tablero, currentWord, atril, used, node, x, y);
+
+                if (!currentWord.isEmpty()) {
+                    mejorPalabraAncla = currentWord;
+                }
+            } else {
+                // Case 2: Left part uses rack tiles
+                int maxLeftLength = tamañoParteIzquierdaAtril(tablero, x, y);
+                mejorPalabraAncla = computarMejorPalabraDelAtril(dawg.getRoot(), atril, maxLeftLength, tablero, x,y);
+            }
+        } else {
+            // Case 3: No left expansion - use pure right extension
+            boolean[] used = new boolean[atril.length];
+            List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> currentWord = new ArrayList<>();
+            int score = extenderParteDerecha(tablero, currentWord, atril, used, dawg.getRoot(), x, y);
+
+            if (!currentWord.isEmpty()) {
+                mejorPalabraAncla = currentWord;
+            }
+        }
+
+        return mejorPalabraAncla;
+    }
 
     /**
      * Calcula la puntuación de una palabra considerando modificadores del tablero.
@@ -201,7 +259,7 @@ public class Algoritmo {
      * @return Puntuación total de la palabra, incluyendo bonificaciones.
      * @author Albert Aulet Niubó
      */
-    public int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra)
+    private int obtenerPuntuacion(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra)
             throws CoordenadaFueraDeRangoException {
 
         int puntuacion = 0;
@@ -245,6 +303,7 @@ public class Algoritmo {
                 puntuacion += valor_letra;
             }
         }
+
         puntuacion *= multiplicadorPalabra;
         if (fichasAtril == 7) {
             puntuacion += 50;
@@ -263,7 +322,7 @@ public class Algoritmo {
      * @return Puntuación total de la palabra vertical, aplicando modificadores relevantes.
      * @author Albert Aulet Niubó
      */
-    public int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y)
+    int obtenerPuntuacionPalabraVertical(Tablero tablero, int x, int y)
             throws CoordenadaFueraDeRangoException {
 
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabra = new ArrayList<>();
@@ -329,7 +388,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
      * @author Albert Aulet Niubó
      */
-    public boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
+    private boolean esPalabraValida(Tablero tablero, int fila, int columna, String letra, Dawg dawg) throws CoordenadaFueraDeRangoException {
         if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
         int filaIni = fila;
         while (fila > 0 && tablero.getFicha(fila,columna) != null) {
@@ -347,15 +406,15 @@ public class Algoritmo {
     }
 
     /**
-    * Calcula los crosschecks válidos para cada posición vacía del tablero.
-    *
-    * @param dawg Estructura DAWG para validación.
-    * @param tablero Tablero actual del juego.
-    * @param atril Fichas disponibles en el atril.
-    * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
+     * Calcula los crosschecks válidos para cada posición vacía del tablero.
+     *
+     * @param dawg Estructura DAWG para validación.
+     * @param tablero Tablero actual del juego.
+     * @param atril Fichas disponibles en el atril.
+     * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
      * @author Albert Aulet Niubó
-    */
-    public void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
+     */
+    private void computarCrossChecks(Dawg dawg, Tablero tablero, String[] atril) throws CoordenadaFueraDeRangoException {
         for (int f = 0; f < FILAS; ++f) {
             for (int c = 0; c < COLUMNAS; ++c) {
 
@@ -378,7 +437,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si se accede a una posición inválida.
      * @author Albert Aulet Niubó
      */
-    public List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
+    private List<SimpleEntry<Integer, Integer>> computarAnclas(Tablero tablero) throws CoordenadaFueraDeRangoException {
         List<SimpleEntry<Integer, Integer>> listaAnchors = new ArrayList<>();
         for (int f = 0; f < FILAS; f++) {
             for (int c = 0; c < COLUMNAS; c++) {
@@ -391,24 +450,26 @@ public class Algoritmo {
     }
 
     /**
-    * Verifica si una posición tiene casillas adyacentes ocupadas.
-    *
-    * @param tablero Tablero actual del juego.
-    * @param fila Fila de la posición a verificar.
-    * @param columna Columna de la posición a verificar.
-    * @return true si hay al menos una casilla adyacente ocupada.
-    * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
+     * Verifica si una posición tiene casillas adyacentes ocupadas.
+     *
+     * @param tablero Tablero actual del juego.
+     * @param fila Fila de la posición a verificar.
+     * @param columna Columna de la posición a verificar.
+     * @return true si hay al menos una casilla adyacente ocupada.
+     * @throws CoordenadaFueraDeRangoException Si la posición es inválida.
      * @author Albert Aulet Niubó
-    */
-    public boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
-        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) throw new CoordenadaFueraDeRangoException(fila, columna);
-        int[] direction = {0, 1};
-        int newFila = direction[0] + fila;
-        int newColumna = direction[1] + columna;
-        if (casillaCorrecta(newFila, newColumna)) {
-            if (tablero.getFicha(newFila,newColumna) == null) return false;
-            if (tablero.getFicha(newFila, newColumna).getLetra() != null) return true;
+     */
+    private boolean tieneAdyacentes(Tablero tablero, int fila, int columna) throws CoordenadaFueraDeRangoException {
+        if (fila < 0 || fila >= FILAS || columna < 0 || columna >= COLUMNAS) {
+            throw new CoordenadaFueraDeRangoException(fila, columna);
         }
+
+        // Solo verificar la casilla a la derecha (columna + 1)
+        int newColumna = columna + 1;
+        if (casillaCorrecta(fila, newColumna) && tablero.getFicha(fila, newColumna) != null) {
+            return true;
+        }
+
         return false;
     }
 
@@ -489,6 +550,14 @@ public class Algoritmo {
                     mejorPalabra.addAll(caminoAuxConPosiciones);
                 }
             }
+
+            /*
+            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : caminoAuxConPosiciones) {
+                System.out.print(entry.getKey().getKey());
+            }
+            System.out.print("\n");
+
+             */
         }
         if(restantes == 0) return;
 
@@ -500,7 +569,18 @@ public class Algoritmo {
                 if(siguiente != null &&  existePrefijoEnDawg(camino, letra, dawg)) {
                     System.out.println("He entrado en if nodo.getHijos");
                     usados[i] = true;
+                    System.out.println("CAMINO ANTES DE AÑADIR LETRA ----------------");
+                    for (SimpleEntry<String, Boolean> entry : camino) {
+                        System.out.print(entry.getKey());
+                    }
                     camino.add(new SimpleEntry<>(letra, true));
+
+                    System.out.print("CAMINO DESPUES DE AÑADIR LETRA ----------------");
+
+                    for (SimpleEntry<String, Boolean> entry : camino) {
+                        System.out.print(entry.getKey());
+                    }
+                    System.out.print("\n");
                     computarMejorPalabraDelAtrilAux(siguiente,atril,usados,restantes-1,camino,mejorPalabra,tablero,x,y, dawg);
                     if (camino.size() > 0) camino.remove(camino.size() - 1);
                     usados[i] = false;
@@ -532,7 +612,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Albert Aulet Niubó
      */
-    public int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y, Dawg dawg) throws CoordenadaFueraDeRangoException {
+    private int extenderParteDerecha(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxConPosiciones, String[] atril, boolean[] usados, NodoDawg nodo, int x, int y, Dawg dawg) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int puntuacion = 0;
 
@@ -559,7 +639,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Albert Aulet Niubó
      */
-    public int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion, Dawg dawg) throws CoordenadaFueraDeRangoException {
+    private int extenderParteDerechaAux(Tablero tablero, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> caminoAuxPos, String[] atril, boolean[] usados,  NodoDawg nodo, List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> mejorPalabra, int x, int y, int puntuacion, Dawg dawg) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         // si el nodo es final entonces es una palabra, comprobamos si su puntuacion es mayor que la que mejorPalabra actual y si es así la cambiamos
         int mejorPuntuacion = puntuacion;
@@ -654,7 +734,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    public List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
+    private List<SimpleEntry<String, Boolean>> computarParteIzquierdaTablero(Tablero tablero, int longitud, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<String, Boolean>> parteIzquierda = new ArrayList<>();
 
@@ -674,7 +754,7 @@ public class Algoritmo {
      * @return true si (x, y) es una posición válida, false en caso contrario.
      * @author Arnau Miret Barrull
      */
-    public boolean casillaCorrecta(Integer x, Integer y) {
+    private boolean casillaCorrecta(Integer x, Integer y) {
         return x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS;
     }
 
@@ -690,7 +770,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    public List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
+    private List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> asignarPosiciones(List<SimpleEntry<String, Boolean>> palabra, int max_long, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>> palabraFinal = new ArrayList<>();
         int columna_inicial = y - max_long;
@@ -718,7 +798,7 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    public int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
+    private int tamañoParteIzquierdaAtril(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         int size = 0;
 
@@ -745,13 +825,11 @@ public class Algoritmo {
      * @throws CoordenadaFueraDeRangoException Si (x, y) está fuera de rango.
      * @author Arnau Miret Barrull
      */
-    public int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+    private int tamañoParteIzquierdaTablero(Tablero tablero, int x, int y) throws CoordenadaFueraDeRangoException {
         int size = 0;
         for (int col = y - 1; col >= 0 && tablero.getFicha(x, col) != null; col--) {
             size++;
         }
-
         return size;
     }
 }

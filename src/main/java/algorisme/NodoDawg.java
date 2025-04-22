@@ -77,21 +77,14 @@ public class NodoDawg {
 
     // Función que devuelve la string más grande lexicograficamente
     public Map.Entry<String, NodoDawg> getHijoMasGrande() {
-        if(this.hijos.isEmpty()) return null;
+        if (this.hijos.isEmpty()) return null;
 
         String letramasgrande = null;
-        for(String letra : hijos.keySet()) {
-            // siempre va a poner letramasgrande = letra ya que queremos la letra del ultimo hijo
-            letramasgrande = letra;
-        }
-
-        /*String letramasgrande = null;
-        for(String letra : hijos.keySet()) {
-            if(letramasgrande == null || letra > letramasgrande) {
+        for (String letra : hijos.keySet()) {
+            if (letramasgrande == null || letra.compareTo(letramasgrande) > 0) {
                 letramasgrande = letra;
             }
-        }*/
-
+        }
         return new AbstractMap.SimpleEntry<>(letramasgrande, hijos.get(letramasgrande));
     }
 

@@ -569,7 +569,6 @@ public class Dawg {
      * @author Arnau Miret Barrull
      */
 
-
     /**
      * Función para saber si una casilla está dentro del tablero o no
      * @param x
