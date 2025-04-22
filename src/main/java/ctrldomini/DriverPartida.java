@@ -204,13 +204,16 @@ public class DriverPartida {
 
                     }
                     if (!accionValida && (num == 1 || num == 2)) {
+                        mostrarAtril(atril);
                         num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                     }
                     if (pasarPartidaSeguidos >= 2)
                     {
                         enJuego = false;
+                        System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!\n");
                         mostrarResultadosFinales(partida);
-                        System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!");
+                        if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
+                        else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
                         return;
                     }
                 }
@@ -218,8 +221,10 @@ public class DriverPartida {
             else {
                 turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                 enJuego = false;
+                System.out.println("No tienes fichas en el atril. Fin de la partida!\n");
                 mostrarResultadosFinales(partida);
-                System.out.println("No tienes fichas en el atril. Fin de la partida!");
+                if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
+                else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
                 return;
             }
 
@@ -293,13 +298,16 @@ public class DriverPartida {
 
                         }
                         if (!accionValida && (num == 1 || num == 2)) {
+                            mostrarAtril(atril);
                             num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                         }
                         else if (pasarPartidaSeguidos >= 2)
                         {
                             enJuego = false;
+                            System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!\n");
                             mostrarResultadosFinales(partida);
-                            System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!");
+                            if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
+                            else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
                             return;
                         }
                     }
@@ -307,8 +315,10 @@ public class DriverPartida {
                 else {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                     enJuego = false;
+                    System.out.println("No tienes fichas en el atril. Fin de la partida!\n");
                     mostrarResultadosFinales(partida);
-                    System.out.println("No tienes fichas en el atril. Fin de la partida!");
+                    if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2()) System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
+                    else System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
                     return;
                 }
                 if (turnoActual.getTipoJugada() == Turno.TipoJugada.finalizar) {
@@ -361,7 +371,7 @@ public class DriverPartida {
         List<Partida> partidas = gestor.obtenerPartidasJugador(jugador);
         System.out.println("\n=== TUS PARTIDAS ===");
         partidas.forEach(p -> {
-            System.out.println("ID: " + p.getId() + "  Nombre: " + p.getNombre() + "  Modo: " + p.getModoPartida() + (p.getModoPartida().equals(Partida.Modo.PvP) ? "  Oponente:  " + p.getOponente() : "  Dificultad: " + p.getDificultad()));
+            System.out.println("ID: " + p.getId() + "  Nombre: " + p.getNombre() + "  Modo: " + p.getModoPartida() + (p.getModoPartida().equals(Partida.Modo.PvP) ? "  Oponente: " + p.getOponente().getUsername() : "  Dificultad: " + p.getDificultad()));
 
         });
     }
@@ -404,7 +414,7 @@ public class DriverPartida {
     }
 
     private void mostrarResultadosFinales(Partida partida) {
-        System.out.println("\n=== RESULTADOS FINALES ===");
+        System.out.println("\n=== PUNTOS ===");
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         System.out.println(partida.getCreador().getUsername() + ": " +
                 turnoActual.getPuntuacionJ1());
