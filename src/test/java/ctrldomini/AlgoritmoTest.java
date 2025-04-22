@@ -13,7 +13,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Tests de la clase Algoritmo.
+ * Test unitarios para la clase Algoritmo.
+ * Valida la lógica de puntuación, búsqueda de movimientos y validación de palabras para el juego.
  *
  * @author Arnau Miret Barrull
  */
