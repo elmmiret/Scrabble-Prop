@@ -1,12 +1,10 @@
-package ctrldomini;
+package gestordepartida;
 
 import org.junit.Before;
 import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.Queue;
 import gestordeperfil.Perfil;
-import gestordepartida.Ficha;
-import gestordepartida.Partida;
 
 import static org.junit.Assert.*;
 

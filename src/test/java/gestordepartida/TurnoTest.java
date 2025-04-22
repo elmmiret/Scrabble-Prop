@@ -1,4 +1,4 @@
-package ctrldomini;
+package gestordepartida;
 
 import gestordeperfil.*;
 import org.junit.Before;
@@ -7,10 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
-
-import gestordepartida.Ficha;
-import gestordepartida.Partida;
-import gestordepartida.Turno;
 
 /**
  * Clase de pruebas unitarias para la clase {@link Turno}.
