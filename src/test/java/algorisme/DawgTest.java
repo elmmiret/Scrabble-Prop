@@ -6,7 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
-import ctrldomini.*;
+
+import partida.Partida;
 
 public class DawgTest {
     private Dawg dawgING;

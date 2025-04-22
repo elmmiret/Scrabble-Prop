@@ -1,8 +1,10 @@
-package ctrldomini;
+package partida;
 
+import algorisme.AlfabetoCAST;
+import algorisme.AlfabetoCAT;
+import algorisme.AlfabetoING;
 import gestordeperfil.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.ArrayList;

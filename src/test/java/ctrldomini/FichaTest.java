@@ -2,7 +2,7 @@ package ctrldomini;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.Before;
-import ctrldomini.Ficha;
+import partida.Ficha;
 
 /**
  * Tests para probar las funcionalidades de la clase Ficha

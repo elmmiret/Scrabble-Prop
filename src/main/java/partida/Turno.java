@@ -1,8 +1,9 @@
-package ctrldomini;
+package partida;
 
 import gestordeperfil.*;
 import algorisme.*;
 import exceptions.*;
+
 import java.util.Map;
 import java.util.Queue;
 import java.util.List;

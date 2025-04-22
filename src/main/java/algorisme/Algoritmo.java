@@ -1,11 +1,13 @@
 package algorisme;
 
-import ctrldomini.*;
-import javax.lang.model.util.SimpleElementVisitor6;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import ctrldomini.*;
+
 import exceptions.CoordenadaFueraDeRangoException;
+import partida.Ficha;
+import partida.Partida;
+import partida.Tablero;
+
 /**
  * Clase que implementa algoritmos para encontrar el mejor movimiento en un juego de Scrabble.
  * Utiliza estructuras DAWG para validación de palabras y estrategias de backtracking para optimizar búsquedas.

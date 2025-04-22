@@ -1,4 +1,4 @@
-package ctrldomini;
+package partida;
 
 /**
  * Representa una ficha del juego Scrabble con su correspondiente letra y valor de puntuación.

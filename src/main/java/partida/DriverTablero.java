@@ -1,4 +1,4 @@
-package ctrldomini;
+package partida;
 
 import exceptions.*;
 import java.util.Scanner;

@@ -5,12 +5,15 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import gestordeperfil.*;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import partida.Ficha;
+import partida.GestorDePartida;
+import partida.Partida;
 import ranking.Ranking;
-import exceptions.*;
+
 /**
  * Clase de pruebas unitarias para verificar el funcionamiento del GestorDePartida.
  * Contiene tests para validar la creación, gestión y eliminación de partidas,

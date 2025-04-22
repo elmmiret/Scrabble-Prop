@@ -1,7 +1,8 @@
-package ctrldomini;
+package algorisme;
+
+import partida.Ficha;
 
 import java.util.*;
-import java.util.AbstractMap.SimpleEntry;
 import java.io.*;
 
 import java.lang.String;
