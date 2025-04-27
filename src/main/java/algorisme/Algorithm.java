@@ -20,11 +20,11 @@ public class Algorithm {
     /**
      * Prepara el algoritmo para generar movimientos en un tablero dado con un atril especifico
      * @param tablero El tablero actual de juego
-     * @param rack Las letras disponibles en el atril
+     * @param atril Las letras disponibles en el atril
      */
-    public void preparar(Tablero tablero, List<String> rack) {
+    public void preparar(Tablero tablero, List<String> atril) {
         this.tablero = tablero;
-        this.atril = contarLetras(rack);
+        this.atril = contarLetras(atril);
         calcularAnclajes();
         calcularCrossChecks();
     }
@@ -94,7 +94,7 @@ public class Algorithm {
                 NodoDawg hijo = entrada.getValue();
 
                 if(atril.containsKey(letra) && atril.get(letra) > 0) {
-                    // Usar letra del rack
+                    // Usar letra del atril
                     atril.put(letra, atril.get(letra) - 1);   // borrar letra del atril
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                     nuevaPalabra.add(letra);
@@ -125,7 +125,7 @@ public class Algorithm {
                  Ficha ficha = tablero.getFicha(fila,col);
 
                  if(ficha == null) {
-                     // Casilla vacía -- usar letra del rack con cross-check
+                     // Casilla vacía -- usar letra del atril con cross-check
                      for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
                          String letra = entrada.getKey();
                          NodoDawg hijo = entrada.getValue();
