@@ -1,6 +1,7 @@
 package algorisme;
 
 import gestordepartida.Tablero;
+import gestordepartida.Partida;
 import gestordepartida.Ficha;
 import exceptions.CoordenadaFueraDeRangoException;
 
@@ -8,13 +9,18 @@ import java.util.*;
 
 public class Algorithm {
     private final Dawg dawg;
+    private final Partida.Idioma idioma;
+    private Map<Ficha, Integer> mapaFichas;
     private Tablero tablero;
-    private Map<String, Integer> atril;  // atril de Strings (letras)
+    private Map<String, Integer> atrilString;  // atril de Strings (letras)
+    private Map<Ficha, Integer> atrilFicha;
     private boolean[][] anchors;
     private Map<Integer, Set<String>> crossChecks;  // Usamos un mapa de conjuntos para cross-checks
 
-    public Algorithm(Dawg dawg) {
+    public Algorithm(Dawg dawg, Partida.Idioma idiomaPartida) {
         this.dawg = dawg;
+        this.idioma = idiomaPartida;
+        setBolsa();
     }
 
     /**
@@ -22,19 +28,42 @@ public class Algorithm {
      * @param tablero El tablero actual de juego
      * @param atril Las letras disponibles en el atril
      */
-    public void preparar(Tablero tablero, List<String> atril) {
+    private void preparar(Tablero tablero, Map<Ficha, Integer> atril) {
         this.tablero = tablero;
-        this.atril = contarLetras(atril);
+        this.atrilFicha = atril;
+        this.atrilString = atrilDeStrings(atril);
         calcularAnclajes();
         calcularCrossChecks();
     }
 
+    private void setBolsa() {
+        switch (idioma) {
+            case CAT:
+                AlfabetoCAT alfabetoCat = new AlfabetoCAT();
+                mapaFichas = alfabetoCat.getMapaFichas();
+                break;
+            case CAST:
+                AlfabetoCAST alfabetoCast = new AlfabetoCAST();
+                mapaFichas = alfabetoCast.getMapaFichas();
+                break;
+            case ENG:
+                AlfabetoING alfabetoING = new AlfabetoING();
+                mapaFichas = alfabetoING.getMapaFichas();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public Movimiento mejorMovimiento(Tablero tablero, List<String> atril) {
+        preparar();
+    }
 
     /**
      * Genera todos los movimientos válidos para la configuración actual
      * @return Lista de movimientos válidos
      */
-    public List<Movimiento> generarMovimientos() {
+    private List<Movimiento> generarMovimientos() {
         List<Movimiento> movimientos = new ArrayList<>();
 
         // Generar movimientos horizontales
@@ -93,22 +122,22 @@ public class Algorithm {
                 String letra = entrada.getKey();
                 NodoDawg hijo = entrada.getValue();
 
-                if(atril.containsKey(letra) && atril.get(letra) > 0) {
+                if(atrilString.containsKey(letra) && atrilString.get(letra) > 0) {
                     // Usar letra del atril
-                    atril.put(letra, atril.get(letra) - 1);   // borrar letra del atril
+                    atrilString.put(letra, atrilString.get(letra) - 1);   // borrar letra del atril
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                     nuevaPalabra.add(letra);
                     generarPrefijos(fila, colAncla, limite - 1, nuevaPalabra, hijo, movimientos, esVertical);
-                    atril.put(letra, atril.get(letra) + 1);   //añadir la letra al atril
+                    atrilString.put(letra, atrilString.get(letra) + 1);   //añadir la letra al atril
                 }
 
                 // Verificar si hay un blanco disponible
-                if(atril.containsKey("#") && atril.get("#") > 0) {
-                    atril.put("#", atril.get("#") - 1);
+                if(atrilString.containsKey("#") && atrilString.get("#") > 0) {
+                    atrilString.put("#", atrilString.get("#") - 1);
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                     nuevaPalabra.add(letra);
                     generarPrefijos(fila, colAncla, limite - 1, nuevaPalabra, hijo, movimientos, esVertical);
-                    atril.put("#", atril.get("#") + 1);
+                    atrilString.put("#", atrilString.get("#") + 1);
                 }
             }
         }
@@ -135,21 +164,21 @@ public class Algorithm {
                          if((crossChecks.containsKey(posicion))) {
                              Set<String> checks = crossChecks.get(posicion);
                              if(checks.contains(letra)) {
-                                 if(atril.containsKey(letra) && atril.get(letra) > 0) {
-                                     atril.put(letra, atril.get(letra) - 1);
+                                 if(atrilString.containsKey(letra) && atrilString.get(letra) > 0) {
+                                     atrilString.put(letra, atrilString.get(letra) - 1);
                                      List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                                      nuevaPalabra.add(letra);
                                      extenderDerecha(fila, col + 1, nuevaPalabra, hijo, movimientos, esVertical);
-                                     atril.put(letra, atril.get(letra) + 1);
+                                     atrilString.put(letra, atrilString.get(letra) + 1);
                                  }
 
                                  // Usar blanci si está disponible
-                                 if(atril.containsKey("#") && atril.get("#") > 0) {
-                                     atril.put("#", atril.get("#") - 1);
+                                 if(atrilString.containsKey("#") && atrilString.get("#") > 0) {
+                                     atrilString.put("#", atrilString.get("#") - 1);
                                      List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                                      nuevaPalabra.add(letra);
                                      extenderDerecha(fila, col + 1, nuevaPalabra, hijo, movimientos, esVertical);
-                                     atril.put("#", atril.get("#") + 1);
+                                     atrilString.put("#", atrilString.get("#") + 1);
                                  }
                              }
                          }
@@ -263,12 +292,17 @@ public class Algorithm {
         }
     }
 
+    /*
     private Map<String, Integer> contarLetras(List<String> atril) {
         Map<String, Integer> count = new HashMap<>();
         for(String letra : atril) {
             count.put(letra, count.getOrDefault(letra, 0) + 1);
         }
         return count;
+    }*/
+
+    private Map<String, Integer> atrilDeStrings(Map<Ficha, Integer> atril) {
+
     }
 
     private String concatenarPalabra(List<String> letras) {
