@@ -577,9 +577,10 @@ public class Turno {
             }
         }
 
-        Algoritmo algoritmo = new Algoritmo(partida);
-        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>  mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
-        if (mejorPalabra == null || mejorPalabra.isEmpty()) {
+        // nueva implementacion:
+        partida.getAlgorithm().preparar(getTablero(), atrilJ2);
+        List<Movimiento> movimientosValidos = partida.getAlgorithm().generarMovimientos();
+        if (movimientosValidos == null || movimientosValidos.isEmpty()) {
             if (partida.getBolsa() == null) pasarTurno();
             else {
                 Map<Ficha,Integer> fichasPorCambiar = new HashMap<>();
@@ -593,28 +594,21 @@ public class Turno {
                 cambiarFichas(atrilJ2, fichasPorCambiar);
             }
         }
-        else {
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : mejorPalabra) {
-                String palabra = entry.getKey().getKey(); // Access the String from the inner SimpleEntry
-            }
-            int x1 = mejorPalabra.get(0).getValue().getKey();
-            int y1 = mejorPalabra.get(0).getValue().getValue();
-            int x2 = x1;
+        else {   // hay movimientos por poner
+            // TODO:
+            // llamar a una funcion para que ordene los movimientos segun los puntos que de
+            // segun la dificultad, escoger uno u otro
 
-            if (mejorPalabra.size() > 1) {
-                x2 = mejorPalabra.get(1).getValue().getKey();
-            }
+            // de momento lo hago con uno cualquiera hasta tenerlo ordenado mas adelante
+            Movimiento m = movimientosValidos.get(0);
+            List<String> trozosPalabra = m.getPalabra();
+            StringBuilder palabra = new StringBuilder();
+            for (String trozo : trozosPalabra) palabra.append(trozo);
 
             String orientacion;
-            if (x1 == x2) orientacion = "horizontal";
-            else orientacion = "vertical";
-
-            // formar la palabra
-            StringBuilder palabraFormada = new StringBuilder();
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entrada : mejorPalabra) {
-                palabraFormada.append(entrada.getKey().getKey());
-            }
-            colocarPalabra(palabraFormada.toString(), x1, y1, orientacion);
+            if (m.isVertical()) orientacion = "vertical";
+            else orientacion = "horizontal";
+            colocarPalabra(palabra.toString(), m.getFila(), m.getColumna(), orientacion);
         }
     }
 }
