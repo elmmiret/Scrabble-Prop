@@ -29,7 +29,6 @@ public class Algorithm {
         calcularCrossChecks();
     }
 
-
     /**
      * Genera todos los movimientos válidos para la configuración actual
      * @return Lista de movimientos válidos
