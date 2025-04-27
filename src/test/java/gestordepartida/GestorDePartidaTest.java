@@ -1,4 +1,4 @@
-package ctrldomini;
+package gestordepartida;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import gestordepartida.Ficha;
-import gestordepartida.GestorDePartida;
-import gestordepartida.Partida;
 import ranking.Ranking;
 
 /**

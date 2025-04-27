@@ -1,12 +1,10 @@
-package ctrldomini;
+package gestordepartida;
 
 import org.junit.Before;
 import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.Queue;
 import gestordeperfil.Perfil;
-import gestordepartida.Ficha;
-import gestordepartida.Partida;
 
 import static org.junit.Assert.*;
 
@@ -15,7 +13,7 @@ import static org.junit.Assert.*;
 /**
  * Tests para probar las funcionalidades de la clase Partida
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class PartidaTest {
 

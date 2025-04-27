@@ -1,7 +1,5 @@
-package ctrldomini;
+package algorisme;
 
-import algorisme.Algoritmo;
-import algorisme.Dawg;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 import gestordeperfil.Perfil;

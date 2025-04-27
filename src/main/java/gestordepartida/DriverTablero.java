@@ -6,7 +6,7 @@ import java.util.Scanner;
 /**
  * Driver para probar las funcionalidades de la clase Tablero NO USADO EN LA IMPLEMENTACIÓN
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class DriverTablero {
     private Scanner scanner;

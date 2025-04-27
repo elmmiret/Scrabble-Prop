@@ -36,7 +36,6 @@ public class Main {
    *   <li>4: Visualización de estadísticas.</li>
    *   <li>5: Salir del programa.</li>
    * </ul>
-   * </p>
    *
    * @param args Argumentos de línea de comandos (no utilizados en este programa).
    * @throws CasillaOcupadaException Si se intenta ocupar una casilla ya ocupada en el tablero.

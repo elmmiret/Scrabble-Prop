@@ -1,7 +1,7 @@
 package exceptions;
 
 /**
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class CoordenadaFueraDeRangoException extends ExceptionCtrDominio {
     public CoordenadaFueraDeRangoException(int x, int y) {

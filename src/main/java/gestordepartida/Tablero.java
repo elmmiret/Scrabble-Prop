@@ -288,7 +288,6 @@ public class Tablero {
      * Transpone el tablero intercambiando filas por columnas, convirtiendo la posición (x, y) en (y, x).
      * Este método modifica la estructura interna del tablero para reorganizar las casillas.
      *
-     * @pre El tablero debe ser cuadrado
      */
     public void transponerTablero() {
         List<List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>>> nuevo = new ArrayList<>(COLUMNAS);

@@ -1,4 +1,4 @@
-package ctrldomini;
+package gestordepartida;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
@@ -7,14 +7,10 @@ import exceptions.*;
 import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
 
-import gestordepartida.Ficha;
-import gestordepartida.Partida;
-import gestordepartida.Tablero;
-
 /**
  * Tests para probar las funcionalidades de la clase Tablero
  *
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class TableroTest {
     private Tablero tablero;

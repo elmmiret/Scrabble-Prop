@@ -1,7 +1,7 @@
 package exceptions;
 
 /**
- * @author: Paula Pérez
+ * @author Paula Pérez
  */
 public class ExceptionCtrDominio extends Exception {
     public ExceptionCtrDominio() {
