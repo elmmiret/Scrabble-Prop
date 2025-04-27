@@ -354,6 +354,7 @@ public class Turno {
      * @throws CasillaOcupadaException         Si una casilla ya está ocupada.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+        System.out.println("Entro a colocarPalabra " + palabra + " " + x_ini + " " + y_ini + " " + orientacion);
 
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
@@ -381,6 +382,7 @@ public class Turno {
             }
 
             if ("vertical".equals(orientacion)) {
+                System.out.println("Entro a Vertical");
 
                 //mirar si tiene las fichas en el atril
                 Map<Ficha, Integer> atrilCheck;
@@ -457,6 +459,7 @@ public class Turno {
                 else puntosJ2 += puntosPorSumar;
             }
             else { // horizontal
+                System.out.println("Entro a horizontal");
 
                 //mirar si tiene las fichas en el atril
                 Map<Ficha, Integer> atrilCheck;
@@ -535,13 +538,20 @@ public class Turno {
                 else puntosJ2 += puntosPorSumar;
 
             }
+            System.out.println("Salgo de H/V");
 
         }
-        else return false;
+        else {
+            System.out.println("PETO");
+            // compruebo la palabra y esta mal
+            pasarTurno();
+            return false;
+        }
 
         setTipoJugada(TipoJugada.colocar);
         if (jugador == partida.getCreador()) robarFichas(atrilJ1);
         else robarFichas(atrilJ2);
+        System.out.println("Voy a avanzar turno");
         avanzarTurno();
         return true;
     }

@@ -30,6 +30,9 @@ public class Algorithm {
     }
 
 
+    // ! Parece ser que no tiene en cuenta lo que hay en el tablero por si lo puedes enganchar o no
+    //   Te escupe todas las palabras que puedes formar con lo q hay en el atril
+    //   Debugguear para confirmar
     /**
      * Genera todos los movimientos válidos para la configuración actual
      * @return Lista de movimientos válidos
@@ -278,12 +281,14 @@ public class Algorithm {
 
     private Map<String, Integer> contarLetras(Map<Ficha, Integer> atril) {
         Map<String, Integer> count = new HashMap<>();
-        for(Map.Entry<Ficha, Integer> letra : atril.entrySet()) {
+        for (Map.Entry<Ficha, Integer> letra : atril.entrySet()) {
             String l = letra.getKey().getLetra();
-            count.put(l, count.getOrDefault(l, 0) + 1);
+            int cantidad = letra.getValue();  // Cuántas fichas hay de esa letra
+            count.put(l, count.getOrDefault(l, 0) + cantidad);
         }
         return count;
     }
+
 
     private String concatenarPalabra(List<String> letras) {
         StringBuilder palabra = new StringBuilder();
