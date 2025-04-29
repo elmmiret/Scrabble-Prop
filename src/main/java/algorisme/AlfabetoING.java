@@ -50,9 +50,6 @@ public class AlfabetoING {
                 String[] partes = linea.split(" ");
                 if(partes.length == 3) {
                     String letra = partes[0];
-                    if (letra.equals("#")) {
-                        continue;
-                    }
                     try {
                         int frequencia = Integer.parseInt(partes[1]);
                         int puntuacion = Integer.parseInt(partes[2]);
