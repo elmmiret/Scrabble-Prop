@@ -88,6 +88,42 @@ public class Perfil {
     }
 
     /**
+     * Establece el número de partidas jugadas del perfil al valor especificado.
+     *
+     * @param partidasJugadas el número de partidas jugadas a establecer
+     */
+    public void setPartidasJugadas(int partidasJugadas) {
+        this.partidasJugadas = partidasJugadas;
+    }
+
+    /**
+     * Establece el número de partidas ganadas del perfil al valor especificado.
+     *
+     * @param partidasGanadas el número de partidas ganadas a establecer
+     */
+    public void setPartidasGanadas(int partidasGanadas) {
+        this.partidasGanadas = partidasGanadas;
+    }
+
+    /**
+     * Establece el número de partidas perdidas del perfil al valor especificado.
+     *
+     * @param partidasPerdidas el número de partidas perdidas a establecer
+     */
+    public void setPartidasPerdidas(int partidasPerdidas) {
+        this.partidasPerdidas = partidasPerdidas;
+    }
+
+    /**
+     * Establece el número de puntos del perfil al valor especificado.
+     *
+     * @param puntos el número de puntos a establecer
+     */
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
+    }
+
+    /**
      * Incrementa el contador de partidas jugadas según el parámetro especificado.
      *
      * @param nuevasPartidas número de partidas nuevas jugadas a sumar

@@ -1,5 +1,6 @@
 package gestordeperfil;
 
+import java.io.*;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,63 @@ public class GestorDePerfil {
     public GestorDePerfil(Ranking rkg) {
         jugadores = new HashMap<>();
         ranking = rkg;
+        cargarPerfiles();
+        // Register shutdown hook to save profiles on exit
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            guardarPerfiles();
+            System.out.println("Perfiles guardados exitosamente.");
+        }));
+    }
+
+    public void cargarPerfiles() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordeperfil/perfilesbd.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length != 7) {
+                    System.err.println("Línea inválida: " + line);
+                    continue;
+                }
+                String username = parts[0];
+                String password = parts[1];
+                String frase = parts[2];
+                int partidasJugadas = Integer.parseInt(parts[3]);
+                int partidasGanadas = Integer.parseInt(parts[4]);
+                int partidasPerdidas = Integer.parseInt(parts[5]);
+                int puntos = Integer.parseInt(parts[6]);
+
+                Perfil perfil = new Perfil(username, password, frase);
+                perfil.setPartidasJugadas(partidasJugadas);
+                perfil.setPartidasGanadas(partidasGanadas);
+                perfil.setPartidasPerdidas(partidasPerdidas);
+                perfil.setPuntos(puntos);
+
+                jugadores.put(username, perfil);
+                ranking.addToRankings(perfil);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Archivo de perfiles no encontrado. Iniciando con lista vacía.");
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error al cargar perfiles: " + e.getMessage());
+        }
+    }
+
+    public void guardarPerfiles() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordeperfil/perfilesbd.txt"))) {
+            for (Perfil perfil : jugadores.values()) {
+                String line = String.join("|",
+                        perfil.getUsername(),
+                        perfil.getPassword(),
+                        perfil.getFraseRecuperacion(),
+                        String.valueOf(perfil.getPartidasJugadas()),
+                        String.valueOf(perfil.getPartidasGanadas()),
+                        String.valueOf(perfil.getPartidasPerdidas()),
+                        String.valueOf(perfil.getPuntos()));
+                writer.println(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar perfiles: " + e.getMessage());
+        }
     }
 
     /**
