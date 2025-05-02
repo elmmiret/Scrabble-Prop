@@ -8,7 +8,9 @@ import ranking.DriverRanking;
 import ranking.Ranking;
 import estadisticas.DriverEstadisticas;
 import exceptions.*;
+import view.GestorDeView;
 
+import javax.swing.*;
 import java.util.Scanner;
 
 /**
@@ -52,6 +54,15 @@ public class Main {
     DriverRanking driverRanking = new DriverRanking(ranking, scanner);
     DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, scanner);
     DriverPartida driverPartida = new DriverPartida(gestorDePartida, gestorDePerfil, scanner);
+
+    SwingUtilities.invokeLater(
+            new Runnable() {
+              @Override
+              public void run() {
+                GestorDeView gestorDeView = new GestorDeView(gestorDePerfil, ranking);
+              }
+            }
+    );
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
