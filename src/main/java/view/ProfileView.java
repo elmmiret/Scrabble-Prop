@@ -6,12 +6,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ProfileView extends JFrame {
+    private final GestorDeView gestorDeView;
     private final GestorDePerfil gestorDePerfil;
     private static final int WIDTH = 300;
     private static final int HEIGHT = 600;
 
-    public ProfileView(GestorDePerfil gestorDePerfil) {
+    public ProfileView(GestorDeView gestorDeView, GestorDePerfil gestorDePerfil) {
         super("Gestión de perfil");
+        this.gestorDeView = gestorDeView;
         this.gestorDePerfil = gestorDePerfil;
         init();
     }
@@ -22,17 +24,15 @@ public class ProfileView extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));;
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));;
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         addButton(panel, "Crear un nuevo perfil", this::nuevoPerfil);
         addButton(panel, "Eliminar perfil", this::eliminarPerfil);
-        addButton(panel, "Cambiar Password", this::cambiarPassword);
-        /*
-        addButton(panel, "Reset Password", this::resetPassword);
-
-         */
-        addButton(panel, "Back", e -> dispose());
+        addButton(panel, "Cambiar password", this::cambiarPassword);
+        addButton(panel, "Restablecer password", this::restablecerPassword);
+        addButton(panel, "Cambiar username", this::cambiarUsername);
+        addButton(panel, "Atrás", e -> gestorDeView.mostrarMain());
 
         add(panel);
     }
@@ -148,11 +148,93 @@ public class ProfileView extends JFrame {
                                 gestorDePerfil.cambiarPassword(username, newPassword);
                                 JOptionPane.showMessageDialog(this, "Password cambiada correctamente");
                             } else JOptionPane.showMessageDialog(this, "Las passwords no coinciden");
-                        } else JOptionPane.showMessageDialog(this, "La password antigua y nueva son iguales");
+                        } else JOptionPane.showMessageDialog(this, "La password antigua y la nueva son iguales");
                     } else JOptionPane.showMessageDialog(this, "La nueva password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)");
                 } else JOptionPane.showMessageDialog(this, "Password incorrecta");
             } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
         }
+    }
 
+    private void restablecerPassword(ActionEvent e)
+    {
+        JTextField usernameField = new JTextField();
+        JTextField fraseRecuperacionField = new JTextField();
+        JPasswordField newPasswordField = new JPasswordField();
+        JPasswordField newPasswordField2 = new JPasswordField();
+
+        Object[] message = {
+                "Username:", usernameField,
+                "Cuál es tu color favorito? (Frase de recuperación):", fraseRecuperacionField,
+                "Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número): ", newPasswordField,
+                "Nueva password otra vez:", newPasswordField2,
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Restablecer password", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION)
+        {
+            String username = usernameField.getText();
+            String fraseRecuperacion = fraseRecuperacionField.getText();
+            String newPassword = new String(newPasswordField.getPassword());
+            String newPassword2 = new String(newPasswordField2.getPassword());
+
+            if (gestorDePerfil.existeJugador(username))
+            {
+                if (gestorDePerfil.esFraseRecuperacionCorrecta(username, fraseRecuperacion))
+                {
+                    if (gestorDePerfil.esPasswordSegura(newPassword))
+                    {
+                        if (newPassword.equals(newPassword2))
+                        {
+                            gestorDePerfil.cambiarPassword(username, newPassword);
+                            JOptionPane.showMessageDialog(this, "Password restablecida correctamente");
+                        } else JOptionPane.showMessageDialog(this, "Las nuevas passwords no coinciden");
+                    } else JOptionPane.showMessageDialog(this, "La nueva password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)");
+                } else JOptionPane.showMessageDialog(this, "Frase de recuperación incorrecta");
+            } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
+        }
+    }
+
+    private void cambiarUsername(ActionEvent e)
+    {
+        JTextField usernameField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
+        JTextField newUsernameField = new JTextField();
+        JTextField newUsername2Field = new JTextField();
+
+        Object[] message = {
+                "Username:", usernameField,
+                "Password:", passwordField,
+                "Nuevo username: ", newUsernameField,
+                "Nuevo username otra vez", newUsername2Field,
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Cambiar username", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION)
+        {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+            String newUsername = newUsernameField.getText();
+            String newUsername2 = newUsername2Field.getText();
+
+            if (gestorDePerfil.existeJugador(username))
+            {
+                if (gestorDePerfil.esPasswordCorrecta(username, password))
+                {
+                    if (!gestorDePerfil.existeJugador(newUsername))
+                    {
+                        if (!newUsername.equals(username))
+                        {
+                            if (newUsername.equals(newUsername2))
+                            {
+                                gestorDePerfil.cambiarUsername(username, newUsername);
+                                JOptionPane.showMessageDialog(this, "Username cambiado correctamente");
+                            } else JOptionPane.showMessageDialog(this, "Los nuevos usernames no coinciden");
+                        } else JOptionPane.showMessageDialog(this, "El username antiguo y el nuevo son iguales");
+                    } else JOptionPane.showMessageDialog(this, "El nuevo username ya está en uso");
+                } else JOptionPane.showMessageDialog(this, "Password incorrecta");
+            } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
+        }
     }
 }

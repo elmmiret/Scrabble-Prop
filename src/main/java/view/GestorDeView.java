@@ -19,8 +19,14 @@ public class GestorDeView {
 
     // Navigation methods
     public void mostrarGestionPerfil() {
-        profileView = new ProfileView(gestorPerfil);
+        profileView = new ProfileView(this, gestorPerfil);
         mainView.setVisible(false);
         profileView.setVisible(true);
+    }
+
+    public void mostrarMain()
+    {
+        if (profileView != null) profileView.setVisible(false);
+        mainView.setVisible(true);
     }
 }

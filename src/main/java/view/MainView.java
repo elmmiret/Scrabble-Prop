@@ -38,6 +38,9 @@ public class MainView extends JFrame {
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Smaller padding
 
             addButton(buttonPanel, "Gestión de perfil", () -> gestorDeView.mostrarGestionPerfil());
+
+            addButton(buttonPanel, "Salir", this::salir);
+
             buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             // Add button panel to CENTER
@@ -53,5 +56,10 @@ public class MainView extends JFrame {
         button.addActionListener(e -> action.run());
         button.setFont(new Font("Arial", Font.BOLD, 20));
         panel.add(button);
+    }
+
+    private void salir ()
+    {
+        System.exit(0);
     }
 }
