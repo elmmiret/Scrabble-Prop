@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 
 public class ProfileView extends JFrame {
     private final GestorDePerfil gestorDePerfil;
-    private static final int WIDTH = 800;
+    private static final int WIDTH = 300;
     private static final int HEIGHT = 600;
 
     public ProfileView(GestorDePerfil gestorDePerfil) {
@@ -23,12 +23,12 @@ public class ProfileView extends JFrame {
         setResizable(false);
 
         JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));;
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 300, 20, 300));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         addButton(panel, "Crear un nuevo perfil", this::nuevoPerfil);
         addButton(panel, "Eliminar perfil", this::eliminarPerfil);
+        addButton(panel, "Cambiar Password", this::cambiarPassword);
         /*
-        addButton(panel, "Change Password", this::changePassword);
         addButton(panel, "Reset Password", this::resetPassword);
 
          */
@@ -40,6 +40,7 @@ public class ProfileView extends JFrame {
     private void addButton(JPanel panel, String text, java.awt.event.ActionListener action) {
         JButton button = new JButton(text);
         button.addActionListener(action);
+        button.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(button);
     }
 
@@ -110,5 +111,48 @@ public class ProfileView extends JFrame {
 
             } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
         }
+    }
+
+    private void cambiarPassword(ActionEvent e)
+    {
+        JTextField usernameField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
+        JPasswordField newPasswordField = new JPasswordField();
+        JPasswordField newPasswordField2 = new JPasswordField();
+
+        Object[] message = {
+                "Username:", usernameField,
+                "Password:", passwordField,
+                "Nueva password (mínimo 8 carácteres, 1 mayúscula y 1 número): ", newPasswordField,
+                "Nueva password otra vez:", newPasswordField2,
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Cambiar password", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION)
+        {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+            String newPassword = new String(newPasswordField.getPassword());
+            String newPassword2 = new String(newPasswordField2.getPassword());
+
+            if (gestorDePerfil.existeJugador(username))
+            {
+                if (gestorDePerfil.esPasswordCorrecta(username, password))
+                {
+                    if (gestorDePerfil.esPasswordSegura(newPassword))
+                    {
+                        if (!password.equals(newPassword)) {
+                            if (newPassword.equals(newPassword2))
+                            {
+                                gestorDePerfil.cambiarPassword(username, newPassword);
+                                JOptionPane.showMessageDialog(this, "Password cambiada correctamente");
+                            } else JOptionPane.showMessageDialog(this, "Las passwords no coinciden");
+                        } else JOptionPane.showMessageDialog(this, "La password antigua y nueva son iguales");
+                    } else JOptionPane.showMessageDialog(this, "La nueva password no cumple los requisitos mínimos de seguridad (mínimo 8 carácteres, 1 mayúscula y 1 número)");
+                } else JOptionPane.showMessageDialog(this, "Password incorrecta");
+            } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
+        }
+
     }
 }
