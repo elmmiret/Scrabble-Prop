@@ -76,13 +76,13 @@ public class Algorithm {
             if(anchors[fila][col]) {
                 // Encontrar el limite izquierdo (máxima longitud del prefijo)
                 int limiteIzquierdo = 0;
-                while(col - limiteIzquierdo - 1 >= 0 && !anchors[fila][col - limiteIzquierdo - 1]) limiteIzquierdo++;
+                while(dawg.casillaCorrecta(fila, col - limiteIzquierdo - 1) && !anchors[fila][col - limiteIzquierdo - 1]) limiteIzquierdo++;
 
                 // Generar prefijos izquierdos y extender a la derecha
                 generarPrefijos(fila, col, limiteIzquierdo, new ArrayList<>(), dawg.getRoot(), movimientos, esVertical);
 
-                // Si hay una letra a la izquierda, extender desde ella
-                if(col > 0) {
+                // Verificar si hay casilla a la izquierda antes de acceder
+                if(dawg.casillaCorrecta(fila, col - 1)) {
                     try {
                         Ficha fichaIzquierda = tablero.getFicha(fila, col-1);
                         if(fichaIzquierda != null) {
@@ -94,6 +94,9 @@ public class Algorithm {
                         // NO deberia ocurrir ya que estamos verificando limites
                     }
                 }
+
+                // Generar prefijos izquierdos seguros
+                generarPrefijos(fila, col, limiteIzquierdo, new ArrayList<>(), dawg.getRoot(), movimientos, esVertical);
             }
         }
     }
@@ -135,7 +138,7 @@ public class Algorithm {
                     atril.put(letra, atril.get(letra) + 1);   //añadir la letra al atril
                 }
 
-                // Verificar si hay un blanco disponible
+                // Verificar si hay un comodín disponible
                 if(atril.containsKey("#") && atril.get("#") > 0) {
                     atril.put("#", atril.get("#") - 1);
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
@@ -149,13 +152,13 @@ public class Algorithm {
 
     private void extenderDerecha(int fila, int col, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
         try {
-            // Verificar su es un movimiento válido
-            if(nodo.getEsFinal() && (col >= Tablero.COLUMNAS || tablero.getFicha(fila, col) == null)) {
+            // Verificar su es un movimiento válido (también verificando los bordes)
+            if(nodo.getEsFinal() && (!dawg.casillaCorrecta(fila, col) || tablero.getFicha(fila, col) == null)) {
                 // Añadir movimiento válido
                 System.out.println("Posible palabra formada: " + palabraParcial);
                 movimientos.add(new Movimiento(fila, col - palabraParcial.size(), palabraParcial, esVertical));
             }
-             if( col < Tablero.COLUMNAS) {
+             if(dawg.casillaCorrecta(fila,col)) {
                  Ficha ficha = tablero.getFicha(fila,col);
 
                  if(ficha == null) {
@@ -164,7 +167,7 @@ public class Algorithm {
                          String letra = entrada.getKey();
                          NodoDawg hijo = entrada.getValue();
 
-                         // Verificar cross-check
+                         // Verificar cross-check con seguridad
                          int posicion = fila * Tablero.COLUMNAS + col;
                          if((crossChecks.containsKey(posicion))) {
                              Set<String> checks = crossChecks.get(posicion);
@@ -177,7 +180,7 @@ public class Algorithm {
                                      atril.put(letra, atril.get(letra) + 1);
                                  }
 
-                                 // Usar blanci si está disponible
+                                 // Usar comodín si está disponible
                                  if(atril.containsKey("#") && atril.get("#") > 0) {
                                      atril.put("#", atril.get("#") - 1);
                                      List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
@@ -269,13 +272,13 @@ public class Algorithm {
                         int posicionInsercion = 0;
 
                         // Arriba
-                        for(int f = fila - 1; f >= 0 && tablero.getFicha(f, col) != null; f--) {
+                        for(int f = fila - 1; dawg.casillaCorrecta(f,col) && tablero.getFicha(f, col) != null; f--) {
                             palabraVertical.insert(0, tablero.getFicha(f, col).getLetra());
                             posicionInsercion++;
                         }
 
                         // Abajo
-                        for(int f = fila + 1; f < Tablero.FILAS && tablero.getFicha(f, col) != null; f++) {
+                        for(int f = fila + 1; dawg.casillaCorrecta(f,col) && tablero.getFicha(f, col) != null; f++) {
                             palabraVertical.append(tablero.getFicha(f, col).getLetra());
                         }
 
