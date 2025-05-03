@@ -1,5 +1,6 @@
 package gestordepartida;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -37,6 +38,52 @@ public class GestorDePartida {
     public GestorDePartida(GestorDePerfil gdp) {
         partidas = new HashMap<>();
         gestorDePerfil = gdp;
+
+        cargarPartidas();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            guardarPartidas();
+            System.out.println("Partidas guardadas existosamente.");
+        }));
+    }
+
+    public void cargarPartidas() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordepartida/partidasbd.txt"))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] parts = linea.split("\\|");
+                if (parts.length < 8) {
+                    System.err.println("Línea inválida: " + linea);
+                }
+                int id = Integer.parseInt(parts[0]);
+                String nombre = parts[1];
+                Partida.Idioma idioma = Partida.Idioma.valueOf(parts[2]);
+                Partida.Modo modo = Partida.Modo.valueOf(parts[3]);
+                Perfil creador = gestorDePerfil.getPerfil(parts[4]);
+                Perfil oponente = modo.equals(Partida.Modo.PvIA) ? null : gestorDePerfil.getPerfil(parts[5]);
+                int dificultad = modo.equals(Partida.Modo.PvIA) ? Integer.parseInt(parts[6]) : null;
+
+                Partida partida = modo.equals(Partida.Modo.PvP) ? new Partida(creador, oponente, id, nombre, modo, idioma) : new Partida(creador, id, nombre, modo, idioma, dificultad);
+                partidas.put(id, partida);
+
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Archivo de partidas no encontrado. Iniciando con lista vacía.");
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error al cargar partidas: " + e.getMessage());
+        }
+    }
+
+
+    public void guardarPartidas() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordepartida/partidasbd.txt"))) {
+            for (Partida partida : partidas.values()) {
+                String linea = String.join("|", String.valueOf(partida.getId()), partida.getNombre(), String.valueOf(partida.getIdioma()), String.valueOf(partida.getModoPartida()), partida.getCreador().getUsername(), partida.getOponente() != null ? partida.getOponente().getUsername() : "null", String.valueOf(partida.getDificultad()));
+                writer.println(linea);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar partidas: " + e.getMessage());
+        }
     }
 
     /**
@@ -143,6 +190,7 @@ public class GestorDePartida {
             nuevaPartida = new Partida(jugadorPrincipal, id, nombre, modo, idioma, dificultad);
         }
         partidas.put(id, nuevaPartida);
+        guardarPartidas();
         return nuevaPartida;
     }
 
@@ -191,7 +239,11 @@ public class GestorDePartida {
      * @return true si la partida existía y fue eliminada, false en caso contrario
      */
     public boolean eliminarPartida(int idPartida) {
-        return partidas.remove(idPartida) != null;
+        boolean eliminada = partidas.remove(idPartida) != null;
+        if (eliminada) {
+            guardarPartidas();
+        }
+        return eliminada;
     }
 
     /**
