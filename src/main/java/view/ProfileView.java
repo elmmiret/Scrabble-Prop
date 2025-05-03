@@ -47,18 +47,18 @@ public class ProfileView extends JFrame {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 20, 20));
         buttonPanel.setBackground(COLOR_FONDO);
 
-        addButton(buttonPanel, "Crear nuevo perfil", COLOR_AZUL, this::nuevoPerfil);
-        addButton(buttonPanel, "Eliminar perfil", COLOR_AZUL, this::eliminarPerfil);
-        addButton(buttonPanel, "Cambiar password", COLOR_AZUL, this::cambiarPassword);
-        addButton(buttonPanel, "Restablecer password", COLOR_AZUL, this::restablecerPassword);
-        addButton(buttonPanel, "Cambiar username", COLOR_AZUL, this::cambiarUsername);
-        addButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
+        addPerfilButton(buttonPanel, "Crear nuevo perfil", COLOR_AZUL, this::nuevoPerfil);
+        addPerfilButton(buttonPanel, "Eliminar perfil", COLOR_AZUL, this::eliminarPerfil);
+        addPerfilButton(buttonPanel, "Cambiar password", COLOR_AZUL, this::cambiarPassword);
+        addPerfilButton(buttonPanel, "Restablecer password", COLOR_AZUL, this::restablecerPassword);
+        addPerfilButton(buttonPanel, "Cambiar username", COLOR_AZUL, this::cambiarUsername);
+        addPerfilButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
 
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
         add(mainPanel);
     }
 
-    private void addButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
+    private void addPerfilButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
             private final int radioEsquina = 35;

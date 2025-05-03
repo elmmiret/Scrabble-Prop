@@ -47,8 +47,9 @@ public class MainView extends JFrame {
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 20, 20));
             buttonPanel.setBackground(COLOR_FONDO);
 
-            addButton(buttonPanel, "Gestión de perfil", COLOR_AZUL, () -> gestorDeView.mostrarGestionPerfil());
-            addButton(buttonPanel, "Salir", COLOR_ROJO, this::salir);
+            addMainButton(buttonPanel, "Gestión de perfil", COLOR_AZUL, () -> gestorDeView.mostrarGestionPerfil());
+            addMainButton(buttonPanel, "Ver ranking", COLOR_AZUL, () -> gestorDeView.mostrarRanking());
+            addMainButton(buttonPanel, "Salir", COLOR_ROJO, this::salir);
 
             panel.add(buttonPanel, BorderLayout.CENTER);
             add(panel);
@@ -58,7 +59,7 @@ public class MainView extends JFrame {
         }
     }
 
-    private void addButton(JPanel panel, String text, Color color, Runnable action) {
+    private void addMainButton(JPanel panel, String text, Color color, Runnable action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
             private final int radioEsquina = 35; // Increased from 25 to 35 for more rounding

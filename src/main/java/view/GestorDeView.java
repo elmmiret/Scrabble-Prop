@@ -6,6 +6,7 @@ import ranking.Ranking;
 public class GestorDeView {
     private MainView mainView;
     private ProfileView profileView;
+    private RankingView rankingView;
     private final GestorDePerfil gestorPerfil;
     private final Ranking ranking;
 
@@ -15,18 +16,30 @@ public class GestorDeView {
 
         mainView = new MainView(this);
         mainView.setVisible(true);
+        profileView = new ProfileView(this, gestorPerfil);
+        profileView.setVisible(false);
+        rankingView = new RankingView(this, ranking);
+        rankingView.setVisible(false);
     }
 
     // Navigation methods
     public void mostrarGestionPerfil() {
-        profileView = new ProfileView(this, gestorPerfil);
         mainView.setVisible(false);
+        rankingView.setVisible(false);
         profileView.setVisible(true);
     }
 
     public void mostrarMain()
     {
-        if (profileView != null) profileView.setVisible(false);
+        profileView.setVisible(false);
+        rankingView.setVisible(false);
         mainView.setVisible(true);
+    }
+
+    public void mostrarRanking()
+    {
+        mainView.setVisible(false);
+        profileView.setVisible(false);
+        rankingView.setVisible(true);
     }
 }
