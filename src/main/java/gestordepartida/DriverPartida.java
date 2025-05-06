@@ -210,8 +210,6 @@ public class DriverPartida {
         } else {
             jugarIA(partida);
         }
-
-
     }
 
     /**

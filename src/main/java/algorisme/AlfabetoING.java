@@ -78,5 +78,4 @@ public class AlfabetoING {
     public Map<Ficha,Integer> getMapaFichas() {
         return mapaFichas;
     }
-
 }

@@ -86,7 +86,6 @@ public class Tablero {
         montarTablero();
     }
 
-
     /**
      * Inicializa el conjunto de letras válidas según el idioma.
      * @param mapaFichas Mapa de fichas del alfabeto correspondiente.

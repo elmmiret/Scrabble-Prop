@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Random;
 
 /**
  * Clase que representa un turno dentro de una partida de Scrabble.
@@ -36,7 +37,7 @@ public class Turno {
     private Map<Ficha,Integer> atrilJ1; // creador
 
     /** Mapa de fichas en el atril del oponente o IA (clave: Ficha, valor: cantidad). */
-    private Map<Ficha,Integer> atrilJ2; // oponente oi IA
+    private Map<Ficha,Integer> atrilJ2; // oponente o IA
 
     /** Puntuación acumulada del jugador creador. */
     private Integer puntosJ1; // creador
@@ -592,6 +593,8 @@ public class Turno {
         // nueva implementacion:
         partida.getAlgorithm().preparar(getTablero(), atrilJ2);
         List<Movimiento> movimientosValidos = partida.getAlgorithm().generarMovimientos();
+
+        // si la IA no ha encontrado posibles movimientos
         if (movimientosValidos == null || movimientosValidos.isEmpty()) {
             if (partida.getBolsa() == null) pasarTurno();
             else {
@@ -606,12 +609,16 @@ public class Turno {
                 cambiarFichas(atrilJ2, fichasPorCambiar);
             }
         }
-        else {   // hay movimientos por poner
+
+        // si la IA ha encoentrado movimientos
+        else {
             // TODO:
             // llamar a una funcion para que ordene los movimientos segun los puntos que de
             // segun la dificultad, escoger uno u otro
 
-            // de momento lo hago con uno cualquiera hasta tenerlo ordenado mas adelante
+
+            //Movimiento mejorMov = getMejorMovimiento(movimientosValidos, dificultad);
+
             Movimiento m = movimientosValidos.get(0);
             List<String> trozosPalabra = m.getPalabra();
             StringBuilder palabra = new StringBuilder();
@@ -622,5 +629,355 @@ public class Turno {
             else orientacion = "horizontal";
             colocarPalabra(palabra.toString(), m.getFila(), m.getColumna(), orientacion);
         }
+    }
+
+    private SimpleEntry<Movimiento, Integer> getMejorMovimientoiPuntuacion(List<Movimiento> movimientos, int dificultad) {
+        // en partida. está mapaFichas (alfabeto) y dawg
+        Map<String, Ficha> fichasAlfabeto = partida.getMapaLetras();
+        Dawg dawg = partida.getDawg();
+        Tablero tablero = partida.getTablero();
+
+        SimpleEntry<Movimiento, Integer> best = new SimpleEntry<>(null, 0);
+
+        // Recorrer toda la lista y obtener el mejor movimiento en funcion de la dificultad en la que se esté jugando y las posiciones del tablero
+        // Ver si al colocar la palabra en el tablero, su puntuación es mayor que mejorPuntuacion
+        // por cada movimiento, bucle de las letras del movimeinto, viendo las puntuaciones de la colocacion de las palabras en el tablero
+
+        switch (dificultad) {
+            // Fácil
+            case 1 :
+                int mejorPuntuacionFacil = 1000000;
+                Movimiento mejorMovimientoFacil = null;
+
+                for(Movimiento mov : movimientos) {
+                    List<String> letras = mov.getPalabra();
+                    int idx = 0;
+                    int puntuacionPalabra = 0;
+                    boolean dobleTantoPalabra = false;
+                    boolean tripleTantoPalabra = false;
+                    // si el movimiento es vertical
+                    if(mov.isVertical()) {
+                        int y = mov.getColumna();
+
+                        for(int x = mov.getFila(); idx < letras.size(); x++) {
+                            int puntuacionLetra;
+                            try {
+                                switch (tablero.getTipoModificador(x, y)) {
+                                    case dobleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += 2 * puntuacionLetra;
+                                        ++idx;
+                                        break;
+
+                                    case tripleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += 3 * puntuacionLetra;
+                                        ++idx;
+                                        break;
+
+                                    case dobleTantoDePalabra:
+                                        dobleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += puntuacionLetra;
+                                        ++idx;
+                                        break;
+
+                                    case tripleTantoDePalabra:
+                                        tripleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += puntuacionLetra;
+                                        ++idx;
+                                        break;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra && tripleTantoPalabra) puntuacionPalabra *= 6;
+                        else if(dobleTantoPalabra) puntuacionPalabra *= 2;
+                        else if(tripleTantoPalabra) puntuacionPalabra *= 3;
+
+                        if(puntuacionPalabra < mejorPuntuacionFacil) {
+                            mejorPuntuacionFacil = puntuacionPalabra;
+                            mejorMovimientoFacil = mov;
+                        }
+                    }
+
+                    // si el movimiento es horizontal
+                    else {
+                        int x = mov.getFila();
+
+                        for(int y = mov.getColumna(); idx < letras.size(); y++) {
+                            int puntuacionLetra;
+                            try {
+                                switch (tablero.getTipoModificador(x, y)) {
+                                    case dobleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += 2 * puntuacionLetra;
+                                        ++idx;
+                                        break;
+
+                                    case tripleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += 3 * puntuacionLetra;
+                                        ++idx;
+                                        break;
+
+                                    case dobleTantoDePalabra:
+                                        dobleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += puntuacionLetra;
+                                        ++idx;
+                                        break;
+
+                                    case tripleTantoDePalabra:
+                                        tripleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                        puntuacionPalabra += puntuacionLetra;
+                                        ++idx;
+                                        break;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra && tripleTantoPalabra) puntuacionPalabra *= 6;
+                        else if(dobleTantoPalabra) puntuacionPalabra *= 2;
+                        else if(tripleTantoPalabra) puntuacionPalabra *= 3;
+
+                        if(puntuacionPalabra < mejorPuntuacionFacil) {
+                            mejorPuntuacionFacil = puntuacionPalabra;
+                            mejorMovimientoFacil = mov;
+                        }
+                    }
+                }
+
+                best = new SimpleEntry<>(mejorMovimientoFacil, mejorPuntuacionFacil);
+                break;
+
+            // Medio
+            case 2:
+                Random rand = new Random();
+                int size = movimientos.size();
+                int idx_random = rand.nextInt(size);
+
+                Movimiento mov = movimientos.get(idx_random);
+
+                List<String> letras = mov.getPalabra();
+                int idx = 0;
+                int puntuacionPalabra = 0;
+                boolean dobleTantoPalabra = false;
+                boolean tripleTantoPalabra = false;
+
+                if(mov.isVertical()) {
+                    int y = mov.getColumna();
+
+                    for(int x = mov.getFila(); idx < letras.size(); x++) {
+                        int puntuacionLetra;
+                        try {
+                            switch (tablero.getTipoModificador(x, y)) {
+                                case dobleTantoDeLetra:
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += 2 * puntuacionLetra;
+                                    ++idx;
+                                    break;
+
+                                case tripleTantoDeLetra:
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += 3 * puntuacionLetra;
+                                    ++idx;
+                                    break;
+
+                                case dobleTantoDePalabra:
+                                    dobleTantoPalabra = true;
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += puntuacionLetra;
+                                    ++idx;
+                                    break;
+
+                                case tripleTantoDePalabra:
+                                    tripleTantoPalabra = true;
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += puntuacionLetra;
+                                    ++idx;
+                                    break;
+                            }
+                        }
+                        catch (CoordenadaFueraDeRangoException e){
+                            // No debería passar
+                        }
+                    }
+                }
+
+                // si el movimiento es horizontal
+                else{
+                    int x = mov.getFila();
+
+                    for(int y = mov.getColumna(); idx < letras.size(); y++) {
+                        int puntuacionLetra;
+                        try {
+                            switch (tablero.getTipoModificador(x, y)) {
+                                case dobleTantoDeLetra:
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += 2 * puntuacionLetra;
+                                    ++idx;
+                                    break;
+
+                                case tripleTantoDeLetra:
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += 3 * puntuacionLetra;
+                                    ++idx;
+                                    break;
+
+                                case dobleTantoDePalabra:
+                                    dobleTantoPalabra = true;
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += puntuacionLetra;
+                                    ++idx;
+                                    break;
+
+                                case tripleTantoDePalabra:
+                                    tripleTantoPalabra = true;
+                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    puntuacionPalabra += puntuacionLetra;
+                                    ++idx;
+                                    break;
+                            }
+                        }
+                        catch (CoordenadaFueraDeRangoException e){
+                            // No debería passar
+                        }
+                    }
+                }
+
+                if(tripleTantoPalabra && dobleTantoPalabra) puntuacionPalabra *= 6;
+                else if(tripleTantoPalabra) puntuacionPalabra *= 3;
+                else if(dobleTantoPalabra) puntuacionPalabra *= 2;
+
+                best = new SimpleEntry<>(mov, puntuacionPalabra);
+                break;
+
+
+            // Difícil
+            case 3:
+                int mejorPuntuacionDificil = 0;
+                Movimiento mejorMovimientoDificil = null;
+
+                for(Movimiento mov2 : movimientos) {
+                    List<String> letras2 = mov2.getPalabra();
+                    int idx2 = 0;
+                    int puntuacionPalabra2 = 0;
+                    boolean dobleTantoPalabra2 = false;
+                    boolean tripleTantoPalabra2 = false;
+                    // si el movimiento es vertical
+                    if(mov2.isVertical()) {
+                        int y = mov2.getColumna();
+
+                        for(int x = mov2.getFila(); idx2 < letras2.size(); x++) {
+                            int puntuacionLetra;
+                            try {
+                                switch (tablero.getTipoModificador(x, y)) {
+                                    case dobleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += 2 * puntuacionLetra;
+                                        ++idx2;
+                                        break;
+
+                                    case tripleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += 3 * puntuacionLetra;
+                                        ++idx2;
+                                        break;
+
+                                    case dobleTantoDePalabra:
+                                        dobleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += puntuacionLetra;
+                                        ++idx2;
+                                        break;
+
+                                    case tripleTantoDePalabra:
+                                        tripleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += puntuacionLetra;
+                                        ++idx2;
+                                        break;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra2 && tripleTantoPalabra2) puntuacionPalabra2 *= 6;
+                        else if(dobleTantoPalabra2) puntuacionPalabra2 *= 2;
+                        else if(tripleTantoPalabra2) puntuacionPalabra2 *= 3;
+
+                        if(puntuacionPalabra2 > mejorPuntuacionDificil) {
+                            mejorPuntuacionDificil = puntuacionPalabra2;
+                            mejorMovimientoDificil = mov2;
+                        }
+                    }
+
+                    // si el movimiento es horizontal
+                    else {
+                        int x = mov2.getFila();
+
+                        for(int y = mov2.getColumna(); idx2 < letras2.size(); y++) {
+                            int puntuacionLetra;
+                            try {
+                                switch (tablero.getTipoModificador(x, y)) {
+                                    case dobleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += 2 * puntuacionLetra;
+                                        ++idx2;
+                                        break;
+
+                                    case tripleTantoDeLetra:
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += 3 * puntuacionLetra;
+                                        ++idx2;
+                                        break;
+
+                                    case dobleTantoDePalabra:
+                                        dobleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += puntuacionLetra;
+                                        ++idx2;
+                                        break;
+
+                                    case tripleTantoDePalabra:
+                                        tripleTantoPalabra = true;
+                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                        puntuacionPalabra2 += puntuacionLetra;
+                                        ++idx2;
+                                        break;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra2 && tripleTantoPalabra2) puntuacionPalabra2 *= 6;
+                        else if(dobleTantoPalabra2) puntuacionPalabra2 *= 2;
+                        else if(tripleTantoPalabra2) puntuacionPalabra2 *= 3;
+
+                        if(puntuacionPalabra2 > mejorPuntuacionDificil) {
+                            mejorPuntuacionDificil = puntuacionPalabra2;
+                            mejorMovimientoDificil = mov2;
+                        }
+                    }
+                }
+
+                best = new SimpleEntry<>(mejorMovimientoDificil, mejorPuntuacionDificil);
+                break;
+
+        }
+        return best;
     }
 }

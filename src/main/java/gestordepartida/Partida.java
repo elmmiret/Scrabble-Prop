@@ -239,6 +239,18 @@ public class Partida {
     }
 
     /**
+     * Obtiene el mapa de fichas del alfabeto elegido para la partida
+     * @return Mapa de las fichas del alfabeto de la partida
+     */
+    public Map<Ficha, Integer> getMapaFichas() { return mapaFichas; }
+
+    /**
+     * Obtiene el mapa de letras - fichas para la obtencion de las puntuaciones
+     * @return Mapa String - Ficha del alfabeto de la partida
+     */
+    public Map<String, Ficha> getMapaLetras() { return mapaLetras; }
+
+    /**
      * Obtiene el historial completo de turnos.
      * @return Lista de Turnos en orden cronológico
      */
