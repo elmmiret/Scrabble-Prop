@@ -52,8 +52,9 @@ public class GestorDePartida {
             String linea;
             while ((linea = reader.readLine()) != null) {
                 String[] parts = linea.split("\\|");
-                if (parts.length < 8) {
+                if (parts.length < 7 || (!parts[3].equals("PvIA") && parts.length != 7) || (parts[3].equals("PvIA") && parts.length != 8)) {
                     System.err.println("Línea inválida: " + linea);
+                    continue;
                 }
                 int id = Integer.parseInt(parts[0]);
                 String nombre = parts[1];
@@ -61,9 +62,8 @@ public class GestorDePartida {
                 Partida.Modo modo = Partida.Modo.valueOf(parts[3]);
                 Perfil creador = gestorDePerfil.getPerfil(parts[4]);
                 Perfil oponente = modo.equals(Partida.Modo.PvIA) ? null : gestorDePerfil.getPerfil(parts[5]);
-                int dificultad = modo.equals(Partida.Modo.PvIA) ? Integer.parseInt(parts[6]) : null;
-
-                Partida partida = modo.equals(Partida.Modo.PvP) ? new Partida(creador, oponente, id, nombre, modo, idioma) : new Partida(creador, id, nombre, modo, idioma, dificultad);
+                Partida partida;
+                partida = modo.equals(Partida.Modo.PvP) ?  new Partida(creador, oponente, id, nombre, modo, idioma) :  new Partida(creador, id, nombre, modo, idioma, Integer.parseInt(parts[6]));
                 partidas.put(id, partida);
 
             }

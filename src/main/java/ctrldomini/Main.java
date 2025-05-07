@@ -2,7 +2,8 @@ package ctrldomini;
 
 import gestordeperfil.DriverPerfil;
 import gestordeperfil.GestorDePerfil;
-import gestordepartida.DriverPartida;
+import gestordepartida.DriverGestionPartida;
+import gestordepartida.DriverJugabilidadPartida;
 import gestordepartida.GestorDePartida;
 import ranking.DriverRanking;
 import ranking.Ranking;
@@ -51,7 +52,8 @@ public class Main {
     DriverPerfil driverPerfil = new DriverPerfil(gestorDePerfil, scanner);
     DriverRanking driverRanking = new DriverRanking(ranking, scanner);
     DriverEstadisticas driverEstadisticas = new DriverEstadisticas(gestorDePerfil, scanner);
-    DriverPartida driverPartida = new DriverPartida(gestorDePartida, gestorDePerfil, scanner);
+    DriverGestionPartida driverGestionPartida = new DriverGestionPartida(gestorDePartida, gestorDePerfil, scanner);
+    DriverJugabilidadPartida driverJugabilidadPartida = new DriverJugabilidadPartida(gestorDePartida, gestorDePerfil, scanner);
 
     System.out.println("\n| S | | C | | R | | A | | B | | B | | L | | E |\n");
 
@@ -61,9 +63,10 @@ public class Main {
       System.out.println("Por favor, escoja una de las siguientes opciones:");
       System.out.println("1- Gestión de perfil");
       System.out.println("2- Gestión de partida");
-      System.out.println("3- Ver rankings");
-      System.out.println("4- Ver estadísticas");
-      System.out.println("5- Salir");
+      System.out.println("3- Jugar Partida");
+      System.out.println("4- Ver rankings");
+      System.out.println("5- Ver estadísticas");
+      System.out.println("6- Salir");
       System.out.print("\n");
 
       int chosenOption = scanner.nextInt();
@@ -74,15 +77,18 @@ public class Main {
             driverPerfil.profileManagement();
             break;
           case 2: //Create new game
-            driverPartida.partidaManagement();
+            driverGestionPartida.partidaManagement();
             break;
-          case 3: //See ranking
+          case 3:
+            driverJugabilidadPartida.cargarPartida();
+            break;
+          case 4: //See ranking
             driverRanking.rankingManagement();
             break;
-          case 4: //Exit
+          case 5: //Exit
             driverEstadisticas.estadisticasManagement();
             break;
-          case 5:
+          case 6:
             System.out.println("¡Adiós!\n");
             System.exit(0);
             break;
