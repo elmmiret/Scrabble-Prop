@@ -44,6 +44,12 @@ public class Turno {
     /** Puntuación acumulada del oponente o IA. */
     private Integer puntosJ2; // oponente oi IA
 
+    /** Número de pistas disponibles que tiene el jugador 1. */
+    private Integer pistasRestantesJ1;
+
+    /** Número de pistas disponibles que tiene el jugador 2. */
+    private Integer pistasRestantesJ2;
+
     /** Número máximo de fichas permitidas en un atril. */
     public static final int MAX_FICHAS = 7;
 
@@ -71,6 +77,8 @@ public class Turno {
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
+        pistasRestantesJ1 = 3;
+        pistasRestantesJ2 = 3;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
         this.tipoJugada = tipoJugada;
@@ -86,11 +94,13 @@ public class Turno {
      * @param atrilJ1   Atril del jugador creador.
      * @param atrilJ2   Atril del oponente/IA.
      */
-    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, int numPistasJ1, int numPistasJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
         this.partida = partida;
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
+        pistasRestantesJ1 = numPistasJ1;
+        pistasRestantesJ2 = numPistasJ2;
         this.atrilJ1 = atrilJ1;
         this.atrilJ2 = atrilJ2;
     }
@@ -180,6 +190,10 @@ public class Turno {
             total += cantidad;
         }
         return total;
+    }
+
+    public int getPistas(Perfil jugador) {
+        return jugador == partida.getCreador() ? pistasRestantesJ1 : pistasRestantesJ2;
     }
 
     /**
@@ -276,7 +290,7 @@ public class Turno {
         Perfil nextJugador;
         if (jugador == partida.getCreador()) nextJugador = partida.getOponente();
         else nextJugador = partida.getCreador();
-        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
+        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, pistasRestantesJ1, pistasRestantesJ2, atrilJ1, atrilJ2);
     }
 
     /**
@@ -340,6 +354,18 @@ public class Turno {
             puntosPorSumar += f.getPuntuacion();
         }
         return puntosPorSumar;
+    }
+
+    public Movimiento pedirPista(Perfil jugador) {
+       if (jugador.equals(partida.getCreador())) {
+           partida.getAlgorithm().preparar(getTablero(), atrilJ1);
+           pistasRestantesJ1--;
+       } else {
+           partida.getAlgorithm().preparar(getTablero(), atrilJ2);
+           pistasRestantesJ2--;
+       }
+       List<Movimiento>  movimientosPosibles = partida.getAlgorithm().generarMovimientos();
+       return (movimientosPosibles == null || movimientosPosibles.isEmpty()) ? null : movimientosPosibles.get(0);
     }
 
     /**

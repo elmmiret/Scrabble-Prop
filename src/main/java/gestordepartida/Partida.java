@@ -271,8 +271,8 @@ public class Partida {
      * @param atrilJ1 Fichas disponibles del jugador 1
      * @param atrilJ2 Fichas disponibles del jugador 2
      */
-    public void nuevoTurno(Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
-        Turno turno = new Turno(this, jugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
+    public void nuevoTurno(Perfil jugador, int puntosJ1, int puntosJ2, int numPistasJ1, int numPistasJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+        Turno turno = new Turno(this, jugador, puntosJ1, puntosJ2, numPistasJ1, numPistasJ2, atrilJ1, atrilJ2);
         rondas.add(turno);
     }
 
