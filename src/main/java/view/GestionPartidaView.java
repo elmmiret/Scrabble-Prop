@@ -57,13 +57,13 @@ public class GestionPartidaView extends JFrame {
         panel.add(titleLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 25));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 20, 20));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(60, 20, 60, 20));
         buttonPanel.setOpaque(false);
 
         addGameButton(buttonPanel, "Crear nueva partida", COLOR_AZUL, this::crearNuevaPartida);
         addGameButton(buttonPanel, "Cargar partida", COLOR_AZUL, this::cargarPartida);
         addGameButton(buttonPanel, "Eliminar partida", COLOR_AZUL, this::eliminarPartida);
-        addGameButton(buttonPanel, "Consultar partidas", COLOR_AZUL, this::consultarPartidas);
+        addGameButton(buttonPanel, "Consultar partidas", COLOR_AZUL, this::mostrarPartidas);
         addGameButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
 
         panel.add(buttonPanel, BorderLayout.CENTER);
@@ -124,7 +124,6 @@ public class GestionPartidaView extends JFrame {
         button.setForeground(Color.WHITE);
         button.setFont(BUTTON_FONT);
         button.setContentAreaFilled(false);
-        button.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.addActionListener(action);
         button.setFocusPainted(false);
@@ -141,22 +140,49 @@ public class GestionPartidaView extends JFrame {
         if (jugador == null) return;
 
         try {
-            String idStr = JOptionPane.showInputDialog(this, "ID de partida:");
-            if (idStr == null) return;
-            int id = Integer.parseInt(idStr);
+            // Create input components
+            JTextField idField = new JTextField();
+            JTextField nombreField = new JTextField();
+            JComboBox<String> idiomaCombo = new JComboBox<>(new String[]{"CAT", "CAST", "ENG"});
+            JComboBox<String> modoCombo = new JComboBox<>(new String[]{"PvP", "PvIA"});
 
+            // Create panel layout
+            JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
+            panel.add(new JLabel("ID de partida:"));
+            panel.add(idField);
+            panel.add(new JLabel("Nombre de partida:"));
+            panel.add(nombreField);
+            panel.add(new JLabel("Idioma:"));
+            panel.add(idiomaCombo);
+            panel.add(new JLabel("Modo de juego:"));
+            panel.add(modoCombo);
+
+            int result = JOptionPane.showConfirmDialog(
+                    this,
+                    panel,
+                    "Nueva Configuración de Partida",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+
+            if (result != JOptionPane.OK_OPTION) return;
+
+            // Validate inputs
+            String idStr = idField.getText().trim();
+            String nombre = nombreField.getText().trim();
+            String idioma = (String) idiomaCombo.getSelectedItem();
+            String modo = (String) modoCombo.getSelectedItem();
+
+            if (idStr.isEmpty() || nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "ID y Nombre son campos obligatorios");
+                return;
+            }
+
+            int id = Integer.parseInt(idStr);
             if (gestorDePartida.getPartidas().containsKey(id)) {
                 JOptionPane.showMessageDialog(this, "¡Ya existe una partida con este ID!");
                 return;
             }
-
-            String nombre = JOptionPane.showInputDialog(this, "Nombre de la partida:");
-            if (nombre == null) return;
-
-            String[] idiomaOptions = {"CAT", "CAST", "ENG"};
-            String idioma = (String) JOptionPane.showInputDialog(this,
-                    "Selecciona idioma:", "Idioma",
-                    JOptionPane.QUESTION_MESSAGE, null, idiomaOptions, idiomaOptions[0]);
 
             Partida.Idioma idiomaPartida = switch (idioma) {
                 case "CAT" -> Partida.Idioma.CAT;
@@ -165,11 +191,7 @@ public class GestionPartidaView extends JFrame {
                 default -> throw new IllegalArgumentException("Idioma inválido");
             };
 
-            String[] modoOptions = {"PvP", "PvIA"};
-            String modo = (String) JOptionPane.showInputDialog(this,
-                    "Selecciona modo:", "Modo de juego",
-                    JOptionPane.QUESTION_MESSAGE, null, modoOptions, modoOptions[0]);
-
+            // Handle game mode selection
             if ("PvP".equals(modo)) {
                 Perfil oponente = autenticarUsuario();
                 if (oponente == null || oponente.equals(jugador)) {
@@ -180,14 +202,24 @@ public class GestionPartidaView extends JFrame {
                 JOptionPane.showMessageDialog(this, "Partida PvP creada exitosamente!");
             } else {
                 String[] dificultadOptions = {"1", "2", "3"};
-                String dificultadStr = (String) JOptionPane.showInputDialog(this,
-                        "Selecciona dificultad:", "Dificultad IA",
-                        JOptionPane.QUESTION_MESSAGE, null, dificultadOptions, dificultadOptions[0]);
+                String dificultadStr = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Selecciona dificultad:",
+                        "Dificultad IA",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        dificultadOptions,
+                        dificultadOptions[0]
+                );
+
+                if (dificultadStr == null) return;
 
                 int dificultad = Integer.parseInt(dificultadStr);
                 gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvIA, null, dificultad);
                 JOptionPane.showMessageDialog(this, "Partida PvIA creada exitosamente!");
             }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "ID debe ser un número válido");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
@@ -234,55 +266,117 @@ public class GestionPartidaView extends JFrame {
         }
     }
 
-    private void consultarPartidas(ActionEvent e) {
+    private void mostrarPartidas(ActionEvent e) {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
 
-        StringBuilder sb = new StringBuilder();
         List<Partida> partidas = gestorDePartida.obtenerPartidasJugador(jugador);
 
+        JDialog dialog = new JDialog(this, "Tus Partidas", true);
+        dialog.setSize(400, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        content.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(2, 0, 2, 0);
+
+        // Title
+        JLabel title = new JLabel("TUS PARTIDAS ACTIVAS");
+        title.setFont(BUTTON_FONT);
+        title.setForeground(Color.BLACK);
+        content.add(title, gbc);
+
         if (partidas.isEmpty()) {
-            sb.append("No tienes partidas activas.");
+            JLabel emptyLabel = new JLabel("No tienes partidas activas");
+            emptyLabel.setFont(BUTTON_FONT);
+            content.add(emptyLabel, gbc);
         } else {
-            sb.append("Tus partidas activas:\n\n");
             for (Partida p : partidas) {
-                sb.append(String.format("ID: %d\nNombre: %s\nModo: %s\n",
-                        p.getId(), p.getNombre(), p.getModoPartida()));
-                if (p.getModoPartida() == Partida.Modo.PvP) {
-                    sb.append("Oponente: ").append(p.getOponente().getUsername()).append("\n");
-                } else {
-                    sb.append("Dificultad IA: ").append(p.getDificultad()).append("\n");
-                }
-                sb.append("---------------------\n");
+                JPanel entryPanel = new JPanel(new BorderLayout(10, 0));
+                entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                entryPanel.setBackground(new Color(240, 240, 240));
+
+                // Left side (ID and Name)
+                JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+                leftPanel.setBackground(new Color(240, 240, 240));
+
+                JLabel idLabel = new JLabel("ID: " + p.getId());
+                idLabel.setFont(BUTTON_FONT);
+                idLabel.setForeground(COLOR_AZUL);
+
+                JLabel nameLabel = new JLabel(p.getNombre());
+                nameLabel.setFont(BUTTON_FONT);
+                nameLabel.setForeground(Color.BLACK);
+
+                leftPanel.add(idLabel);
+                leftPanel.add(nameLabel);
+
+                // Right side (Details)
+                JPanel rightPanel = new JPanel(new GridLayout(2, 1));
+                rightPanel.setBackground(new Color(240, 240, 240));
+
+                JLabel modeLabel = new JLabel("Modo: " + p.getModoPartida());
+                modeLabel.setFont(BUTTON_FONT);
+                modeLabel.setForeground(Color.BLACK);
+
+                JLabel detailLabel = new JLabel(
+                        p.getModoPartida() == Partida.Modo.PvP ?
+                                "Oponente: " + p.getOponente().getUsername() :
+                                "Dificultad IA: " + p.getDificultad()
+                );
+                detailLabel.setFont(BUTTON_FONT);
+                detailLabel.setForeground(Color.BLACK);
+
+                rightPanel.add(modeLabel);
+                rightPanel.add(detailLabel);
+
+                entryPanel.add(leftPanel, BorderLayout.WEST);
+                entryPanel.add(rightPanel, BorderLayout.EAST);
+
+                content.add(entryPanel, gbc);
+                content.add(new JSeparator(), gbc);
             }
         }
 
-        JTextArea textArea = new JTextArea(sb.toString());
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(300, 400));
-        JOptionPane.showMessageDialog(this, scrollPane, "Tus Partidas", JOptionPane.INFORMATION_MESSAGE);
+        // Add scroll and padding
+        gbc.weighty = 1;
+        content.add(Box.createGlue(), gbc);
+
+        JScrollPane scrollPane = new JScrollPane(content);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        dialog.add(scrollPane);
+        dialog.setVisible(true);
     }
 
     private Perfil autenticarUsuario() {
-        String username = JOptionPane.showInputDialog(this, "Username:");
-        if (username == null || username.isEmpty()) return null;
-
-        if (!gestorDePerfil.existeJugador(username)) {
-            JOptionPane.showMessageDialog(this, "Usuario no encontrado.");
-            return null;
-        }
-
+        JTextField usernameField = new JTextField();
         JPasswordField passwordField = new JPasswordField();
-        int option = JOptionPane.showConfirmDialog(this, passwordField, "Password:", JOptionPane.OK_CANCEL_OPTION);
-        if (option != JOptionPane.OK_OPTION) return null;
 
-        String password = new String(passwordField.getPassword());
-        if (!gestorDePerfil.esPasswordCorrecta(username, password)) {
-            JOptionPane.showMessageDialog(this, "Password incorrecta.");
-            return null;
+        Object[] message = {
+                "Username:", usernameField,
+                "Password:", passwordField,
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Log in Jugador", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION) {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            if (gestorDePerfil.existeJugador(username)) {
+                if (gestorDePerfil.esPasswordCorrecta(username, password)) {
+                    return gestorDePerfil.getPerfil(username);
+                } else JOptionPane.showMessageDialog(this, "Password incorrecta");
+            } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
         }
-
-        return gestorDePerfil.getPerfil(username);
+        return null;
     }
 }
