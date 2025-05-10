@@ -3,15 +3,16 @@ package view;
 import gestordeperfil.GestorDePerfil;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Rectangle2D;
 
 public class ProfileView extends JFrame {
     private static final int WIDTH = 400;
     private static final int HEIGHT = 700;
     private final Color COLOR_FONDO = new Color(36, 36, 36);
-    private final Color COLOR_AZUL = new Color(15, 100, 150);
-    private final Color COLOR_ROJO = new Color(150, 30, 20);
+    private final Color COLOR_AZUL = new Color(40, 100, 240);
+    private final Color COLOR_ROJO = new Color(220, 50, 40);
+    private final Color COLOR_NARANJA = new Color(240, 73, 48);
     private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
     private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
 
@@ -23,7 +24,6 @@ public class ProfileView extends JFrame {
         this.gestorDeView = gestorDeView;
         this.gestorDePerfil = gestorDePerfil;
         init();
-        setTheme();
     }
 
     private void init() {
@@ -31,21 +31,28 @@ public class ProfileView extends JFrame {
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null);
         setResizable(false);
-        getContentPane().setBackground(COLOR_FONDO);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 40, 50));
-        mainPanel.setBackground(COLOR_FONDO);
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
-        JLabel titleLabel = new JLabel("Gestión de Perfil");
+        // Añadir tablero con animacion
+        TableroMoviendo tableroMoviendo = new TableroMoviendo();
+        tableroMoviendo.setBounds(0, 0, WIDTH, HEIGHT);
+        layeredPane.add(tableroMoviendo, JLayeredPane.DEFAULT_LAYER);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 50, 40, 50));
+
+        JLabel titleLabel = new JLabel("GESTIÓN DE PERFIL");
         titleLabel.setFont(TITLE_FONT);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setForeground(Color.WHITE);
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
+        titleLabel.setForeground(COLOR_NARANJA);
+        panel.add(titleLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 25));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 20, 20));
-        buttonPanel.setBackground(COLOR_FONDO);
+        buttonPanel.setOpaque(false);
 
         addPerfilButton(buttonPanel, "Crear nuevo perfil", COLOR_AZUL, this::nuevoPerfil);
         addPerfilButton(buttonPanel, "Eliminar perfil", COLOR_AZUL, this::eliminarPerfil);
@@ -54,40 +61,45 @@ public class ProfileView extends JFrame {
         addPerfilButton(buttonPanel, "Cambiar username", COLOR_AZUL, this::cambiarUsername);
         addPerfilButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
 
-        mainPanel.add(buttonPanel, BorderLayout.CENTER);
-        add(mainPanel);
+        panel.add(buttonPanel, BorderLayout.CENTER);
+        panel.setBounds(0, 0, WIDTH, HEIGHT);
+        layeredPane.add(panel, JLayeredPane.PALETTE_LAYER);
+
+        add(layeredPane);
+        tableroMoviendo.iniciarMovimiento();
     }
 
     private void addPerfilButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
             private final int radioEsquina = 35;
-            private final BasicStroke grosorBorde = new BasicStroke(2f);
-            private final Color colorBorde = color.brighter().brighter();
+            private final BasicStroke grosorBorde = new BasicStroke(3f); // Thicker border
+            private final Color colorBordeNormal = color.brighter();
+            private final Color colorBordeHover = color.darker().darker();
 
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
+                // Background
                 Color finalColor = isHovering ? color.darker() : color;
                 g2d.setColor(finalColor);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), radioEsquina, radioEsquina);
 
-                if (isHovering) {
-                    g2d.setStroke(grosorBorde);
-                    g2d.setColor(colorBorde);
-                    g2d.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radioEsquina, radioEsquina);
-                }
+                // Border
+                g2d.setStroke(grosorBorde);
+                g2d.setColor(isHovering ? colorBordeHover : colorBordeNormal);
+                g2d.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radioEsquina, radioEsquina);
 
-                g2d.setColor(getForeground());
+                // Text
+                g2d.setColor(Color.WHITE);
                 FontMetrics fm = g2d.getFontMetrics();
-                Rectangle2D r = fm.getStringBounds(this.getText(), g2d);
-                int x = (this.getWidth() - (int) r.getWidth()) / 2;
-                int y = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();
-                g2d.drawString(this.getText(), x, y);
-
+                Rectangle2D r = fm.getStringBounds(getText(), g2d);
+                g2d.drawString(getText(),
+                        (int)((getWidth() - r.getWidth()) / 2),
+                        (int)((getHeight() - r.getHeight()) / 2 + fm.getAscent())
+                );
                 g2d.dispose();
             }
 
@@ -97,7 +109,6 @@ public class ProfileView extends JFrame {
                         isHovering = true;
                         repaint();
                     }
-
                     public void mouseExited(java.awt.event.MouseEvent evt) {
                         isHovering = false;
                         repaint();
@@ -113,21 +124,7 @@ public class ProfileView extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.addActionListener(action);
         button.setFocusPainted(false);
-        button.setFocusable(false);
-
         panel.add(button);
-    }
-
-    private void setTheme() {
-        try {
-            UIManager.put("OptionPane.background", COLOR_FONDO);
-            UIManager.put("Panel.background", COLOR_FONDO);
-            UIManager.put("TextField.background", Color.WHITE);
-            UIManager.put("TextField.font", new Font("Segoe UI", Font.PLAIN, 14));
-            UIManager.put("Button.background", COLOR_AZUL);
-            UIManager.put("Button.foreground", Color.WHITE);
-            UIManager.put("Label.foreground", Color.WHITE);
-        } catch (Exception ignored) {}
     }
 
     private void nuevoPerfil(ActionEvent e)

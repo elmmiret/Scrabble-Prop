@@ -59,7 +59,7 @@ public class Main {
             new Runnable() {
               @Override
               public void run() {
-                GestorDeView gestorDeView = new GestorDeView(gestorDePerfil, ranking);
+                GestorDeView gestorDeView = new GestorDeView(gestorDePerfil, ranking, gestorDePartida);
               }
             }
     );

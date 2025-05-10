@@ -9,18 +9,18 @@ import java.io.File;
 public class MainView extends JFrame {
     private static final int WIDTH = 400;
     private static final int HEIGHT = 700;
-    private final Color COLOR_FONDO = new Color(36, 36, 36);
-    private final Color COLOR_AZUL = new Color(15, 100, 150);
-    private final Color COLOR_ROJO = new Color(150, 30, 20);
-    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 20);
+    private final Color COLOR_FONDO = new Color(238, 238, 238);
+    private final Color COLOR_AZUL = new Color(40, 100, 240);
+    private final Color COLOR_ROJO = new Color(220, 50, 40);
+    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 24);
 
     GestorDeView gestorDeView;
 
     public MainView(GestorDeView gestorDeView) {
         super("Scrabble");
         this.gestorDeView = gestorDeView;
-        init();
         setTema();
+        init();
     }
 
     private void init() {
@@ -28,43 +28,56 @@ public class MainView extends JFrame {
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null);
         setResizable(false);
-        getContentPane().setBackground(COLOR_FONDO);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
+        // Añadir tablero con animacion
+        TableroMoviendo tableroMoviendo = new TableroMoviendo();
+        tableroMoviendo.setBounds(0, 0, WIDTH, HEIGHT);
+        layeredPane.add(tableroMoviendo, JLayeredPane.DEFAULT_LAYER);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 50, 40, 50));
 
         try {
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setBorder(BorderFactory.createEmptyBorder(20, 50, 40, 50));
-            panel.setBackground(COLOR_FONDO);
-
-            // Logo scrabble
-            Image image = ImageIO.read(new File("src/main/java/view/Scrabble-Logo-2000.png"));
-            Image scaledImage = image.getScaledInstance(WIDTH-40, (HEIGHT/4)-20, Image.SCALE_SMOOTH);
+            Image image = ImageIO.read(new File("src/main/java/view/Scrabble-Logo-2022.png"));
+            int availableWidth = WIDTH - 100;
+            Image scaledImage = image.getScaledInstance(availableWidth, -1, Image.SCALE_SMOOTH);
             JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
             imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            imageLabel.setOpaque(false);  // Make transparent
             panel.add(imageLabel, BorderLayout.NORTH);
 
-            // Panel de botones
             JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 25));
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 20, 20));
-            buttonPanel.setBackground(COLOR_FONDO);
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
+            buttonPanel.setOpaque(false);  // Make transparent
 
             addMainButton(buttonPanel, "Gestión de perfil", COLOR_AZUL, () -> gestorDeView.mostrarGestionPerfil());
+            addMainButton(buttonPanel, "Gestión de partida", COLOR_AZUL, () -> gestorDeView.mostrarGestionPartida());
             addMainButton(buttonPanel, "Ver ranking", COLOR_AZUL, () -> gestorDeView.mostrarRanking());
             addMainButton(buttonPanel, "Salir", COLOR_ROJO, this::salir);
 
             panel.add(buttonPanel, BorderLayout.CENTER);
-            add(panel);
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error cargando la imagen: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
+        panel.setBounds(0, 0, WIDTH, HEIGHT);
+        layeredPane.add(panel, JLayeredPane.PALETTE_LAYER);
+
+        add(layeredPane);
+        tableroMoviendo.iniciarMovimiento();
     }
 
     private void addMainButton(JPanel panel, String text, Color color, Runnable action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
-            private final int radioEsquina = 35; // Increased from 25 to 35 for more rounding
-            private final BasicStroke grosorBorde = new BasicStroke(2f);
-            private final Color colorBorde = color.brighter().brighter();
+            private final int radioEsquina = 35;
+            private final BasicStroke grosorBorde = new BasicStroke(3f);
+            private final Color colorBordeNormal = color.brighter();
+            private final Color colorBordeHover = color.darker().darker();
 
             @Override
             protected void paintComponent(Graphics g) {
@@ -72,19 +85,14 @@ public class MainView extends JFrame {
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-                // Fondo
                 Color finalColor = isHovering ? color.darker() : color;
                 g2d.setColor(finalColor);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), radioEsquina, radioEsquina);
 
-                // Resaltar borde cuando hovereando
-                if (isHovering) {
-                    g2d.setStroke(grosorBorde);
-                    g2d.setColor(colorBorde);
-                    g2d.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radioEsquina, radioEsquina);
-                }
+                g2d.setStroke(grosorBorde);
+                g2d.setColor(isHovering ? colorBordeHover : colorBordeNormal);
+                g2d.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radioEsquina, radioEsquina);
 
-                // Mostrar texto
                 g2d.setColor(getForeground());
                 FontMetrics fm = g2d.getFontMetrics();
                 Rectangle2D r = fm.getStringBounds(this.getText(), g2d);
@@ -111,9 +119,9 @@ public class MainView extends JFrame {
         };
 
         button.setForeground(Color.WHITE);
-        button.setFont(BUTTON_FONT.deriveFont(22f)); // Slightly larger font
+        button.setFont(BUTTON_FONT);
         button.setContentAreaFilled(false);
-        button.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0)); // More vertical padding
+        button.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.addActionListener(e -> action.run());
         button.setFocusPainted(false);
@@ -124,12 +132,14 @@ public class MainView extends JFrame {
 
     private void setTema() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            UIManager.put("OptionPane.background", COLOR_FONDO);
-            UIManager.put("Panel.background", COLOR_FONDO);
-            UIManager.put("Button.background", COLOR_AZUL);
-            UIManager.put("Button.foreground", Color.WHITE);
-        } catch (Exception ignored) {}
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+
+            UIManager.put("nimbusBase", COLOR_AZUL); // Base color for components
+            UIManager.put("control", COLOR_FONDO); // General background
+            UIManager.put("text", Color.BLACK); // Text color
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void salir() {
