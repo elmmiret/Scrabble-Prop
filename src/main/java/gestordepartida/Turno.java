@@ -383,38 +383,35 @@ public class Turno {
                 }
             }
 
+            //mirar si tiene las fichas en el atril
+            // se crea un atril auxiliar para que no quite palabras en caso de que no las tenga todas
+            Map<Ficha, Integer> atrilCheck;
+            if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
+            else atrilCheck = new HashMap<>(atrilJ2);
+
+            // hacer un contador de comodines
+            int comodines = 0;
+            for (Ficha ficha : atrilCheck.keySet()) {
+                if (ficha.getLetra().equals("#")) {
+                    ++comodines;
+                }
+            }
+            System.out.println("HOLA1");
+
             if ("vertical".equals(orientacion)) {
                 System.out.println("Entro a Vertical");
 
-                //mirar si tiene las fichas en el atril
-                // se crea un atril auxiliar para que no quite palabras en caso de que no las tenga todas
-                Map<Ficha, Integer> atrilCheck;
-                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
-                else atrilCheck = new HashMap<>(atrilJ2);
-
-                // hacer un contador de comodines
-                int comodines = 0;
-                for (Ficha ficha : atrilCheck.keySet()) {
-                    if (ficha.getLetra().equals("#")) {
-                        ++comodines;
-                    }
-                }
-                System.out.println("HOLA1");
-
-                // IMPLEMENTACION QUE FALTABA
                 List<String> division = partida.getDawg().dividirPalabra(palabra);
                 int size = division.size();
                 int pos_division = 0;
                 for(int fil = x_ini; fil < x_ini + size; fil++) {
-                    // Hay alguna ficha ya
-                    if(partida.getTablero().getFicha(fil,y_ini) != null ) {
+                    if (partida.getTablero().getFicha(fil,y_ini) == null ) { // Hay alguna ficha ya
                         if (!partida.getTablero().getFicha(fil,y_ini).getLetra().equals(division.get(pos_division))) { // si no es la que quiero poner, return false pq no funciona
                             // hace falta esto? creo que ya se hace en comprobar palabra
                             return false;
                         }
                     }
-                    // No hay ninguna ficha: miro si la tengo en el atril, si esta, paso a la siguiente, si no, uso un comodin
-                    else {
+                    else { // No hay ninguna ficha: miro si la tengo en el atril, si esta, paso a la siguiente, si no, uso un comodin
                         Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(pos_division));
                         // si esto es null, es que no tienes esa ficha en el atril, por lo tanto, si hay un comodin libre, lo usas, si no, no la puedes formar
                         if (fichaCheck == null) {
@@ -429,7 +426,6 @@ public class Turno {
                     }
                     ++pos_division;
                 }
-                // fin de la nueva implementacion
                 System.out.println("Tengo las fichas en el atril");
 
 
@@ -501,19 +497,6 @@ public class Turno {
             }
             else { // horizontal
                 System.out.println("Entro a horizontal");
-
-                //mirar si tiene las fichas en el atril
-                Map<Ficha, Integer> atrilCheck;
-                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
-                else atrilCheck = new HashMap<>(atrilJ2);
-
-                // hacer un contador de comodines
-                int comodines = 0;
-                for (Ficha ficha : atrilCheck.keySet()) {
-                    if (ficha.getLetra().equals("#")) {
-                        ++comodines;
-                    }
-                }
                 System.out.println("HOLA3");
 
                 // IMPLEMENTACION QUE FALTABA
