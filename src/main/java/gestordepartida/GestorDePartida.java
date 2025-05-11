@@ -1,10 +1,8 @@
 package gestordepartida;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import gestordeperfil.*;
 import exceptions.CasillaOcupadaException;
@@ -50,40 +48,183 @@ public class GestorDePartida {
     public void cargarPartidas() {
         try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordepartida/partidasbd.txt"))) {
             String linea;
+            Partida partidaActual = null;
+            Turno turnoActual = null;
+            boolean enSeccionTablero = false;
+            boolean enSeccionBolsa = false;
+            boolean enSeccionTurnos = false;
+
+            Integer id = null;
+            String nombre = null;
+            Partida.Idioma idioma = null;
+            Partida.Modo modoPartida = null;
+            Perfil creador = null;
+            Perfil oponente = null;
+            Integer dificultad = null;
+
             while ((linea = reader.readLine()) != null) {
-                String[] parts = linea.split("\\|");
-                if (parts.length < 8) {
-                    System.err.println("Línea inválida: " + linea);
+                if (linea.startsWith("ID|")) {
+                    id = Integer.parseInt(linea.split("\\|")[1]);
+                } else if (linea.startsWith("NOMBRE|")) {
+                    nombre = linea.split("\\|")[1];
+                } else if (linea.startsWith("IDIOMA|")) {
+                    idioma = Partida.Idioma.valueOf(linea.split("\\|")[1]);
+                } else if (linea.startsWith("MODO|")) {
+                    modoPartida = Partida.Modo.valueOf(linea.split("\\|")[1]);
+                } else if (linea.startsWith("CREADOR|")) {
+                    String username = linea.split("\\|")[1];
+                    creador = gestorDePerfil.getPerfil(username);
+                } else if (linea.startsWith("OPONENTE|")) {
+                    String username = linea.split("\\|")[1];
+                    if (username != null) {
+                        oponente = gestorDePerfil.getPerfil(username);
+                    }
+                } else if (linea.startsWith("DIFICULTAD|")) {
+                    dificultad = Integer.parseInt(linea.split("\\|")[1]);
+                    if (modoPartida == Partida.Modo.PvP) {
+                        partidaActual = new Partida(creador, oponente, id, nombre, modoPartida, idioma);
+                    } else {
+                        partidaActual = new Partida(creador, id, nombre, modoPartida, idioma, dificultad);
+                    }
+                } else if (linea.startsWith("=== TABLERO ===")) {
+                    enSeccionTablero = true;
+                    enSeccionBolsa = false;
+                    enSeccionTurnos = false;
+                } else if (linea.startsWith("=== BOLSA ===")) {
+                    enSeccionTablero = false;
+                    enSeccionBolsa = true;
+                    enSeccionTurnos = false;
+                } else if (linea.startsWith("=== TURNOS ===")) {
+                    enSeccionTablero = false;
+                    enSeccionBolsa = false;
+                    enSeccionTurnos = true;
+                    partidaActual.getRondas().clear();
+                } else if (linea.startsWith("=== FIN ===")) {
+                    // almacenamos la partida en el map de partidas
+                    partidas.put(partidaActual.getId(), partidaActual);
+                    partidaActual = null;
+                } else if (enSeccionTablero && linea.startsWith("CELDA|")) {
+                    String[] datos = linea.split("\\|");
+                    int x = Integer.parseInt(datos[1]);
+                    int y = Integer.parseInt(datos[2]);
+                    Ficha ficha = partidaActual.getMapaLetras().get(datos[3]);
+                    partidaActual.getTablero().setFicha(ficha, x, y);
+                } else if (enSeccionBolsa) {
+                    String[] letras = linea.split(",");
+                    Queue<Ficha> bolsa = new LinkedList<>();
+                    for (String letra : letras) {
+                        if (!letra.isEmpty()) {
+                            Ficha f = partidaActual.getMapaLetras().get(letra);
+                            bolsa.add(f);
+                        }
+                    }
+                    partidaActual.setBolsa(bolsa);
+                } else if (enSeccionTurnos) {
+                    if (linea.startsWith("TURNO|")) {
+                        String[] datos = linea.split("\\|");
+                        Perfil jugador = gestorDePerfil.getPerfil(datos[1]);
+                        Turno.TipoJugada tipo = Turno.TipoJugada.valueOf(datos[2]);
+                        turnoActual = new Turno(partidaActual, jugador, 0, 0);
+                        turnoActual.setTipoJugada(tipo);
+                        partidaActual.getRondas().add(turnoActual);
+
+                    } else if (linea.startsWith("COLOCAR|")) {
+                        String[] datos = linea.split("\\|");
+                        turnoActual.setPalabra(datos[1]);
+                        turnoActual.setX(Integer.parseInt(datos[2]));
+                        turnoActual.setY(Integer.parseInt(datos[3]));
+                        turnoActual.setHorizontal(datos[4].equals("horizontal") ? true : false);
+
+                    } else if (linea.startsWith("PUNTOS|")) {
+                        String[] puntos = linea.split("\\|");
+                        turnoActual.setPuntosJ1(Integer.parseInt(puntos[1]));
+                        turnoActual.setPuntosJ2(Integer.parseInt(puntos[2]));
+
+                    } else if (linea.startsWith("ATRIL_J1|")) {
+                        String data = linea.split("\\|")[1];
+                        turnoActual.setAtrilJ1(cargarAtril(data, partidaActual.getMapaLetras()));
+
+                    } else if (linea.startsWith("ATRIL_J2|")) {
+                        String data = linea.split("\\|")[1];
+                        turnoActual.setAtrilJ2(cargarAtril(data, partidaActual.getMapaLetras()));
+                    }
                 }
-                int id = Integer.parseInt(parts[0]);
-                String nombre = parts[1];
-                Partida.Idioma idioma = Partida.Idioma.valueOf(parts[2]);
-                Partida.Modo modo = Partida.Modo.valueOf(parts[3]);
-                Perfil creador = gestorDePerfil.getPerfil(parts[4]);
-                Perfil oponente = modo.equals(Partida.Modo.PvIA) ? null : gestorDePerfil.getPerfil(parts[5]);
-                int dificultad = modo.equals(Partida.Modo.PvIA) ? Integer.parseInt(parts[6]) : null;
-
-                Partida partida = modo.equals(Partida.Modo.PvP) ? new Partida(creador, oponente, id, nombre, modo, idioma) : new Partida(creador, id, nombre, modo, idioma, dificultad);
-                partidas.put(id, partida);
-
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("Archivo de partidas no encontrado. Iniciando con lista vacía.");
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException | NumberFormatException | CoordenadaFueraDeRangoException | CasillaOcupadaException e) {
             System.err.println("Error al cargar partidas: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    private Map<Ficha, Integer> cargarAtril(String data, Map<String, Ficha> mapaLetras) {
+        Map<Ficha, Integer> atril = new HashMap<>();
+        if (data.isEmpty()) return atril;
+
+        for (String entry : data.split(",")) {
+            String[] partes = entry.split(":");
+            String letra = partes[0];
+            int cantidad = Integer.parseInt(partes[1]);
+            Ficha ficha = mapaLetras.get(letra);
+            if (ficha != null) {
+                atril.put(ficha, cantidad);
+            }
+        }
+        return atril;
     }
 
 
     public void guardarPartidas() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordepartida/partidasbd.txt"))) {
             for (Partida partida : partidas.values()) {
-                String linea = String.join("|", String.valueOf(partida.getId()), partida.getNombre(), String.valueOf(partida.getIdioma()), String.valueOf(partida.getModoPartida()), partida.getCreador().getUsername(), partida.getOponente() != null ? partida.getOponente().getUsername() : "null", String.valueOf(partida.getDificultad()));
-                writer.println(linea);
+                // guardamos los datos básicos de la partida
+                writer.println("=== PARTIDA ===");
+                writer.println("ID|" + partida.getId());
+                writer.println("NOMBRE|" + partida.getNombre());
+                writer.println("IDIOMA|" + partida.getIdioma());
+                writer.println("MODO|" + partida.getModoPartida());
+                writer.println("CREADOR|" + partida.getCreador().getUsername());
+                writer.println("OPONENTE|" + (partida.getOponente() != null ? partida.getOponente().getUsername() : "null"));
+                writer.println("DIFICULTAD|" + partida.getDificultad());
+
+                // después guardamos la disposición del tablero
+                writer.println("=== TABLERO ===");
+                for (int i = 0; i < Tablero.FILAS; i++) {
+                    for (int j = 0; j < Tablero.COLUMNAS; j++) {
+                        Ficha f = partida.getTablero().getFicha(i, j);
+                        if (f != null) {
+                            writer.println("CELDA|" + i + "|" + j + "|" + f.getLetra());
+                        }
+                    }
+                }
+
+                // guardamos las fichas que había en la bolsa
+                writer.println("=== BOLSA ===");
+                partida.getBolsa().forEach(f -> writer.print(f.getLetra() + ","));
+                writer.println();
+
+                // y finalmente guardamos todos los turnos de esa partida
+                writer.println("=== TURNOS ===");
+                for (Turno turno : partida.getRondas()) {
+                    if (turno.getTipoJugada() == null) turno.setTipoJugada(Turno.TipoJugada.pasar); // con esto evitamos errores y en el turnoActual podemos seguir con el jugador qeu deberia
+                    writer.println("TURNO|" + turno.getJugador().getUsername() + "|" + turno.getTipoJugada());
+                    if (turno.getTipoJugada() == Turno.TipoJugada.colocar) {
+                        writer.println("COLOCAR|" + turno.getPalabra() + "|" + turno.getX() + "|" + turno.getY() + "|" + (turno.getHorizontal() ? "horizontal" : "vertical"));
+                    } else if (turno.getTipoJugada() == Turno.TipoJugada.cambiar) {
+                        writer.println("CAMBIAR|" + guardarAtril(turno.getFichasCambiadas()));
+                    }
+                    writer.println("PUNTOS|" + turno.getPuntuacionJ1() + "|" + turno.getPuntuacionJ2());
+                    writer.println("ATRIL_J1|" + guardarAtril(turno.getAtrilJ1()));
+                    writer.println("ATRIL_J2|" + guardarAtril(turno.getAtrilJ2()));
+                }
+                writer.println("=== FIN ===");
             }
-        } catch (IOException e) {
-            System.err.println("Error al guardar partidas: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al guardar: " + e.getMessage());
         }
+    }
+
+    private String guardarAtril(Map<Ficha, Integer> atril) {
+        return atril.entrySet().stream().map(e -> e.getKey().getLetra() + ":" + e.getValue()).collect(Collectors.joining(","));
     }
 
     /**

@@ -301,6 +301,23 @@ public class Tablero {
         this.tablero = nuevo;
     }
 
+    public Tablero clonar() {
+        Tablero copia = new Tablero(this.idiomaPartida);
+        try {
+            for (int i = 0; i < FILAS; i++) {
+                for (int j = 0; j < COLUMNAS; j++) {
+                    Ficha f = this.getFicha(i, j);
+                    if (f != null) {
+                        copia.setFicha(f, i, j); // Copia las fichas
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return copia;
+    }
+
     /**
      * Muestra una representación visual del tablero en la consola.
      * Incluye colores ANSI para los modificadores y una leyenda según el idioma.

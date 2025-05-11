@@ -1,5 +1,6 @@
 package gestordepartida;
 
+import java.awt.datatransfer.SystemFlavorMap;
 import java.util.*;
 
 import exceptions.CasillaOcupadaException;
@@ -59,13 +60,14 @@ public class DriverPartida {
             Scanner scanner = new Scanner(System.in);
             boolean salir = false;
             while (!salir) {
-                int opcion = leerEntero("Selección:\n1- Crear una nueva partida\n2- Cargar partida existente\n3- Eliminar partida\n4- Consultar partidas\n5- Atrás\n\n");
+                int opcion = leerEntero("Selección:\n1- Crear una nueva partida\n2- Cargar partida existente\n3- Ver repitición de partida\n4- Eliminar partida\n5- Consultar partidas\n6- Atrás\n\n");
                 switch (opcion) {
                     case 1 -> crearNuevaPartida();
                     case 2 -> cargarPartidaExistente();
-                    case 3 -> eliminarPartida();
-                    case 4 -> consultarPartidas();
-                    case 5 -> salir = true;
+                    case 3 -> verRepeticionPartida();
+                    case 4 -> eliminarPartida();
+                    case 5 -> consultarPartidas();
+                    case 6 -> salir = true;
                     default -> System.out.println("Opción inválida");
                 }
             }
@@ -214,6 +216,87 @@ public class DriverPartida {
 
     }
 
+    private void verRepeticionPartida()throws CoordenadaFueraDeRangoException {
+        Perfil jugador = autenticarUsuario();
+        if (jugador == null) return;
+
+        System.out.println("De qué partida deseas ver la repetición?");
+        consultarPartidas(jugador);
+
+        int id = leerEntero("ID de la partida: ");
+        Partida partida = gestor.obtenerPartida(id);
+
+        if (partida == null || !gestor.existePartidaJugador(jugador, id)) {
+            System.out.println("Partida no encontrada");
+            return;
+        }
+
+        System.out.println("\n=== REPETICIÓN PARTIDA " + id + " ===");
+        boolean salir = false;
+        String usernameCreador = partida.getCreador().getUsername();
+        String usernameOponente;
+        if (partida.getModoPartida().equals(Partida.Modo.PvP)) {
+            usernameOponente = partida.getOponente().getUsername();
+        } else {
+            usernameOponente = "IA";
+        }
+        int i = 0; // indice del turno que queremos repetir
+        int maxTurnos = partida.getRondas().size() - 2;
+        Turno turnoRepe = partida.getRondas().get(i);
+        while (!salir) {
+            boolean accionValida = false;
+            System.out.println("TURNO " + (i+1));
+            gestor.obtenerRepresentacionTablero(turnoRepe.getTableroTurno());
+            System.out.println("ATRIL " + usernameCreador + ":");
+            mostrarAtril(turnoRepe.getAtrilJ1());
+            System.out.println("ATRIL " + usernameOponente + ":");
+            mostrarAtril(turnoRepe.getAtrilJ2());
+            while (!accionValida) {
+                int num = leerEntero("Qué desea hacer:\n1- Siguiente turno\n2- Turno anterior\n3- Ver turno en concreto\n4- Salir");
+                switch (num) {
+                    case 1 -> {
+                        if (i == maxTurnos) {
+                            System.out.println("Ya estás en el último turno");
+                        } else {
+                            i++;
+                            turnoRepe = partida.getRondas().get(i);
+                            accionValida = true;
+                        }
+                    }
+                    case 2 -> {
+                        if (i == 0) {
+                            System.out.println("Estás en el primer turno");
+
+                        } else {
+                            i--;
+                            turnoRepe = partida.getRondas().get(i);
+                            accionValida = true;
+                        }
+                    }
+                    case 3 -> {
+                        int numTurno = leerEntero("Introduce el número de turno que quieras ver: ");
+                        if (numTurno <= 0) {
+                            System.out.println("Introduce un  número mayor de 0");
+                        } else if (numTurno> maxTurnos) {
+                            System.out.println("Has excedido el número de turnos. Selecciona un turno de 1 a " + maxTurnos + ".");
+                        } else {
+                            i = numTurno-1;
+                            turnoRepe = partida.getRondas().get(i);
+                            accionValida = true;
+                        }
+                    }
+                    case 4 -> {
+                        salir = true;
+                        accionValida = true;
+                    }
+                }
+            }
+        }
+
+        System.out.println("Has salido correctamente de la repetición!");
+
+    }
+
     /**
      * Maneja el flujo de juego contra otro jugador humano.
      *
@@ -291,6 +374,10 @@ public class DriverPartida {
 
                         return;
                     }
+                }
+
+                for (Turno turno : partida.getRondas()) {
+                    System.out.print(turno.getTipoJugada() + "   |    ");
                 }
             }
             else {
@@ -428,6 +515,12 @@ public class DriverPartida {
                             return;
                         }
                     }
+
+                    // printeo
+
+                    for (Turno turno : partida.getRondas()) {
+                        System.out.print(turno.getTipoJugada() + "   |    ");
+                    }
                 }
                 else {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
@@ -518,6 +611,15 @@ public class DriverPartida {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
 
+        List<Partida> partidas = gestor.obtenerPartidasJugador(jugador);
+        System.out.println("\n=== TUS PARTIDAS ===");
+        partidas.forEach(p -> {
+            System.out.println("ID: " + p.getId() + "  Nombre: " + p.getNombre() + "  Modo: " + p.getModoPartida() + (p.getModoPartida().equals(Partida.Modo.PvP) ? "  Oponente: " + p.getOponente().getUsername() : "  Dificultad: " + p.getDificultad()));
+
+        });
+    }
+
+    private void consultarPartidas(Perfil jugador) {
         List<Partida> partidas = gestor.obtenerPartidasJugador(jugador);
         System.out.println("\n=== TUS PARTIDAS ===");
         partidas.forEach(p -> {

@@ -245,6 +245,11 @@ public class Partida {
         return creador;
     }
 
+
+    public Map<String, Ficha> getMapaLetras() {
+        return mapaLetras;
+    }
+
     /**
      * Obtiene el perfil del oponente (PvP).
      * @return Instancia de Perfil o null en PvIA
@@ -329,6 +334,10 @@ public class Partida {
         // mezclo las fichas para randomizar las posiciones
         Collections.shuffle(listaTemporal);
         bolsa.addAll(listaTemporal);
+    }
+
+    public void setBolsa(Queue<Ficha> bolsa) {
+        this.bolsa = bolsa;
     }
 
     /**

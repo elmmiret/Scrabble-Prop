@@ -50,6 +50,24 @@ public class Turno {
     /** Tipo de jugada realizada en el turno (cambiar, pasar, colocar, finalizar). */
     private TipoJugada tipoJugada;
 
+    /** Palabra que se ha colocado en el tablero en ese turno*/
+    private String palabra;
+
+    /** Posición x inicial de la palabra colocada */
+    private Integer x_ini;
+
+    /** Posición y inicial de la palabra colocada */
+    private Integer y_ini;
+
+    /** Orientación de la palabra colocada */
+    private Boolean horizontal;
+
+    /** Fichas cambiadas durante el turno */
+    private Map<Ficha, Integer> fichasCambiadas;
+
+    /** Estado del tablero en el turno*/
+    private Tablero tableroTurno;
+
     /**
      * Enumeración que representa los tipos de acciones disponibles en un turno.
      */
@@ -73,7 +91,8 @@ public class Turno {
         this.puntosJ2 = puntosJ2;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
-        this.tipoJugada = tipoJugada;
+        this.tipoJugada = TipoJugada.pasar;
+        this.tableroTurno = partida.getTablero().clonar();
     }
 
     /**
@@ -93,6 +112,7 @@ public class Turno {
         this.puntosJ2 = puntosJ2;
         this.atrilJ1 = atrilJ1;
         this.atrilJ2 = atrilJ2;
+        this.tableroTurno = partida.getTablero().clonar();
     }
 
     /**
@@ -182,13 +202,65 @@ public class Turno {
         return total;
     }
 
+    public String getPalabra() {
+        return palabra;
+    }
+
+    public Integer getX() {
+        return x_ini;
+    }
+
+    public Integer getY() {
+        return y_ini;
+    }
+
+    public Boolean getHorizontal() {
+        return horizontal;
+    }
+
+    public Map<Ficha, Integer> getFichasCambiadas() {
+        return fichasCambiadas;
+    }
+
+    public void setPalabra(String palabra) {
+        this.palabra = palabra;
+    }
+
+    public void setX(int x_ini) {
+        this.x_ini = x_ini;
+    }
+
+    public void setY (int y_ini) {
+        this.y_ini = y_ini;
+    }
+
+    public void setHorizontal (boolean horizontal) {
+        this.horizontal = horizontal;
+    }
+
+    public void setPuntosJ1(int puntos) {
+        this.puntosJ1 = puntos;
+    }
+
+    public void setPuntosJ2(int puntos) {
+        this.puntosJ2 = puntos;
+    }
+
+    // Setters para atriles (si es necesario)
+    public void setAtrilJ1(Map<Ficha, Integer> atril) {
+        this.atrilJ1 = atril;
+    }
+
+    public void setAtrilJ2(Map<Ficha, Integer> atril) {
+        this.atrilJ2 = atril;
+    }
     /**
      * Establece el tipo de jugada realizada en el turno.
      *
      * @param tipojugada El tipo de jugada a establecer.
      */
-    public void setTipoJugada(TipoJugada tipojugada) {
-        this.tipoJugada = tipoJugada;
+    public void setTipoJugada(TipoJugada tipo) {
+        this.tipoJugada = tipo;
     }
 
     /**
@@ -199,6 +271,8 @@ public class Turno {
      */
     public void cambiarFichas(Map<Ficha,Integer> atril, Map<Ficha,Integer> fichasParaCambiar) {
         // Reconstruir el mapa usando las instancias reales del atril
+        this.fichasCambiadas = fichasParaCambiar;
+
         Map<Ficha,Integer> cambioReal = new HashMap<>();
         for (Map.Entry<Ficha,Integer> entry : fichasParaCambiar.entrySet()) {
             String letra = entry.getKey().getLetra();
@@ -274,9 +348,14 @@ public class Turno {
      */
     public void avanzarTurno() {
         Perfil nextJugador;
+        tableroTurno = partida.getTablero().clonar();
         if (jugador == partida.getCreador()) nextJugador = partida.getOponente();
         else nextJugador = partida.getCreador();
         partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
+    }
+
+    public Tablero getTableroTurno() {
+        return tableroTurno;
     }
 
     /**
@@ -393,9 +472,15 @@ public class Turno {
                         if (fichaCheck == null) return false;
                     }
                 }
-
+                StringBuilder palabraColocada = new StringBuilder();
+                this.x_ini = x_ini;
+                this.y_ini = y_ini;
+                horizontal = false;
                 for (int i = 0; i < fichas.size(); i++) { // por cada ficha
                     String letraBuscada = fichas.get(i);
+                    palabraColocada.append(letraBuscada);
+
+
                     Ficha f;
                     if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal y los modificadores
                         Ficha fichaEncontrada;
@@ -445,6 +530,8 @@ public class Turno {
                     }
                 }
 
+                this.palabra = palabraColocada.toString();
+
                 // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
                 // y se le suman los puntos totales al jugador que le pertoca.
 
@@ -470,8 +557,13 @@ public class Turno {
                     }
                 }
 
+                StringBuilder palabraColocada = new StringBuilder();
+                this.x_ini = x_ini;
+                this.y_ini = y_ini;
+                horizontal = false;
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
+                    palabraColocada.append(letraBuscada);
                     Ficha f;
                     if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal
                         Ficha fichaEncontrada;
@@ -522,6 +614,8 @@ public class Turno {
                     }
 
                 }
+
+                this.palabra = palabraColocada.toString();
 
                 // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
                 // y se le suman los puntos totales al jugador que le pertoca.
