@@ -318,7 +318,10 @@ public class Dawg {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         List<String> division = dividirPalabra(palabra);
         int size = division.size();
-        if(!existePalabra(palabra)) return false;
+        if(!existePalabra(palabra)) {
+            System.out.println("No existe la palabra: " + palabra);
+            return false;
+        }
 
         // Si no hay ficha colocada en la casilla, la palabra se empieza desde ahi
         if(tablero.getFicha(x,y) == null) {
@@ -332,11 +335,15 @@ public class Dawg {
                 for(int col = y; col < y + size && casillaCorrecta(x,col); col++) {
                     // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(x,col) != null) {
-                        if (!tablero.getFicha(x,col).getLetra().equals(division.get(pos_division))) {
+                        if (!tablero.getFicha(x,col).getLetra().equals(division.get(pos_division)) && !"#".equals(division.get(pos_division))) {
+                            System.out.println("Entro a comprobarPalabra, la casilla ya esta ocupada y no con la letra corecta. Tablero:" + tablero.getFicha(x,col).getLetra() + " la que quiero poner: " + division.get(pos_division));
                             return false;
                         }
                         nodo = nodo.getHijos().get(division.get(pos_division));
-                        if(nodo == null) return false;
+                        if(nodo == null) {
+                            System.out.println("Entro a comprobarPalabra, la palabra no esta en el diccionario: " + division);
+                            return false;
+                        }
                         ++pos_division;
                     }
 
@@ -357,11 +364,15 @@ public class Dawg {
                 for(int fil = x; fil < x + size && casillaCorrecta(fil,y); fil++) {
                     // Si vamos a una posición que tiene una ficha ya colocada
                     if(tablero.getFicha(fil,y) != null) {
-                        if (!tablero.getFicha(fil,y).getLetra().equals(division.get(pos_division))) {
+                        if (!tablero.getFicha(fil,y).getLetra().equals(division.get(pos_division)) && !"#".equals(division.get(pos_division)) ) {
+                            System.out.println("Entro a comprobarPalabra, la casilla ya esta ocupada y no con la letra corecta. Tablero:" + tablero.getFicha(fil,y).getLetra() + " la que quiero poner: " + division.get(pos_division));
                             return false;
                         }
                         nodo = nodo.getHijos().get(division.get(pos_division));
-                        if(nodo == null) return false;
+                        if(nodo == null) {
+                            System.out.println("Entro a comprobarPalabra, la palabra no esta en el diccionario: " + division);
+                            return false;
+                        }
                         ++pos_division;
                     }
 
@@ -385,7 +396,7 @@ public class Dawg {
                 // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
                 for(int col = y; tablero.getFicha(x,col) != null && casillaCorrecta(x,col); col++) {
                     String letraTablero = tablero.getFicha(x, col).getLetra();
-                    if (!letraTablero.equals(division.get(pos_division))) return false; // si no es la misma letra
+                    if (!letraTablero.equals(division.get(pos_division)) && !"#".equals(division.get(pos_division))) return false; // si no es la misma letra
                     nodo = nodo.getHijos().get(division.get(pos_division));
                     pos_division++;
                 }
@@ -423,7 +434,7 @@ public class Dawg {
                 // Recorre la semi palabra del tablero y acabamos teniendo el nodo de la ultima casilla de esta
                 for(int fil = x; tablero.getFicha(fil,y) != null && casillaCorrecta(fil,y); fil++) {
                     String letraTablero = tablero.getFicha(fil, y).getLetra();
-                    if (!letraTablero.equals(division.get(pos_division))) return false; // si no es la misma letra
+                    if (!letraTablero.equals(division.get(pos_division)) && !"#".equals(division.get(pos_division))) return false; // si no es la misma letra
                     nodo = nodo.getHijos().get(division.get(pos_division));
                     pos_division++;
                 }
