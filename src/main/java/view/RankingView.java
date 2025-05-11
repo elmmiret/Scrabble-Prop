@@ -8,9 +8,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.TreeSet;
 
 public class RankingView extends JFrame {
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 700;
-    private final Color COLOR_FONDO = new Color(36, 36, 36);
+    private static final int ANCHO = 400;
+    private static final int ALTO = 700;
     private final Color COLOR_AZUL = new Color(40, 100, 240);
     private final Color COLOR_ROJO = new Color(220, 50, 40);
     private final Color COLOR_NARANJA = new Color(240, 73, 48);
@@ -30,21 +29,19 @@ public class RankingView extends JFrame {
 
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
+        setSize(ANCHO, ALTO);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        layeredPane.setPreferredSize(new Dimension(ANCHO, ALTO));
 
-        // Add moving grid
         TableroMoviendo tableroMoviendo = new TableroMoviendo();
-        tableroMoviendo.setBounds(0, 0, WIDTH, HEIGHT);
+        tableroMoviendo.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(tableroMoviendo, JLayeredPane.DEFAULT_LAYER);
 
-        // Main content
         JPanel mainPanel = createMainPanel();
-        mainPanel.setBounds(0, 0, WIDTH, HEIGHT);
+        mainPanel.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(mainPanel, JLayeredPane.PALETTE_LAYER);
 
         add(layeredPane);
@@ -89,17 +86,14 @@ public class RankingView extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Background
                 Color finalColor = isHovering ? color.darker() : color;
                 g2d.setColor(finalColor);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), radioEsquina, radioEsquina);
 
-                // Border
                 g2d.setStroke(grosorBorde);
                 g2d.setColor(isHovering ? colorBordeHover : colorBordeNormal);
                 g2d.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radioEsquina, radioEsquina);
 
-                // Text
                 g2d.setColor(Color.WHITE);
                 FontMetrics fm = g2d.getFontMetrics();
                 Rectangle2D r = fm.getStringBounds(getText(), g2d);
@@ -148,13 +142,11 @@ public class RankingView extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 0, 2, 0); // Reduced vertical spacing
 
-        // Add title
         JLabel title = new JLabel("RANKING " + tipo.toUpperCase());
         title.setFont(BUTTON_FONT);
         title.setForeground(Color.BLACK);
         content.add(title, gbc);
 
-        // Add entries
         TreeSet<Perfil> rkg = getRankingSet(tipo);
         int position = 1;
 

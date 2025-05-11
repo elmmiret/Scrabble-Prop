@@ -7,8 +7,8 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 
 public class MainView extends JFrame {
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 700;
+    private static final int ANCHO = 400;
+    private static final int ALTO = 700;
     private final Color COLOR_FONDO = new Color(238, 238, 238);
     private final Color COLOR_AZUL = new Color(40, 100, 240);
     private final Color COLOR_ROJO = new Color(220, 50, 40);
@@ -25,16 +25,16 @@ public class MainView extends JFrame {
 
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
+        setSize(ANCHO, ALTO);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        layeredPane.setPreferredSize(new Dimension(ANCHO, ALTO));
 
         // Añadir tablero con animacion
         TableroMoviendo tableroMoviendo = new TableroMoviendo();
-        tableroMoviendo.setBounds(0, 0, WIDTH, HEIGHT);
+        tableroMoviendo.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(tableroMoviendo, JLayeredPane.DEFAULT_LAYER);
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -43,16 +43,16 @@ public class MainView extends JFrame {
 
         try {
             Image image = ImageIO.read(new File("src/main/java/view/Scrabble-Logo-2022.png"));
-            int availableWidth = WIDTH - 100;
+            int availableWidth = ANCHO - 100;
             Image scaledImage = image.getScaledInstance(availableWidth, -1, Image.SCALE_SMOOTH);
             JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
             imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            imageLabel.setOpaque(false);  // Make transparent
+            imageLabel.setOpaque(false);
             panel.add(imageLabel, BorderLayout.NORTH);
 
             JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 25));
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
-            buttonPanel.setOpaque(false);  // Make transparent
+            buttonPanel.setOpaque(false);
 
             addMainButton(buttonPanel, "Gestión de perfil", COLOR_AZUL, () -> gestorDeView.mostrarGestionPerfil());
             addMainButton(buttonPanel, "Gestión de partida", COLOR_AZUL, () -> gestorDeView.mostrarGestionPartida());
@@ -64,7 +64,7 @@ public class MainView extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
-        panel.setBounds(0, 0, WIDTH, HEIGHT);
+        panel.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(panel, JLayeredPane.PALETTE_LAYER);
 
         add(layeredPane);
@@ -134,9 +134,9 @@ public class MainView extends JFrame {
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 
-            UIManager.put("nimbusBase", COLOR_AZUL); // Base color for components
-            UIManager.put("control", COLOR_FONDO); // General background
-            UIManager.put("text", Color.BLACK); // Text color
+            UIManager.put("nimbusBase", COLOR_AZUL);
+            UIManager.put("control", COLOR_FONDO);
+            UIManager.put("text", Color.BLACK);
         } catch (Exception e) {
             e.printStackTrace();
         }

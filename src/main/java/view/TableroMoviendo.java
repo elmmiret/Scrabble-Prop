@@ -2,8 +2,6 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class TableroMoviendo extends JPanel {
     private static final Color BORDE_TABLERO_COLOR = new Color(255, 80, 80, 60);

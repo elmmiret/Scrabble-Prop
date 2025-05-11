@@ -6,10 +6,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
 
-public class ProfileView extends JFrame {
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 700;
-    private final Color COLOR_FONDO = new Color(36, 36, 36);
+public class GestionPerfilView extends JFrame {
+    private static final int ANCHO = 400;
+    private static final int ALTO = 700;
     private final Color COLOR_AZUL = new Color(40, 100, 240);
     private final Color COLOR_ROJO = new Color(220, 50, 40);
     private final Color COLOR_NARANJA = new Color(240, 73, 48);
@@ -19,7 +18,7 @@ public class ProfileView extends JFrame {
     private final GestorDeView gestorDeView;
     private final GestorDePerfil gestorDePerfil;
 
-    public ProfileView(GestorDeView gestorDeView, GestorDePerfil gestorDePerfil) {
+    public GestionPerfilView(GestorDeView gestorDeView, GestorDePerfil gestorDePerfil) {
         super("Gestión de perfil");
         this.gestorDeView = gestorDeView;
         this.gestorDePerfil = gestorDePerfil;
@@ -28,16 +27,16 @@ public class ProfileView extends JFrame {
 
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
+        setSize(ANCHO, ALTO);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        layeredPane.setPreferredSize(new Dimension(ANCHO, ALTO));
 
         // Añadir tablero con animacion
         TableroMoviendo tableroMoviendo = new TableroMoviendo();
-        tableroMoviendo.setBounds(0, 0, WIDTH, HEIGHT);
+        tableroMoviendo.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(tableroMoviendo, JLayeredPane.DEFAULT_LAYER);
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -62,7 +61,7 @@ public class ProfileView extends JFrame {
         addPerfilButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
 
         panel.add(buttonPanel, BorderLayout.CENTER);
-        panel.setBounds(0, 0, WIDTH, HEIGHT);
+        panel.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(panel, JLayeredPane.PALETTE_LAYER);
 
         add(layeredPane);

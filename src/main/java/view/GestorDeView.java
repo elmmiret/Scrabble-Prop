@@ -7,7 +7,7 @@ import ranking.Ranking;
 
 public class GestorDeView {
     private MainView mainView;
-    private ProfileView profileView;
+    private GestionPerfilView gestionPerfilView;
     private RankingView rankingView;
     private GestionPartidaView gestionPartidaView;
     private GestorDePerfil gestorPerfil;
@@ -17,11 +17,14 @@ public class GestorDeView {
     public GestorDeView(GestorDePerfil gestorPerfil, Ranking ranking, GestorDePartida gestorDePartida) {
         this.gestorPerfil = gestorPerfil;
         this.ranking = ranking;
+        this.gestorDePartida = gestorDePartida;
+        this.ranking = ranking;
+
 
         mainView = new MainView(this);
         mainView.setVisible(true);
-        profileView = new ProfileView(this, gestorPerfil);
-        profileView.setVisible(false);
+        gestionPerfilView = new GestionPerfilView(this, gestorPerfil);
+        gestionPerfilView.setVisible(false);
         rankingView = new RankingView(this, ranking);
         rankingView.setVisible(false);
         gestionPartidaView = new GestionPartidaView(this, gestorDePartida, gestorPerfil);
@@ -33,12 +36,12 @@ public class GestorDeView {
         mainView.setVisible(false);
         rankingView.setVisible(false);
         gestionPartidaView.setVisible(false);
-        profileView.setVisible(true);
+        gestionPerfilView.setVisible(true);
     }
 
     public void mostrarMain()
     {
-        profileView.setVisible(false);
+        gestionPerfilView.setVisible(false);
         rankingView.setVisible(false);
         gestionPartidaView.setVisible(false);
         mainView.setVisible(true);
@@ -47,7 +50,7 @@ public class GestorDeView {
     public void mostrarRanking()
     {
         mainView.setVisible(false);
-        profileView.setVisible(false);
+        gestionPerfilView.setVisible(false);
         gestionPartidaView.setVisible(false);
         rankingView.setVisible(true);
     }
@@ -55,11 +58,18 @@ public class GestorDeView {
     public void mostrarGestionPartida()
     {
         mainView.setVisible(false);
-        profileView.setVisible(false);
+        gestionPerfilView.setVisible(false);
         rankingView.setVisible(false);
         gestionPartidaView.setVisible(true);
     }
 
-    public void mostrarPartida(Partida partida) {
+    public void mostrarPartida(Partida partida)
+    {
+        JugarPartidaView jugarPartidaView = new JugarPartidaView(partida, gestorDePartida);
+        mainView.setVisible(false);
+        gestionPerfilView.setVisible(false);
+        gestionPartidaView.setVisible(false);
+        rankingView.setVisible(false);
+        jugarPartidaView.setVisible(true);
     }
 }

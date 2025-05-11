@@ -11,9 +11,8 @@ import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 
 public class GestionPartidaView extends JFrame {
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 700;
-    private final Color COLOR_FONDO = new Color(36, 36, 36);
+    private static final int ANCHO = 400;
+    private static final int ALTO = 700;
     private final Color COLOR_AZUL = new Color(40, 100, 240);
     private final Color COLOR_ROJO = new Color(220, 50, 40);
     private final Color COLOR_NARANJA = new Color(240, 73, 48);
@@ -34,16 +33,16 @@ public class GestionPartidaView extends JFrame {
 
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
+        setSize(ANCHO, ALTO);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        layeredPane.setPreferredSize(new Dimension(ANCHO, ALTO));
 
         // Añadir tablero con animacion
         TableroMoviendo tableroMoviendo = new TableroMoviendo();
-        tableroMoviendo.setBounds(0, 0, WIDTH, HEIGHT);
+        tableroMoviendo.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(tableroMoviendo, JLayeredPane.DEFAULT_LAYER);
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -60,21 +59,21 @@ public class GestionPartidaView extends JFrame {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(60, 20, 60, 20));
         buttonPanel.setOpaque(false);
 
-        addGameButton(buttonPanel, "Crear nueva partida", COLOR_AZUL, this::crearNuevaPartida);
-        addGameButton(buttonPanel, "Cargar partida", COLOR_AZUL, this::cargarPartida);
-        addGameButton(buttonPanel, "Eliminar partida", COLOR_AZUL, this::eliminarPartida);
-        addGameButton(buttonPanel, "Consultar partidas", COLOR_AZUL, this::mostrarPartidas);
-        addGameButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
+        addPartidaButton(buttonPanel, "Crear nueva partida", COLOR_AZUL, this::crearNuevaPartida);
+        addPartidaButton(buttonPanel, "Cargar partida", COLOR_AZUL, this::cargarPartida);
+        addPartidaButton(buttonPanel, "Eliminar partida", COLOR_AZUL, this::eliminarPartida);
+        addPartidaButton(buttonPanel, "Consultar partidas", COLOR_AZUL, this::mostrarPartidas);
+        addPartidaButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
 
         panel.add(buttonPanel, BorderLayout.CENTER);
-        panel.setBounds(0, 0, WIDTH, HEIGHT);
+        panel.setBounds(0, 0, ANCHO, ALTO);
         layeredPane.add(panel, JLayeredPane.PALETTE_LAYER);
 
         add(layeredPane);
         tableroMoviendo.iniciarMovimiento();
     }
 
-    private void addGameButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
+    private void addPartidaButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
             private final int radioEsquina = 35;
@@ -87,17 +86,17 @@ public class GestionPartidaView extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Background
+                // Fondo
                 Color finalColor = isHovering ? color.darker() : color;
                 g2d.setColor(finalColor);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), radioEsquina, radioEsquina);
 
-                // Border
+                // Borde
                 g2d.setStroke(grosorBorde);
                 g2d.setColor(isHovering ? colorBordeHover : colorBordeNormal);
                 g2d.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radioEsquina, radioEsquina);
 
-                // Text
+                // Texto
                 g2d.setColor(Color.WHITE);
                 FontMetrics fm = g2d.getFontMetrics();
                 Rectangle2D r = fm.getStringBounds(getText(), g2d);
@@ -140,13 +139,11 @@ public class GestionPartidaView extends JFrame {
         if (jugador == null) return;
 
         try {
-            // Create input components
             JTextField idField = new JTextField();
             JTextField nombreField = new JTextField();
             JComboBox<String> idiomaCombo = new JComboBox<>(new String[]{"CAT", "CAST", "ENG"});
             JComboBox<String> modoCombo = new JComboBox<>(new String[]{"PvP", "PvIA"});
 
-            // Create panel layout
             JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
             panel.add(new JLabel("ID de partida:"));
             panel.add(idField);
@@ -167,7 +164,6 @@ public class GestionPartidaView extends JFrame {
 
             if (result != JOptionPane.OK_OPTION) return;
 
-            // Validate inputs
             String idStr = idField.getText().trim();
             String nombre = nombreField.getText().trim();
             String idioma = (String) idiomaCombo.getSelectedItem();
@@ -191,7 +187,6 @@ public class GestionPartidaView extends JFrame {
                 default -> throw new IllegalArgumentException("Idioma inválido");
             };
 
-            // Handle game mode selection
             if ("PvP".equals(modo)) {
                 Perfil oponente = autenticarUsuario();
                 if (oponente == null || oponente.equals(jugador)) {
@@ -240,8 +235,8 @@ public class GestionPartidaView extends JFrame {
                 return;
             }
 
+            System.out.println("Voy a mostrar la partida");
             gestorDeView.mostrarPartida(partida);
-            JOptionPane.showMessageDialog(this, "Partida cargada exitosamente!");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
@@ -286,7 +281,6 @@ public class GestionPartidaView extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 0, 2, 0);
 
-        // Title
         JLabel title = new JLabel("TUS PARTIDAS ACTIVAS");
         title.setFont(BUTTON_FONT);
         title.setForeground(Color.BLACK);
@@ -302,7 +296,6 @@ public class GestionPartidaView extends JFrame {
                 entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 entryPanel.setBackground(new Color(240, 240, 240));
 
-                // Left side (ID and Name)
                 JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
                 leftPanel.setBackground(new Color(240, 240, 240));
 
@@ -317,7 +310,6 @@ public class GestionPartidaView extends JFrame {
                 leftPanel.add(idLabel);
                 leftPanel.add(nameLabel);
 
-                // Right side (Details)
                 JPanel rightPanel = new JPanel(new GridLayout(2, 1));
                 rightPanel.setBackground(new Color(240, 240, 240));
 
@@ -344,7 +336,6 @@ public class GestionPartidaView extends JFrame {
             }
         }
 
-        // Add scroll and padding
         gbc.weighty = 1;
         content.add(Box.createGlue(), gbc);
 
