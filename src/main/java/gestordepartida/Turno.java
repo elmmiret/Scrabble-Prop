@@ -405,7 +405,7 @@ public class Turno {
                 int size = division.size();
                 int pos_division = 0;
                 for(int fil = x_ini; fil < x_ini + size; fil++) {
-                    if (partida.getTablero().getFicha(fil,y_ini) == null ) { // Hay alguna ficha ya
+                    if (partida.getTablero().getFicha(fil,y_ini) != null ) { // Hay alguna ficha ya
                         if (!partida.getTablero().getFicha(fil,y_ini).getLetra().equals(division.get(pos_division))) { // si no es la que quiero poner, return false pq no funciona
                             // hace falta esto? creo que ya se hace en comprobar palabra
                             return false;
@@ -489,11 +489,7 @@ public class Turno {
 
                 // puntos de juntar con palabras ya hechas
                 puntosBasePalabra += calculoPuntosExtraVertical(x_ini, y_ini, palabra);
-                puntosPorSumar = puntosBasePalabra * modificadorPalabra;
-                puntosPorSumar += puntosHorizontalExtra;
-
-                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
-                else puntosJ2 += puntosPorSumar;
+                // refact. al final
             }
             else { // horizontal
                 System.out.println("Entro a horizontal");
@@ -593,12 +589,6 @@ public class Turno {
 
                 // puntos de juntar con palabras ya hechas
                 puntosBasePalabra += calculoPuntosExtraHorizontal(x_ini, y_ini, palabra);
-                puntosPorSumar = puntosBasePalabra * modificadorPalabra;  // **Cambio aquí: calculamos puntosPorSumar al final**
-                puntosPorSumar += puntosVerticalExtra;
-
-                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
-                else puntosJ2 += puntosPorSumar;
-
             }
             System.out.println("Salgo de H/V");
 
@@ -608,6 +598,19 @@ public class Turno {
             // compruebo la palabra y esta mal
             pasarTurno();
             return false;
+        }
+
+        puntosPorSumar = puntosBasePalabra * modificadorPalabra;
+        puntosPorSumar += puntosHorizontalExtra;
+
+        // si se colocan TODAS las fichas del atril +50 pts
+        if (jugador == partida.getCreador()) {
+            if (atrilJ1.isEmpty()) puntosPorSumar += 50;
+            puntosJ1 += puntosPorSumar;
+        }
+        else {
+            if (atrilJ2.isEmpty()) puntosPorSumar += 50;
+            puntosJ2 += puntosPorSumar;
         }
 
         setTipoJugada(TipoJugada.colocar);
