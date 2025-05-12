@@ -354,6 +354,7 @@ public class Turno {
      * @throws CasillaOcupadaException         Si una casilla ya está ocupada.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+        System.out.println("Entro a colocarPalabra " + palabra + " " + x_ini + " " + y_ini + " " + orientacion);
 
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
@@ -367,6 +368,8 @@ public class Turno {
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
 
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
+            System.out.println("Size de fichas: "+fichas.size());
+            System.out.println(partida.getDawg().dividirPalabra(palabra));
             if (esPrimerTurno)
             {
                 if (orientacion.equals("vertical"))
@@ -380,19 +383,51 @@ public class Turno {
                 }
             }
 
-            if ("vertical".equals(orientacion)) {
+            //mirar si tiene las fichas en el atril
+            // se crea un atril auxiliar para que no quite palabras en caso de que no las tenga todas
+            Map<Ficha, Integer> atrilCheck;
+            if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
+            else atrilCheck = new HashMap<>(atrilJ2);
 
-                //mirar si tiene las fichas en el atril
-                Map<Ficha, Integer> atrilCheck;
-                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
-                else atrilCheck = new HashMap<>(atrilJ2);
-                for (int i = 0; i < fichas.size(); ++i)
-                {
-                    if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {
-                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(i));
-                        if (fichaCheck == null) return false;
-                    }
+            // hacer un contador de comodines
+            int comodines = 0;
+            for (Ficha ficha : atrilCheck.keySet()) {
+                if (ficha.getLetra().equals("#")) {
+                    ++comodines;
                 }
+            }
+            System.out.println("HOLA1");
+
+            if ("vertical".equals(orientacion)) {
+                System.out.println("Entro a Vertical");
+
+                List<String> division = partida.getDawg().dividirPalabra(palabra);
+                int size = division.size();
+                int pos_division = 0;
+                for(int fil = x_ini; fil < x_ini + size; fil++) {
+                    if (partida.getTablero().getFicha(fil,y_ini) != null ) { // Hay alguna ficha ya
+                        if (!partida.getTablero().getFicha(fil,y_ini).getLetra().equals(division.get(pos_division))) { // si no es la que quiero poner, return false pq no funciona
+                            // hace falta esto? creo que ya se hace en comprobar palabra
+                            return false;
+                        }
+                    }
+                    else { // No hay ninguna ficha: miro si la tengo en el atril, si esta, paso a la siguiente, si no, uso un comodin
+                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(pos_division));
+                        // si esto es null, es que no tienes esa ficha en el atril, por lo tanto, si hay un comodin libre, lo usas, si no, no la puedes formar
+                        if (fichaCheck == null) {
+                            // habria que mirar si ya esta puesta antes de restar comodines o devolver false
+                            if (comodines == 0) return false;
+                            else {
+                                --comodines;
+                                // la solucion facil es cambiar esa ficha.get(i)  a "#"
+                                fichas.set(pos_division, "#");
+                            }
+                        }
+                    }
+                    ++pos_division;
+                }
+                System.out.println("Tengo las fichas en el atril");
+
 
                 for (int i = 0; i < fichas.size(); i++) { // por cada ficha
                     String letraBuscada = fichas.get(i);
@@ -402,7 +437,10 @@ public class Turno {
 
                         if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                         else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
-                        if (fichaEncontrada == null) return false;
+                        if (fichaEncontrada == null) {
+                            System.out.println("No he podido quitar la ficha " + letraBuscada + " del atril");
+                            return false;
+                        }
 
                         f = fichaEncontrada;
                         partida.getTablero().setFicha( f, x_ini + i, y_ini);
@@ -444,43 +482,62 @@ public class Turno {
                         }
                     }
                 }
+                System.out.println("HOLA2");
 
                 // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
                 // y se le suman los puntos totales al jugador que le pertoca.
 
                 // puntos de juntar con palabras ya hechas
                 puntosBasePalabra += calculoPuntosExtraVertical(x_ini, y_ini, palabra);
-                puntosPorSumar = puntosBasePalabra * modificadorPalabra;
-                puntosPorSumar += puntosHorizontalExtra;
-
-                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
-                else puntosJ2 += puntosPorSumar;
+                // refact. al final
             }
             else { // horizontal
+                System.out.println("Entro a horizontal");
+                System.out.println("HOLA3");
 
-                //mirar si tiene las fichas en el atril
-                Map<Ficha, Integer> atrilCheck;
-                if (jugador == partida.getCreador()) atrilCheck = new HashMap<>(atrilJ1);
-                else atrilCheck = new HashMap<>(atrilJ2);
-                for (int i = 0; i < fichas.size(); ++i)
-                {
-                    if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {
-                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(i));
-                        if (fichaCheck == null) return false;
+                // IMPLEMENTACION QUE FALTABA
+                List<String> division = partida.getDawg().dividirPalabra(palabra);
+                int size = division.size();
+                int pos_division = 0;
+                for(int col = y_ini; col < y_ini + size; col++) {
+                    // Hay alguna ficha ya
+                    if(partida.getTablero().getFicha(x_ini,col) != null) {
+                        if (!partida.getTablero().getFicha(x_ini,col).getLetra().equals(division.get(pos_division))) { // si no es la que quiero poner, return false pq no funciona
+                            // hace falta esto? creo que ya se hace en comprobar palabra
+                            return false;
+                        }
                     }
+                    // No hay ninguna ficha: miro si la tengo en el atril, si esta, paso a la siguiente, si no, uso un comodin
+                    else {
+                        Ficha fichaCheck = quitarFichaDelAtril(atrilCheck, fichas.get(pos_division));
+                        // si esto es null, es que no tienes esa ficha en el atril, por lo tanto, si hay un comodin libre, lo usas, si no, no la puedes formar
+                        if (fichaCheck == null) {
+                            // habria que mirar si ya esta puesta antes de restar comodines o devolver false
+                            if (comodines == 0) return false;
+                            else {
+                                --comodines;
+                                // la solucion facil es cambiar esa ficha.get(i)  a "#"
+                                fichas.set(pos_division, "#");
+                            }
+                        }
+                    }
+                    ++pos_division;
                 }
+                // fin de la nueva implementacion
+                System.out.println("Tengo las fichas en el atril");
 
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
                     Ficha f;
                     if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal
                         Ficha fichaEncontrada;
+
                         if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                         else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
                         if (fichaEncontrada == null) {
+                            System.out.println("No he podido quitar la ficha " + letraBuscada + " del atril");
                             return false;
                         }
-
                         f = fichaEncontrada;
                         partida.getTablero().setFicha( f, x_ini, y_ini + i);
 
@@ -495,9 +552,12 @@ public class Turno {
                         else puntosBasePalabra += f.getPuntuacion();
                     }
                     else { // si esta ya puesta, solo se suman los puntos de la ficha, sin modificadores
+                        // hay que añadir que no te hacen falta los comodines entonces
                         f = partida.getTablero().getFicha(x_ini, y_ini + i);
                         puntosBasePalabra += f.getPuntuacion();
                     }
+
+                    System.out.println("HOLA4");
 
                     // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
                     // no se multiplican por el modificador de palabra
@@ -520,6 +580,7 @@ public class Turno {
                             y++;
                         }
                     }
+                    System.out.println("HOLA5");
 
                 }
 
@@ -528,20 +589,34 @@ public class Turno {
 
                 // puntos de juntar con palabras ya hechas
                 puntosBasePalabra += calculoPuntosExtraHorizontal(x_ini, y_ini, palabra);
-                puntosPorSumar = puntosBasePalabra * modificadorPalabra;  // **Cambio aquí: calculamos puntosPorSumar al final**
-                puntosPorSumar += puntosVerticalExtra;
-
-                if (jugador == partida.getCreador()) puntosJ1 += puntosPorSumar;
-                else puntosJ2 += puntosPorSumar;
-
             }
+            System.out.println("Salgo de H/V");
 
         }
-        else return false;
+        else {
+            System.out.println("PETO");
+            // compruebo la palabra y esta mal
+            pasarTurno();
+            return false;
+        }
+
+        puntosPorSumar = puntosBasePalabra * modificadorPalabra;
+        puntosPorSumar += puntosHorizontalExtra;
+
+        // si se colocan TODAS las fichas del atril +50 pts
+        if (jugador == partida.getCreador()) {
+            if (atrilJ1.isEmpty()) puntosPorSumar += 50;
+            puntosJ1 += puntosPorSumar;
+        }
+        else {
+            if (atrilJ2.isEmpty()) puntosPorSumar += 50;
+            puntosJ2 += puntosPorSumar;
+        }
 
         setTipoJugada(TipoJugada.colocar);
         if (jugador == partida.getCreador()) robarFichas(atrilJ1);
         else robarFichas(atrilJ2);
+        System.out.println("Voy a avanzar turno");
         avanzarTurno();
         return true;
     }
@@ -577,9 +652,10 @@ public class Turno {
             }
         }
 
-        Algoritmo algoritmo = new Algoritmo(partida);
-        List<SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>>>  mejorPalabra = algoritmo.mejorMovimiento(partida.getDawg(), partida.getTablero(), atril);
-        if (mejorPalabra == null || mejorPalabra.isEmpty()) {
+        // nueva implementacion:
+        partida.getAlgorithm().preparar(getTablero(), atrilJ2);
+        List<Movimiento> movimientosValidos = partida.getAlgorithm().generarMovimientos();
+        if (movimientosValidos == null || movimientosValidos.isEmpty()) {
             if (partida.getBolsa() == null) pasarTurno();
             else {
                 Map<Ficha,Integer> fichasPorCambiar = new HashMap<>();
@@ -593,28 +669,21 @@ public class Turno {
                 cambiarFichas(atrilJ2, fichasPorCambiar);
             }
         }
-        else {
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entry : mejorPalabra) {
-                String palabra = entry.getKey().getKey(); // Access the String from the inner SimpleEntry
-            }
-            int x1 = mejorPalabra.get(0).getValue().getKey();
-            int y1 = mejorPalabra.get(0).getValue().getValue();
-            int x2 = x1;
+        else {   // hay movimientos por poner
+            // TODO:
+            // llamar a una funcion para que ordene los movimientos segun los puntos que de
+            // segun la dificultad, escoger uno u otro
 
-            if (mejorPalabra.size() > 1) {
-                x2 = mejorPalabra.get(1).getValue().getKey();
-            }
+            // de momento lo hago con uno cualquiera hasta tenerlo ordenado mas adelante
+            Movimiento m = movimientosValidos.get(0);
+            List<String> trozosPalabra = m.getPalabra();
+            StringBuilder palabra = new StringBuilder();
+            for (String trozo : trozosPalabra) palabra.append(trozo);
 
             String orientacion;
-            if (x1 == x2) orientacion = "horizontal";
-            else orientacion = "vertical";
-
-            // formar la palabra
-            StringBuilder palabraFormada = new StringBuilder();
-            for (SimpleEntry<SimpleEntry<String, Boolean>, SimpleEntry<Integer, Integer>> entrada : mejorPalabra) {
-                palabraFormada.append(entrada.getKey().getKey());
-            }
-            colocarPalabra(palabraFormada.toString(), x1, y1, orientacion);
+            if (m.isVertical()) orientacion = "vertical";
+            else orientacion = "horizontal";
+            colocarPalabra(palabra.toString(), m.getFila(), m.getColumna(), orientacion);
         }
     }
 }

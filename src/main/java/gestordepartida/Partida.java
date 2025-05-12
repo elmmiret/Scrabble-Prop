@@ -73,6 +73,9 @@ public class Partida {
     /** Diccionario DAWG para validación de palabras */
     public  Dawg dawg; // diccionario segun el idioma seleccionado
 
+    /**  */
+    private Algorithm algorithm;        // se mueve a partida
+
     /** Nivel de dificultad IA (0 = no aplicable) */
     private int dificultad; // depende como lo implementemos, 0 es que no se usa este parametro      AUN NO IMPLEMENTADA EN EL ALGORITMO
 
@@ -116,6 +119,7 @@ public class Partida {
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
+        algorithm = null;
         dificultad = 0;
         rondas = new ArrayList<>();
         inicializarPrimerTurno();
@@ -151,6 +155,7 @@ public class Partida {
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
+        algorithm = new Algorithm(dawg);
         this.dificultad = dificultad;
         rondas = new ArrayList<>();
         inicializarPrimerTurno();
@@ -211,6 +216,10 @@ public class Partida {
      */
     public Dawg getDawg() {
         return dawg;
+    }
+
+    public Algorithm getAlgorithm() {
+        return algorithm;
     }
 
     /**

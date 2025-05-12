@@ -20,11 +20,11 @@ public class Algorithm {
     /**
      * Prepara el algoritmo para generar movimientos en un tablero dado con un atril especifico
      * @param tablero El tablero actual de juego
-     * @param rack Las letras disponibles en el atril
+     * @param atril Las letras disponibles en el atril
      */
-    public void preparar(Tablero tablero, List<String> rack) {
+    public void preparar(Tablero tablero, Map<Ficha, Integer> atril) {
         this.tablero = tablero;
-        this.atril = contarLetras(rack);
+        this.atril = contarLetras(atril);
         calcularAnclajes();
         calcularCrossChecks();
     }
@@ -34,7 +34,18 @@ public class Algorithm {
      * @return Lista de movimientos válidos
      */
     public List<Movimiento> generarMovimientos() {
+        System.out.println("estoy generando movimientos");
         List<Movimiento> movimientos = new ArrayList<>();
+        System.out.println("Atril IA: " + atril);
+        System.out.println("Anchors:");
+        for (int i = 0; i < Tablero.FILAS; i++) {
+            for (int j = 0; j < Tablero.COLUMNAS; j++) {
+                if (anchors[i][j]) System.out.print("A ");
+                else System.out.print(". ");
+            }
+            System.out.println();
+        }
+
 
         // Generar movimientos horizontales
         for(int fila = 0; fila < Tablero.FILAS; fila++) {
@@ -48,6 +59,7 @@ public class Algorithm {
         }
         tablero.transponerTablero();
 
+        if (movimientos == null || movimientos.isEmpty()) System.out.println("Estoy vacio");
         return movimientos;
     }
 
@@ -93,7 +105,7 @@ public class Algorithm {
                 NodoDawg hijo = entrada.getValue();
 
                 if(atril.containsKey(letra) && atril.get(letra) > 0) {
-                    // Usar letra del rack
+                    // Usar letra del atril
                     atril.put(letra, atril.get(letra) - 1);   // borrar letra del atril
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                     nuevaPalabra.add(letra);
@@ -118,13 +130,14 @@ public class Algorithm {
             // Verificar su es un movimiento válido
             if(nodo.getEsFinal() && (col >= Tablero.COLUMNAS || tablero.getFicha(fila, col) == null)) {
                 // Añadir movimiento válido
+                System.out.println("Posible palabra formada: " + palabraParcial);
                 movimientos.add(new Movimiento(fila, col - palabraParcial.size(), palabraParcial, esVertical));
             }
              if( col < Tablero.COLUMNAS) {
                  Ficha ficha = tablero.getFicha(fila,col);
 
                  if(ficha == null) {
-                     // Casilla vacía -- usar letra del rack con cross-check
+                     // Casilla vacía -- usar letra del atril con cross-check
                      for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
                          String letra = entrada.getKey();
                          NodoDawg hijo = entrada.getValue();
@@ -201,13 +214,13 @@ public class Algorithm {
                         boolean esAncla = false;
 
                         // Verificar arriba
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila - 1, col) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila -1, col) && tablero.getFicha(fila - 1, col) != null) esAncla = true;
                         // Verificar abajo
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila + 1, col) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila +1, col) && tablero.getFicha(fila + 1, col) != null) esAncla = true;
                         // Verificar izquierda
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila, col - 1) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila, col-1) && tablero.getFicha(fila, col - 1) != null) esAncla = true;
                         // Verificar derecha
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila, col + 1) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila, col+1) && tablero.getFicha(fila, col + 1) != null) esAncla = true;
 
                         anchors[fila][col] = esAncla;
                     }
@@ -262,13 +275,16 @@ public class Algorithm {
         }
     }
 
-    private Map<String, Integer> contarLetras(List<String> atril) {
+    private Map<String, Integer> contarLetras(Map<Ficha, Integer> atril) {
         Map<String, Integer> count = new HashMap<>();
-        for(String letra : atril) {
-            count.put(letra, count.getOrDefault(letra, 0) + 1);
+        for (Map.Entry<Ficha, Integer> letra : atril.entrySet()) {
+            String l = letra.getKey().getLetra();
+            int cantidad = letra.getValue();  // Cuántas fichas hay de esa letra
+            count.put(l, count.getOrDefault(l, 0) + cantidad);
         }
         return count;
     }
+
 
     private String concatenarPalabra(List<String> letras) {
         StringBuilder palabra = new StringBuilder();
