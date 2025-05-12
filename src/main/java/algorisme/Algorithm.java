@@ -29,10 +29,6 @@ public class Algorithm {
         calcularCrossChecks();
     }
 
-
-    // ! Parece ser que no tiene en cuenta lo que hay en el tablero por si lo puedes enganchar o no
-    //   Te escupe todas las palabras que puedes formar con lo q hay en el atril
-    //   Debugguear para confirmar
     /**
      * Genera todos los movimientos válidos para la configuración actual
      * @return Lista de movimientos válidos
