@@ -39,20 +39,6 @@ public class Tablero {
     /** Conjunto de letras válidas según el idioma seleccionado. */
     private Set<String> letras;
 
-    public void eliminarFicha(int x, int y) throws CoordenadaFueraDeRangoException {
-        // Validar coordenadas
-        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) {
-            throw new CoordenadaFueraDeRangoException(x, y);
-        }
-        // Obtener la casilla actual
-        SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>> casilla = tablero.get(x).get(y);
-        // Extraer modificador y abecedario
-        TipoModificador mod = casilla.getKey().getValue();
-        Set<String> abecedario = casilla.getValue();
-        // Reemplazar la ficha por null, manteniendo modificador y abecedario
-        tablero.get(x).set(y, new SimpleEntry<>(new SimpleEntry<>(null, mod), abecedario));
-    }
-
     /**
      * Tipos de modificadores de puntuación para las casillas del tablero.
      * <ul>

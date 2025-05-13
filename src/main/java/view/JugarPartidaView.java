@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.List;
 
 public class JugarPartidaView extends JFrame {
-    private static final int ANCHO = 1300;
+    private static final int ANCHO = 1500;
     private static final int ALTO = 1000;
     private final Color COLOR_AZUL = new Color(40, 100, 240);
     private final Color COLOR_ROJO = new Color(220, 50, 40);
@@ -32,7 +32,7 @@ public class JugarPartidaView extends JFrame {
     private JLabel lblPuntos;
     JPanel infoPanel;
     JPanel mainPanel;
-    private List<Point> colocacionesTemporales = new ArrayList<>();
+    private Map<Point, Ficha> colocacionesTemporales = new HashMap<>();
     private Map<Ficha, Integer> fichasTemporales = new HashMap<>(); // Track tiles in use
     private JPanel cambiarFichasPanel;
     private JButton btnConfirmarCambio;
@@ -236,15 +236,12 @@ public class JugarPartidaView extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 try {
                     Ficha fichaEnCelda = partida.getTablero().getFicha(x, y);
-
-                    if (fichaEnCelda != null && colocacionesTemporales.contains(new Point(x, y))) {
-
-                        atrilActual.put(fichaEnCelda, atrilActual.getOrDefault(fichaEnCelda, 0) + 1);
-                        fichasTemporales.put(fichaEnCelda, fichasTemporales.get(fichaEnCelda) - 1);
-
-                        colocacionesTemporales.remove(new Point(x, y));
-
-                        partida.getTablero().eliminarFicha(x, y);
+                    Point punto = new Point(x, y);
+                    if (colocacionesTemporales.containsKey(punto)) {
+                        Ficha f = colocacionesTemporales.get(punto);
+                        atrilActual.put(f, atrilActual.getOrDefault(f, 0) + 1);
+                        colocacionesTemporales.remove(punto);
+                        // Update UI
                         cargarTablero();
                         cargarAtril();
                     } else if (fichaSeleccionada != null) {
@@ -302,16 +299,15 @@ public class JugarPartidaView extends JFrame {
 
     private void colocarFichaTemporal(int x, int y) throws CasillaOcupadaException, CoordenadaFueraDeRangoException {
         if (partida.getTablero().getFicha(x, y) == null && fichaSeleccionada != null) {
-            // Decrement the selected Ficha's count in the Atril
             int count = atrilActual.getOrDefault(fichaSeleccionada, 0);
             if (count > 0) {
                 atrilActual.put(fichaSeleccionada, count - 1);
                 fichasTemporales.put(fichaSeleccionada, fichasTemporales.getOrDefault(fichaSeleccionada, 0) + 1);
-
+                colocacionesTemporales.put(new Point(x, y), fichaSeleccionada);
                 // Update the Atril UI immediately
                 cargarAtril();
 
-                colocacionesTemporales.add(new Point(x, y));
+                colocacionesTemporales.put(new Point(x, y), fichaSeleccionada);
                 int index = x * Tablero.COLUMNAS + y;
                 JPanel celda = (JPanel) panelTablero.getComponent(index);
                 celda.removeAll();
@@ -329,72 +325,165 @@ public class JugarPartidaView extends JFrame {
         if (colocacionesTemporales.isEmpty()) return;
 
         try {
-            // Construir la palabra colocada
-            StringBuilder palabra = new StringBuilder();
-            int x = colocacionesTemporales.get(0).x;
-            int y = colocacionesTemporales.get(0).y;
-            System.out.println(x);
-            System.out.println(y);
-            String orientacion = "horizontal";
-            if (colocacionesTemporales.size() > 1) {
-                if (colocacionesTemporales.get(1).x != x) orientacion = "vertical";
+            // Determine orientation (horizontal/vertical)
+            List<Point> puntos = new ArrayList<>(colocacionesTemporales.keySet());
+            boolean horizontal = puntos.stream().allMatch(p -> p.x == puntos.get(0).x);
+            boolean vertical = puntos.stream().allMatch(p -> p.y == puntos.get(0).y);
+
+            if (!horizontal && !vertical) {
+                JOptionPane.showMessageDialog(this, "Tiles must form a straight line.");
+                return;
             }
 
-            System.out.println("1");
-            for (Point p : colocacionesTemporales) {
-                System.out.println("loop");
-                Ficha f = partida.getTablero().getFicha(p.x, p.y);
-                if (f == null) {
-                    palabra.append(fichaSeleccionada.getLetra());
+            // Sort points based on orientation
+            puntos.sort((p1, p2) -> horizontal ? Integer.compare(p1.y, p2.y) : Integer.compare(p1.x, p2.x));
+
+            // Check continuity including existing tiles
+            if (!isContiguousWithExisting(puntos, horizontal)) {
+                JOptionPane.showMessageDialog(this, "Tiles must be contiguous or connected to existing ones.");
+                return;
+            }
+
+            // Find the full word start position
+            Point start = findWordStart(puntos, horizontal);
+            int xStart = start.x;
+            int yStart = start.y;
+
+            // Build the complete word (new + existing tiles)
+            StringBuilder fullWord = new StringBuilder();
+            if (horizontal) {
+                for (int y = yStart; ; y++) {
+                    Ficha f = getFichaAtPosition(xStart, y);
+                    if (f == null) break;
+                    fullWord.append(f.getLetra());
+                }
+            } else {
+                for (int x = xStart; ; x++) {
+                    Ficha f = getFichaAtPosition(x, yStart);
+                    if (f == null) break;
+                    fullWord.append(f.getLetra());
                 }
             }
-            System.out.println("2");
-            Turno turnoActual = partida.getRondas().get(partida.getRondas().size()-1);
-            boolean exito = turnoActual.colocarPalabra(palabra.toString(), x, y, orientacion);
 
-            System.out.println("3");
-            if (exito) {
-                fichasTemporales.clear(); // Clear temporary tracking
-                actualizarEstadoJuego();
+            // Validate the word with backend logic
+            Turno currentTurn = partida.getRondas().get(partida.getRondas().size() - 1);
+            System.out.println(fullWord);
+            boolean isValid = currentTurn.colocarPalabra(
+                    fullWord.toString(),
+                    xStart,
+                    horizontal ? yStart : xStart,
+                    horizontal ? "horizontal" : "vertical"
+            );
+
+            if (isValid) {
                 colocacionesTemporales.clear();
-            } else {
-                // Return tiles to Atril on failure
-                colocacionesTemporales.forEach(p -> {
-                    Ficha f = null;
-                    try {
-                        f = partida.getTablero().getFicha(p.x, p.y);
-                    } catch (CoordenadaFueraDeRangoException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if (f != null) {
-                        atrilActual.put(f, atrilActual.getOrDefault(f, 0) + 1);
-                    }
-                });
                 fichasTemporales.clear();
-                cargarAtril();
-                revertirColocacionesTemporales();
+                actualizarEstadoJuego();
+            } else {
+                revertTemporaryPlacements();
+                JOptionPane.showMessageDialog(this, "Invalid word.");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            revertirColocacionesTemporales();
+            revertTemporaryPlacements();
         }
+    }
+
+    private Ficha getFichaAtPosition(int x, int y) throws CoordenadaFueraDeRangoException {
+        // Prioritize newly placed tiles, then check the board
+        Ficha tempFicha = colocacionesTemporales.get(new Point(x, y));
+        return (tempFicha != null) ? tempFicha : partida.getTablero().getFicha(x, y);
+    }
+
+    private boolean isContiguousWithExisting(List<Point> points, boolean isHorizontal) {
+        int expectedCoord = isHorizontal ? points.get(0).y : points.get(0).x;
+        for (Point p : points) {
+            int currentCoord = isHorizontal ? p.y : p.x;
+            if (currentCoord != expectedCoord) {
+                // Check if gaps are filled by existing tiles
+                for (int i = expectedCoord + 1; i < currentCoord; i++) {
+                    int xCheck = isHorizontal ? p.x : i;
+                    int yCheck = isHorizontal ? i : p.y;
+                    try {
+                        if (getFichaAtPosition(xCheck, yCheck) == null) return false;
+                    } catch (CoordenadaFueraDeRangoException e) {
+                        return false;
+                    }
+                }
+            }
+            expectedCoord = currentCoord + 1;
+        }
+        return true;
+    }
+
+    private Point findWordStart(List<Point> points, boolean isHorizontal) throws CoordenadaFueraDeRangoException {
+        int coord = isHorizontal ? points.get(0).y : points.get(0).x;
+        int fixed = isHorizontal ? points.get(0).x : points.get(0).y;
+
+        // Move left/up to find the actual start
+        while (true) {
+            int prevCoord = coord - 1;
+            int xCheck = isHorizontal ? fixed : prevCoord;
+            int yCheck = isHorizontal ? prevCoord : fixed;
+            if (getFichaAtPosition(xCheck, yCheck) == null) break;
+            coord = prevCoord;
+        }
+
+        return isHorizontal ? new Point(fixed, coord) : new Point(coord, fixed);
+    }
+
+    private void validateCrosswords(Point placement) throws CoordenadaFueraDeRangoException {
+        // Check vertical crosswords for horizontal placements and vice versa
+        boolean isHorizontal = colocacionesTemporales.keySet().stream().allMatch(p -> p.x == placement.x);
+
+        if (isHorizontal) {
+            // Check vertical words at each new tile
+            for (Point p : colocacionesTemporales.keySet()) {
+                StringBuilder verticalWord = new StringBuilder();
+                for (int x = p.x; ; x--) {
+                    Ficha f = getFichaAtPosition(x, p.y);
+                    if (f == null) break;
+                    verticalWord.insert(0, f.getLetra());
+                }
+                for (int x = p.x + 1; ; x++) {
+                    Ficha f = getFichaAtPosition(x, p.y);
+                    if (f == null) break;
+                    verticalWord.append(f.getLetra());
+                }
+                //if (verticalWord.length() > 1 && !partida.dawg.existePalabra(verticalWord.toString())) {
+                   // throw new InvalidWordException("Invalid crossword: " + verticalWord);
+                //}
+            }
+        } else {
+            // Similar logic for vertical placements
+        }
+    }
+
+    private void revertTemporaryPlacements() {
+        colocacionesTemporales.forEach((pos, ficha) -> {
+            atrilActual.put(ficha, atrilActual.getOrDefault(ficha, 0) + 1);
+        });
+        colocacionesTemporales.clear();
+        fichasTemporales.clear();
+        refreshUI();
+    }
+
+    private void refreshUI() {
+        cargarTablero();
+        cargarAtril();
     }
 
     private void actualizarEstadoJuego() {
         cargarTablero();
         cargarAtril();
-        lblPuntos.setText("Puntos: " + (
-                jugadorActual.equals(partida.getCreador()) ?
-                        partida.getRondas().get(partida.getRondas().size()-1).getPuntuacionJ1() :
-                        partida.getRondas().get(partida.getRondas().size()-1).getPuntuacionJ2()
-        ));
-        // Cambiar turno
-        jugadorActual = partida.getRondas().get(partida.getRondas().size()-1).getJugador();
-        lblJugador.setText("Jugador: " + jugadorActual.getUsername());
-        if (partida.getModoPartida() == Partida.Modo.PvIA && !jugadorActual.equals(partida.getCreador())) {
-            ejecutarTurnoIA();
-        }
+        // Update points and current player
+        Turno turnoActual = partida.getRondas().get(partida.getRondas().size()-1);
+        lblPuntos.setText("Puntos: " + (jugadorActual.equals(partida.getCreador())
+                ? turnoActual.getPuntuacionJ1()
+                : turnoActual.getPuntuacionJ2()));
+        jugadorActual = turnoActual.getJugador();
+        lblJugador.setText("Turno de: " + jugadorActual.getUsername());
     }
 
     private void ejecutarTurnoIA() {
@@ -414,13 +503,13 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void revertirColocacionesTemporales() {
-        colocacionesTemporales.forEach(p -> {
-            JPanel celda = (JPanel) panelTablero.getComponent(p.y * Tablero.FILAS + p.x);
-            celda.removeAll();
-            celda.revalidate();
-            celda.repaint();
+        colocacionesTemporales.forEach((p, f) -> {
+            atrilActual.put(f, atrilActual.getOrDefault(f, 0) + 1);
         });
         colocacionesTemporales.clear();
+        fichasTemporales.clear();
+        cargarAtril();
+        cargarTablero();
     }
 
     private void cambiarFichas() {
