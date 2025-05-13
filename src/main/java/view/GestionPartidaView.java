@@ -193,7 +193,8 @@ public class GestionPartidaView extends JFrame {
                     JOptionPane.showMessageDialog(this, "¡No puedes jugar contra ti mismo!");
                     return;
                 }
-                gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvP, oponente, 0);
+                Partida partida = gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvP, oponente, 0);
+                gestorDeView.mostrarPartida(partida);
                 JOptionPane.showMessageDialog(this, "Partida PvP creada exitosamente!");
             } else {
                 String[] dificultadOptions = {"1", "2", "3"};
@@ -210,7 +211,8 @@ public class GestionPartidaView extends JFrame {
                 if (dificultadStr == null) return;
 
                 int dificultad = Integer.parseInt(dificultadStr);
-                gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvIA, null, dificultad);
+                Partida partida = gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvIA, null, dificultad);
+                gestorDeView.mostrarPartida(partida);
                 JOptionPane.showMessageDialog(this, "Partida PvIA creada exitosamente!");
             }
         } catch (NumberFormatException ex) {

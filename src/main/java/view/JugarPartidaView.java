@@ -30,6 +30,8 @@ public class JugarPartidaView extends JFrame {
     private JPanel panelAtril;
     private JLabel lblJugador;
     private JLabel lblPuntos;
+    JPanel infoPanel;
+    JPanel mainPanel;
     private List<Point> colocacionesTemporales = new ArrayList<>();
 
     public JugarPartidaView(Partida partida, GestorDePartida gestorDePartida) {
@@ -43,6 +45,9 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void init() {
+
+        Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(ANCHO, ALTO);
         setLocationRelativeTo(null);
@@ -52,18 +57,18 @@ public class JugarPartidaView extends JFrame {
         setContentPane(contentPane);
 
         // Panel principal
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Panel de información
-        JPanel infoPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        infoPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         infoPanel.setOpaque(false);
-        lblJugador = new JLabel("Jugador: " + jugadorActual.getUsername());
+        lblJugador = new JLabel("Turno de: " + turnoActual.getJugador().getUsername());
         lblJugador.setFont(TITLE_FONT);
-        lblJugador.setForeground(Color.WHITE);
-        lblPuntos = new JLabel("Puntos: " + partida.getRondas().get(partida.getRondas().size()-1).getPuntuacionJ1());
+        lblJugador.setForeground(Color.BLACK);
+        lblPuntos = new JLabel("Puntos: " + turnoActual.getPuntuacionJ1());
         lblPuntos.setFont(TITLE_FONT);
-        lblPuntos.setForeground(Color.WHITE);
+        lblPuntos.setForeground(Color.BLACK);
         infoPanel.add(lblJugador);
         infoPanel.add(lblPuntos);
         mainPanel.add(infoPanel, BorderLayout.NORTH);
@@ -71,8 +76,8 @@ public class JugarPartidaView extends JFrame {
         // Panel del tablero
         panelTablero = new JPanel(new GridLayout(Tablero.FILAS, Tablero.COLUMNAS, 1, 1));
         panelTablero.setPreferredSize(new Dimension(
-                Tablero.COLUMNAS * 45,  // 45 pixels per column (40+5 margin)
-                Tablero.FILAS * 45       // 45 pixels per row
+                Tablero.COLUMNAS * 45,
+                Tablero.FILAS * 45
         ));
         cargarTablero();
         mainPanel.add(new JScrollPane(panelTablero), BorderLayout.CENTER);
@@ -93,12 +98,44 @@ public class JugarPartidaView extends JFrame {
         botonesPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         addJugarButton(botonesPanel, "Confirmar", COLOR_VERDE, e -> confirmarColocacion());
         addJugarButton(botonesPanel, "Cambiar Fichas", COLOR_AZUL, e -> cambiarFichas());
+        addJugarButton(botonesPanel, "Pasar turno", COLOR_AZUL, e -> pasarTurno());
         addJugarButton(botonesPanel, "Salir", COLOR_ROJO, e -> salirPartida());
         lateralPanel.add(botonesPanel, BorderLayout.SOUTH);
 
         mainPanel.add(lateralPanel, BorderLayout.EAST);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
+    }
+
+    private void pasarTurno() {
+        Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+        turnoActual.pasarTurno();
+        turnoActual = partida.getRondas().get(partida.getRondas().size() - 1); // Get the new turn
+        jugadorActual = turnoActual.getJugador(); // <-- Add this line to update the current player
+        atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual); // Now uses the new player
+        cargarTablero();
+        cargarAtril();
+
+        // Remove old components and update labels
+        infoPanel.removeAll();
+
+        lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+        lblJugador.setFont(TITLE_FONT);
+        lblJugador.setForeground(Color.BLACK);
+
+        lblPuntos = new JLabel("Puntos: " + (
+                jugadorActual.equals(partida.getCreador()) ?
+                        turnoActual.getPuntuacionJ1() :
+                        turnoActual.getPuntuacionJ2()
+        ));
+        lblPuntos.setFont(TITLE_FONT);
+        lblPuntos.setForeground(Color.BLACK);
+
+        infoPanel.add(lblJugador);
+        infoPanel.add(lblPuntos);
+
+        infoPanel.revalidate();
+        infoPanel.repaint();
     }
 
     private void addJugarButton(JPanel panel, String text, Color color, ActionListener action) {
@@ -312,8 +349,20 @@ public class JugarPartidaView extends JFrame {
     private void cambiarFichas() {
         List<String> fichasCambio = new ArrayList<>();
         JPanel dialogPanel = new JPanel(new GridLayout(0, 1));
+
+        // Expand the map into a list of Fichas (including duplicates)
+        List<Ficha> fichasEnAtril = new ArrayList<>();
         for (Map.Entry<Ficha, Integer> entry : atrilActual.entrySet()) {
-            JCheckBox check = new JCheckBox(entry.getKey().getLetra());
+            Ficha ficha = entry.getKey();
+            int count = entry.getValue();
+            for (int i = 0; i < count; i++) {
+                fichasEnAtril.add(ficha);
+            }
+        }
+
+        // Create a checkbox for each Ficha instance
+        for (Ficha ficha : fichasEnAtril) {
+            JCheckBox check = new JCheckBox(ficha.getLetra());
             dialogPanel.add(check);
         }
 
@@ -337,6 +386,7 @@ public class JugarPartidaView extends JFrame {
             if (exito) {
                 cargarAtril();
                 JOptionPane.showMessageDialog(this, "Fichas cambiadas exitosamente");
+                pasarTurno();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al cambiar fichas");
             }
