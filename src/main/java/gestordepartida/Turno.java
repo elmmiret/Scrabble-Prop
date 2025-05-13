@@ -93,6 +93,7 @@ public class Turno {
         this.atrilJ2 = new HashMap<>();
         this.tipoJugada = TipoJugada.pasar;
         this.tableroTurno = partida.getTablero().clonar();
+
     }
 
     /**
@@ -110,10 +111,28 @@ public class Turno {
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
-        this.atrilJ1 = atrilJ1;
-        this.atrilJ2 = atrilJ2;
-        this.tableroTurno = partida.getTablero().clonar();
+        this.atrilJ1 = new HashMap<>(atrilJ1);
+        this.atrilJ2 = new HashMap<>(atrilJ2);
+        this.tableroTurno = new Tablero(partida.getIdioma());
     }
+
+
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, boolean noClonarTablero) {
+        this.partida = partida;
+        this.jugador = jugador;
+        this.puntosJ1 = puntosJ1;
+        this.puntosJ2 = puntosJ2;
+        this.atrilJ1 = new HashMap<>();
+        this.atrilJ2 = new HashMap<>();
+        this.tipoJugada = TipoJugada.pasar;
+
+        if (!noClonarTablero) {
+            this.tableroTurno = partida.getTablero().clonar();
+        } else {
+            this.tableroTurno = new Tablero(partida.getIdioma());
+        }
+    }
+
 
     /**
      * Obtiene el jugador actual del turno.
@@ -257,7 +276,7 @@ public class Turno {
     /**
      * Establece el tipo de jugada realizada en el turno.
      *
-     * @param tipojugada El tipo de jugada a establecer.
+     * @param tipo El tipo de jugada a establecer.
      */
     public void setTipoJugada(TipoJugada tipo) {
         this.tipoJugada = tipo;
@@ -358,6 +377,10 @@ public class Turno {
         return tableroTurno;
     }
 
+
+    public void setTableroTurno(Tablero tablero) {
+        tableroTurno = tablero;
+    }
     /**
      * Retira una ficha específica del atril.
      *

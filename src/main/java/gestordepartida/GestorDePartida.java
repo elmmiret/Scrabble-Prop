@@ -76,7 +76,7 @@ public class GestorDePartida {
                     creador = gestorDePerfil.getPerfil(username);
                 } else if (linea.startsWith("OPONENTE|")) {
                     String username = linea.split("\\|")[1];
-                    if (username != null) {
+                    if (username != "null") {
                         oponente = gestorDePerfil.getPerfil(username);
                     }
                 } else if (linea.startsWith("DIFICULTAD|")) {
@@ -124,7 +124,7 @@ public class GestorDePartida {
                         String[] datos = linea.split("\\|");
                         Perfil jugador = gestorDePerfil.getPerfil(datos[1]);
                         Turno.TipoJugada tipo = Turno.TipoJugada.valueOf(datos[2]);
-                        turnoActual = new Turno(partidaActual, jugador, 0, 0);
+                        turnoActual = new Turno(partidaActual, jugador, 0, 0, true);
                         turnoActual.setTipoJugada(tipo);
                         partidaActual.getRondas().add(turnoActual);
 
@@ -140,9 +140,16 @@ public class GestorDePartida {
                         turnoActual.setPuntosJ1(Integer.parseInt(puntos[1]));
                         turnoActual.setPuntosJ2(Integer.parseInt(puntos[2]));
 
+                    } else if (linea.startsWith("TABLERO_TURNO|")) {
+                        String estadoTablero = linea.split("\\|")[1];
+                        if (turnoActual.getTableroTurno() == null) {
+                            turnoActual.setTableroTurno(new Tablero(partidaActual.getIdioma()));
+                        }
+                        cargarTableroTurno(turnoActual.getTableroTurno(), estadoTablero, partidaActual.getMapaLetras());
                     } else if (linea.startsWith("ATRIL_J1|")) {
                         String data = linea.split("\\|")[1];
                         turnoActual.setAtrilJ1(cargarAtril(data, partidaActual.getMapaLetras()));
+
 
                     } else if (linea.startsWith("ATRIL_J2|")) {
                         String data = linea.split("\\|")[1];
@@ -162,9 +169,8 @@ public class GestorDePartida {
 
         for (String entry : data.split(",")) {
             String[] partes = entry.split(":");
-            String letra = partes[0];
             int cantidad = Integer.parseInt(partes[1]);
-            Ficha ficha = mapaLetras.get(letra);
+            Ficha ficha = mapaLetras.get(partes[0]);
             if (ficha != null) {
                 atril.put(ficha, cantidad);
             }
@@ -207,6 +213,7 @@ public class GestorDePartida {
                 for (Turno turno : partida.getRondas()) {
                     if (turno.getTipoJugada() == null) turno.setTipoJugada(Turno.TipoJugada.pasar); // con esto evitamos errores y en el turnoActual podemos seguir con el jugador qeu deberia
                     writer.println("TURNO|" + turno.getJugador().getUsername() + "|" + turno.getTipoJugada());
+                    writer.println("TABLERO_TURNO|" + guardarTableroTurno(turno.getTableroTurno()));
                     if (turno.getTipoJugada() == Turno.TipoJugada.colocar) {
                         writer.println("COLOCAR|" + turno.getPalabra() + "|" + turno.getX() + "|" + turno.getY() + "|" + (turno.getHorizontal() ? "horizontal" : "vertical"));
                     } else if (turno.getTipoJugada() == Turno.TipoJugada.cambiar) {
@@ -221,6 +228,38 @@ public class GestorDePartida {
         } catch (Exception e) {
             System.err.println("Error al guardar: " + e.getMessage());
         }
+    }
+
+    private void cargarTableroTurno(Tablero tablero, String estado, Map<String, Ficha> mapaLetras) {
+        String[] celdas = estado.split(",");
+        int index = 0;
+        for (int i = 0; i < Tablero.FILAS; i++) {
+            for (int j = 0; j < Tablero.COLUMNAS; j++) {
+                String letra = celdas[index++];
+                if (!letra.equals("-")) {
+                    Ficha f = mapaLetras.get(letra);
+                    try {
+                        tablero.setFicha(f, i, j);
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+    }
+
+    private String guardarTableroTurno(Tablero tablero) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Tablero.FILAS; i++) {
+            for (int j = 0; j < Tablero.COLUMNAS; j++) {
+                try {
+                    Ficha f = tablero.getFicha(i, j);
+                    sb.append(f != null ? f.getLetra() : "-");
+                } catch (CoordenadaFueraDeRangoException e) {
+                    sb.append("-");
+                }
+                sb.append(",");
+            }
+        }
+        return sb.toString();
     }
 
     private String guardarAtril(Map<Ficha, Integer> atril) {
@@ -398,6 +437,47 @@ public class GestorDePartida {
         Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
         if (jugador == null) return turno.getAtrilJ2();
         else return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
+    }
+
+
+    public int getMaxTurnos(Partida partida) {
+        return partida.getRondas().size()-1;
+    }
+
+    public boolean isTurnoValido(Partida partida, int numTurno) {
+        int max = getMaxTurnos(partida);
+        return numTurno >= 1 && numTurno <= max;
+    }
+
+    public Turno getTurno(Partida partida, int index) {
+        if (index < 0 || index >= partida.getRondas().size()) {
+            throw new IllegalArgumentException("Índex de torn invàlid");
+        }
+        return partida.getRondas().get(index);
+    }
+
+    public String getOponenteUsername(Partida partida) {
+        if (partida.getModoPartida() == Partida.Modo.PvP) {
+            return partida.getOponente().getUsername();
+        } else {
+            return "IA";
+        }
+    }
+
+    public Map<Ficha, Integer>[] getAtrilesTurno(Turno turno) {
+        Partida partida = turno.getPartida();
+        Perfil jugadorActivo = turno.getJugador();
+        Map<Ficha, Integer> atrilJugador, atrilOponente;
+
+        if (jugadorActivo.equals(partida.getCreador())) {
+            atrilJugador = turno.getAtrilJ1();
+            atrilOponente = turno.getAtrilJ2();
+        } else {
+            atrilJugador = turno.getAtrilJ2();
+            atrilOponente = turno.getAtrilJ1();
+        }
+
+        return new Map[] {atrilJugador, atrilOponente};
     }
 
 }

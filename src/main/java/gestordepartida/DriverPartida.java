@@ -216,11 +216,11 @@ public class DriverPartida {
 
     }
 
-    private void verRepeticionPartida()throws CoordenadaFueraDeRangoException {
+    private void verRepeticionPartida() throws CoordenadaFueraDeRangoException {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
 
-        System.out.println("De qué partida deseas ver la repetición?");
+        System.out.println("¿De qué partida quieres ver la repetición?");
         consultarPartidas(jugador);
 
         int id = leerEntero("ID de la partida: ");
@@ -233,69 +233,77 @@ public class DriverPartida {
 
         System.out.println("\n=== REPETICIÓN PARTIDA " + id + " ===");
         boolean salir = false;
-        String usernameCreador = partida.getCreador().getUsername();
-        String usernameOponente;
-        if (partida.getModoPartida().equals(Partida.Modo.PvP)) {
-            usernameOponente = partida.getOponente().getUsername();
-        } else {
-            usernameOponente = "IA";
+        int i = 0;
+        int maxTurnos = gestor.getMaxTurnos(partida);
+        if (maxTurnos < 0) {
+            System.out.println("No hay turnos para mostrar.");
+            return;
         }
-        int i = 0; // indice del turno que queremos repetir
-        int maxTurnos = partida.getRondas().size() - 2;
-        Turno turnoRepe = partida.getRondas().get(i);
+
+        String usernameCreador = partida.getCreador().getUsername();
+        String usernameOponente = gestor.getOponenteUsername(partida);
+
         while (!salir) {
-            boolean accionValida = false;
-            System.out.println("TURNO " + (i+1));
+            Turno turnoRepe = gestor.getTurno(partida, i);
+            Perfil jugadorActivo = turnoRepe.getJugador();
+
+            System.out.println("=== TURNO " + (i + 1) + ", le toca jugar a " + jugadorActivo.getUsername());
             gestor.obtenerRepresentacionTablero(turnoRepe.getTableroTurno());
-            System.out.println("ATRIL " + usernameCreador + ":");
-            mostrarAtril(turnoRepe.getAtrilJ1());
-            System.out.println("ATRIL " + usernameOponente + ":");
-            mostrarAtril(turnoRepe.getAtrilJ2());
-            while (!accionValida) {
-                int num = leerEntero("Qué desea hacer:\n1- Siguiente turno\n2- Turno anterior\n3- Ver turno en concreto\n4- Salir");
-                switch (num) {
+
+            Map<Ficha, Integer>[] atriles = gestor.getAtrilesTurno(turnoRepe);
+            Map<Ficha, Integer> atrilJugadorSiguiente = atriles[1];
+
+            if (jugadorActivo.getUsername().equals(usernameCreador)) {
+                mostrarAtril(atrilJugadorSiguiente, 1);
+            } else {
+                mostrarAtril(atrilJugadorSiguiente, 1);
+            }
+
+
+
+            boolean accioValida = false;
+            while (!accioValida) {
+                int opcio = leerEntero("Acciones:\n1- Siguiente turno\n2- Turno anterior\n3- Ver turno específico\n4- Salir\n");
+                switch (opcio) {
                     case 1 -> {
-                        if (i == maxTurnos) {
-                            System.out.println("Ya estás en el último turno");
+                        if (i >= maxTurnos-1) {
+                            System.out.println("Estás en el último turno.");
                         } else {
                             i++;
-                            turnoRepe = partida.getRondas().get(i);
-                            accionValida = true;
+                            accioValida = true;
                         }
                     }
                     case 2 -> {
-                        if (i == 0) {
-                            System.out.println("Estás en el primer turno");
-
+                        if (i <= 0) {
+                            System.out.println("Estás en el primer turno.");
                         } else {
                             i--;
-                            turnoRepe = partida.getRondas().get(i);
-                            accionValida = true;
+                            accioValida = true;
                         }
                     }
                     case 3 -> {
-                        int numTurno = leerEntero("Introduce el número de turno que quieras ver: ");
-                        if (numTurno <= 0) {
-                            System.out.println("Introduce un  número mayor de 0");
-                        } else if (numTurno> maxTurnos) {
-                            System.out.println("Has excedido el número de turnos. Selecciona un turno de 1 a " + maxTurnos + ".");
+                        int numTorn = leerEntero("Introduce el número de turno: ");
+                        if (numTorn <= 0) {
+                            System.out.println("Tiene que ser mayor de 0");
+                        } else if (!gestor.isTurnoValido(partida, numTorn)) {
+                            System.out.println("Turno fuera de rango (1-" + maxTurnos + ")");
                         } else {
-                            i = numTurno-1;
-                            turnoRepe = partida.getRondas().get(i);
-                            accionValida = true;
+                            i = numTorn - 1;
+                            accioValida = true;
                         }
                     }
                     case 4 -> {
                         salir = true;
-                        accionValida = true;
+                        accioValida = true;
                     }
+                    default -> System.out.println("Opción inválida");
                 }
             }
         }
 
-        System.out.println("Has salido correctamente de la repetición!");
-
+        System.out.println("Repetició finalitzada");
     }
+
 
     /**
      * Maneja el flujo de juego contra otro jugador humano.
@@ -376,9 +384,6 @@ public class DriverPartida {
                     }
                 }
 
-                for (Turno turno : partida.getRondas()) {
-                    System.out.print(turno.getTipoJugada() + "   |    ");
-                }
             }
             else {
                 turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
@@ -497,20 +502,16 @@ public class DriverPartida {
                             {
                                 System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                                 gestorPerfiles.incrementarPartidasGanadas(partida.getCreador().getUsername());
-                                gestorPerfiles.incrementarPartidasPerdidas(partida.getOponente().getUsername());
                             }
                             else if (turnoActual.getPuntuacionJ2() > turnoActual.getPuntuacionJ1())
                             {
-                                System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
-                                gestorPerfiles.incrementarPartidasGanadas(partida.getOponente().getUsername());
+                                System.out.printf("\nGANADOR: IA");
                                 gestorPerfiles.incrementarPartidasPerdidas(partida.getCreador().getUsername());
                             }
 
                             gestorPerfiles.incrementarPuntosJugador(partida.getCreador().getUsername(), turnoActual.getPuntuacionJ1());
-                            gestorPerfiles.incrementarPuntosJugador(partida.getOponente().getUsername(), turnoActual.getPuntuacionJ2());
 
                             gestorPerfiles.incrementarPartidasJugadas(partida.getCreador().getUsername());
-                            gestorPerfiles.incrementarPartidasJugadas(partida.getOponente().getUsername());
 
                             return;
                         }
@@ -531,20 +532,16 @@ public class DriverPartida {
                     {
                         System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                         gestorPerfiles.incrementarPartidasGanadas(partida.getCreador().getUsername());
-                        gestorPerfiles.incrementarPartidasPerdidas(partida.getOponente().getUsername());
                     }
                     else if (turnoActual.getPuntuacionJ2() > turnoActual.getPuntuacionJ1())
                     {
-                        System.out.printf("\nGANADOR: %s\n", partida.getOponente().getUsername());
-                        gestorPerfiles.incrementarPartidasGanadas(partida.getOponente().getUsername());
+                        System.out.printf("\nGANADOR: IA");
                         gestorPerfiles.incrementarPartidasPerdidas(partida.getCreador().getUsername());
                     }
 
                     gestorPerfiles.incrementarPuntosJugador(partida.getCreador().getUsername(), turnoActual.getPuntuacionJ1());
-                    gestorPerfiles.incrementarPuntosJugador(partida.getOponente().getUsername(), turnoActual.getPuntuacionJ2());
 
                     gestorPerfiles.incrementarPartidasJugadas(partida.getCreador().getUsername());
-                    gestorPerfiles.incrementarPartidasJugadas(partida.getOponente().getUsername());
 
                     return;
                 }
@@ -672,13 +669,23 @@ public class DriverPartida {
         }
     }
 
+
+    private void mostrarAtril(Map<Ficha, Integer> atril) {
+        mostrarAtril(atril, 0);
+    }
+
     /**
      * Muestra visualmente las fichas disponibles en el atril.
      *
      * @param atril Mapa de fichas con sus cantidades
      */
-    private void mostrarAtril(Map<Ficha, Integer> atril) {
-        System.out.println("\n=== TUS FICHAS ===");
+    private void mostrarAtril(Map<Ficha, Integer> atril, int num) {
+        if (num == 0) {
+            System.out.println("\n=== TUS FICHAS ===");
+        } else if (num == 1){
+            System.out.println("\n=== FICHAS PRÓXIMO JUGADOR ===");
+
+        }
         atril.forEach((f, c) -> {
             for (int i = 0; i < c; i++) {
                 System.out.print(f.getLetra() + " ");
