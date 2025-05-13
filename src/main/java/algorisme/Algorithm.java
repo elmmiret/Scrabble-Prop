@@ -167,9 +167,9 @@ public class Algorithm {
                          String letra = entrada.getKey();
                          NodoDawg hijo = entrada.getValue();
 
-                         // Verificar cross-check con seguridad
+                         // Verificar cross-check
                          int posicion = fila * Tablero.COLUMNAS + col;
-                         if((crossChecks.containsKey(posicion))) {
+                         if((crossChecks.containsKey(posicion) && crossChecks.get(posicion).contains(letra))) {
                              Set<String> checks = crossChecks.get(posicion);
                              if(checks.contains(letra)) {
                                  if(atril.containsKey(letra) && atril.get(letra) > 0) {

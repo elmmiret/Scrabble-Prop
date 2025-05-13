@@ -297,6 +297,7 @@ public class Turno {
                 return fichaEncontrada;
             }
         }
+
         return null;
     }
 
@@ -352,7 +353,7 @@ public class Turno {
      * @param orientacion  Dirección de colocación ("vertical" u "horizontal").
      * @return             true si la palabra se colocó correctamente, false en caso contrario.
      * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero.
-     * @throws CasillaOcupadaException         Si una casilla ya está ocupada.
+     * @throws CasillaOcupadaException Si una casilla ya está ocupada.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         System.out.println("Entro a colocarPalabra " + palabra + " " + x_ini + " " + y_ini + " " + orientacion);
@@ -366,19 +367,40 @@ public class Turno {
         // pasarle si es el primer turno o no
         boolean esPrimerTurno = false;
         if (getTablero().estaVacio()) esPrimerTurno = true;
+
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
 
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
-            if (esPrimerTurno)
-            {
-                if (orientacion.equals("vertical"))
-                {
-                    if (x_ini > 7 || y_ini != 7 || (x_ini + fichas.size()) < 8) return false;
 
+            String palabraCompleta = partida.getDawg().construirPalabraCompleta(getTablero(), fichas, x_ini, y_ini, orientacion);
+
+            if (!partida.getDawg().existePalabra(palabraCompleta)) {
+                System.out.println("Palabra completa no válida: " + palabraCompleta);
+                return false;
+            }
+
+            if (esPrimerTurno) {
+                boolean pasaPorCentro = false;
+                if (orientacion.equals("vertical")) {
+                    // Para vertical, verificar si alguna letra pasa por (7,7)
+                    for (int i = 0; i < fichas.size(); i++) {
+                        if ((x_ini + i) == Tablero.FILAS/2 && y_ini == Tablero.COLUMNAS/2) {
+                            pasaPorCentro = true;
+                            break;
+                        }
+                    }
+                } else { // horizontal
+                    // Para horizontal, verificar si alguna letra pasa por (7,7)
+                    for (int i = 0; i < fichas.size(); i++) {
+                        if (x_ini == Tablero.FILAS/2 && (y_ini + i) == Tablero.COLUMNAS/2) {
+                            pasaPorCentro = true;
+                            break;
+                        }
+                    }
                 }
-                else if (orientacion.equals("horizontal"))
-                {
-                    if (x_ini != 7 || y_ini > 7 || (y_ini + fichas.size()) < 8) return false;
+                if (!pasaPorCentro) {
+                    System.out.println("Falla verificación primer turno - no pasa por centro");
+                    return false;
                 }
             }
 
@@ -578,9 +600,9 @@ public class Turno {
      * Ejecuta la lógica de la IA para seleccionar y colocar la mejor palabra posible.
      *
      * @throws CoordenadaFueraDeRangoException Si las coordenadas generadas son inválidas.
-     * @throws CasillaOcupadaException         Si se intenta colocar en una casilla ocupada.
+     * @throws CasillaOcupadaException Si se intenta colocar en una casilla ocupada.
      */
-    public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+    public void jugarIA(int dificultad) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int nroFichas = getTotalFichas(atrilJ2);
         String[] atril = new String[nroFichas];
         int index = 0;
@@ -612,14 +634,8 @@ public class Turno {
 
         // si la IA ha encoentrado movimientos
         else {
-            // TODO:
-            // llamar a una funcion para que ordene los movimientos segun los puntos que de
-            // segun la dificultad, escoger uno u otro
+            Movimiento m = getMejorMovimiento(movimientosValidos, dificultad);
 
-
-            //Movimiento mejorMov = getMejorMovimiento(movimientosValidos, dificultad);
-
-            Movimiento m = movimientosValidos.get(0);
             List<String> trozosPalabra = m.getPalabra();
             StringBuilder palabra = new StringBuilder();
             for (String trozo : trozosPalabra) palabra.append(trozo);
@@ -631,13 +647,11 @@ public class Turno {
         }
     }
 
-    private SimpleEntry<Movimiento, Integer> getMejorMovimientoiPuntuacion(List<Movimiento> movimientos, int dificultad) {
-        // en partida. está mapaFichas (alfabeto) y dawg
+    private Movimiento getMejorMovimiento(List<Movimiento> movimientos, int dificultad) {
         Map<String, Ficha> fichasAlfabeto = partida.getMapaLetras();
-        Dawg dawg = partida.getDawg();
         Tablero tablero = partida.getTablero();
 
-        SimpleEntry<Movimiento, Integer> best = new SimpleEntry<>(null, 0);
+        Movimiento best = null;
 
         // Recorrer toda la lista y obtener el mejor movimiento en funcion de la dificultad en la que se esté jugando y las posiciones del tablero
         // Ver si al colocar la palabra en el tablero, su puntuación es mayor que mejorPuntuacion
@@ -662,32 +676,39 @@ public class Turno {
                         for(int x = mov.getFila(); idx < letras.size(); x++) {
                             int puntuacionLetra;
                             try {
-                                switch (tablero.getTipoModificador(x, y)) {
-                                    case dobleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += 2 * puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 2 * puntuacionLetra;
+                                            ++idx;
+                                            break;
 
-                                    case tripleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += 3 * puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 3 * puntuacionLetra;
+                                            ++idx;
+                                            break;
 
-                                    case dobleTantoDePalabra:
-                                        dobleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
 
-                                    case tripleTantoDePalabra:
-                                        tripleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra += fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    idx++;
                                 }
                             }
                             catch (CoordenadaFueraDeRangoException e){
@@ -712,32 +733,39 @@ public class Turno {
                         for(int y = mov.getColumna(); idx < letras.size(); y++) {
                             int puntuacionLetra;
                             try {
-                                switch (tablero.getTipoModificador(x, y)) {
-                                    case dobleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += 2 * puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 2 * puntuacionLetra;
+                                            ++idx;
+                                            break;
 
-                                    case tripleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += 3 * puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 3 * puntuacionLetra;
+                                            ++idx;
+                                            break;
 
-                                    case dobleTantoDePalabra:
-                                        dobleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
 
-                                    case tripleTantoDePalabra:
-                                        tripleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                        puntuacionPalabra += puntuacionLetra;
-                                        ++idx;
-                                        break;
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra += fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    idx++;
                                 }
                             }
                             catch (CoordenadaFueraDeRangoException e){
@@ -756,7 +784,7 @@ public class Turno {
                     }
                 }
 
-                best = new SimpleEntry<>(mejorMovimientoFacil, mejorPuntuacionFacil);
+                best = mejorMovimientoFacil;
                 break;
 
             // Medio
@@ -765,100 +793,7 @@ public class Turno {
                 int size = movimientos.size();
                 int idx_random = rand.nextInt(size);
 
-                Movimiento mov = movimientos.get(idx_random);
-
-                List<String> letras = mov.getPalabra();
-                int idx = 0;
-                int puntuacionPalabra = 0;
-                boolean dobleTantoPalabra = false;
-                boolean tripleTantoPalabra = false;
-
-                if(mov.isVertical()) {
-                    int y = mov.getColumna();
-
-                    for(int x = mov.getFila(); idx < letras.size(); x++) {
-                        int puntuacionLetra;
-                        try {
-                            switch (tablero.getTipoModificador(x, y)) {
-                                case dobleTantoDeLetra:
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += 2 * puntuacionLetra;
-                                    ++idx;
-                                    break;
-
-                                case tripleTantoDeLetra:
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += 3 * puntuacionLetra;
-                                    ++idx;
-                                    break;
-
-                                case dobleTantoDePalabra:
-                                    dobleTantoPalabra = true;
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += puntuacionLetra;
-                                    ++idx;
-                                    break;
-
-                                case tripleTantoDePalabra:
-                                    tripleTantoPalabra = true;
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += puntuacionLetra;
-                                    ++idx;
-                                    break;
-                            }
-                        }
-                        catch (CoordenadaFueraDeRangoException e){
-                            // No debería passar
-                        }
-                    }
-                }
-
-                // si el movimiento es horizontal
-                else{
-                    int x = mov.getFila();
-
-                    for(int y = mov.getColumna(); idx < letras.size(); y++) {
-                        int puntuacionLetra;
-                        try {
-                            switch (tablero.getTipoModificador(x, y)) {
-                                case dobleTantoDeLetra:
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += 2 * puntuacionLetra;
-                                    ++idx;
-                                    break;
-
-                                case tripleTantoDeLetra:
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += 3 * puntuacionLetra;
-                                    ++idx;
-                                    break;
-
-                                case dobleTantoDePalabra:
-                                    dobleTantoPalabra = true;
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += puntuacionLetra;
-                                    ++idx;
-                                    break;
-
-                                case tripleTantoDePalabra:
-                                    tripleTantoPalabra = true;
-                                    puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
-                                    puntuacionPalabra += puntuacionLetra;
-                                    ++idx;
-                                    break;
-                            }
-                        }
-                        catch (CoordenadaFueraDeRangoException e){
-                            // No debería passar
-                        }
-                    }
-                }
-
-                if(tripleTantoPalabra && dobleTantoPalabra) puntuacionPalabra *= 6;
-                else if(tripleTantoPalabra) puntuacionPalabra *= 3;
-                else if(dobleTantoPalabra) puntuacionPalabra *= 2;
-
-                best = new SimpleEntry<>(mov, puntuacionPalabra);
+                best = movimientos.get(idx_random);
                 break;
 
 
@@ -880,32 +815,39 @@ public class Turno {
                         for(int x = mov2.getFila(); idx2 < letras2.size(); x++) {
                             int puntuacionLetra;
                             try {
-                                switch (tablero.getTipoModificador(x, y)) {
-                                    case dobleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += 2 * puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 2 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
 
-                                    case tripleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += 3 * puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 3 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
 
-                                    case dobleTantoDePalabra:
-                                        dobleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
 
-                                    case tripleTantoDePalabra:
-                                        tripleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra2 += fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                    idx2++;
                                 }
                             }
                             catch (CoordenadaFueraDeRangoException e){
@@ -930,32 +872,39 @@ public class Turno {
                         for(int y = mov2.getColumna(); idx2 < letras2.size(); y++) {
                             int puntuacionLetra;
                             try {
-                                switch (tablero.getTipoModificador(x, y)) {
-                                    case dobleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += 2 * puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 2 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
 
-                                    case tripleTantoDeLetra:
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += 3 * puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 3 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
 
-                                    case dobleTantoDePalabra:
-                                        dobleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
 
-                                    case tripleTantoDePalabra:
-                                        tripleTantoPalabra = true;
-                                        puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
-                                        puntuacionPalabra2 += puntuacionLetra;
-                                        ++idx2;
-                                        break;
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra2 += fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                    idx2++;
                                 }
                             }
                             catch (CoordenadaFueraDeRangoException e){
@@ -974,7 +923,7 @@ public class Turno {
                     }
                 }
 
-                best = new SimpleEntry<>(mejorMovimientoDificil, mejorPuntuacionDificil);
+                best = mejorMovimientoDificil;
                 break;
 
         }

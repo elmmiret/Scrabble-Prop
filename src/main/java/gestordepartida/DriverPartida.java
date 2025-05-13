@@ -230,7 +230,7 @@ public class DriverPartida {
                 throw new RuntimeException(e);
             }
             Map <Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
-            if (atril.size() > 0) {
+            if (!atril.isEmpty()) {
                 mostrarAtril(atril);
                 int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                 boolean accionValida = false;
@@ -336,21 +336,20 @@ public class DriverPartida {
     private void jugarIA(Partida partida) throws CasillaOcupadaException, CoordenadaFueraDeRangoException {
         boolean enJuego = true;
         while (enJuego) {
-            Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+            Turno turnoActual = partida.getRondas().getLast();
             Perfil jugador = turnoActual.getJugador();
             if (jugador != partida.getCreador()) { // es la IA
                 System.out.println("\n=== TURNO DE LA IA ===");
                 try {
-//                    gestor.obtenerRepresentacionTablero(partida.getTablero());
                     gestor.obtenerRepresentacionTablero(turnoActual.getTablero());
 
                 } catch (CoordenadaFueraDeRangoException e) {
                     throw new RuntimeException(e);
                 }
                 Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
-                if (atril.size() > 0) {
+                if (!atril.isEmpty()) {
                     mostrarAtril(atril);
-                    turnoActual.jugarIA();
+                    turnoActual.jugarIA(partida.getDificultad());
                 } else {
                     turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
                 }
@@ -366,7 +365,7 @@ public class DriverPartida {
                     throw new RuntimeException(e);
                 }
                 Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
-                if (atril.size() > 0) {
+                if (!atril.isEmpty()) {
                     mostrarAtril(atril);
                     int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                     boolean accionValida = false;
@@ -476,7 +475,7 @@ public class DriverPartida {
         String orientacion = leerCadena("Orientación (V/H): ").toUpperCase();
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() -1);
         try {
-            boolean exito = gestor.colocarPalabra(turnoActual, palabra, x, y - 1, orientacion.equals("V") ? "vertical" : "horizontal");
+            boolean exito = gestor.colocarPalabra(turnoActual, palabra, x, y-1, orientacion.equals("V") ? "vertical" : "horizontal");
             System.out.println(exito ? "¡Palabra colocada!" : "Movimiento inválido");
             return exito;
         } catch (Exception e) {
