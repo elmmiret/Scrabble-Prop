@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.List;
 
 public class JugarPartidaView extends JFrame {
-    private static final int ANCHO = 1200;
+    private static final int ANCHO = 1300;
     private static final int ALTO = 1000;
     private final Color COLOR_AZUL = new Color(40, 100, 240);
     private final Color COLOR_ROJO = new Color(220, 50, 40);
@@ -33,6 +33,12 @@ public class JugarPartidaView extends JFrame {
     JPanel infoPanel;
     JPanel mainPanel;
     private List<Point> colocacionesTemporales = new ArrayList<>();
+    private Map<Ficha, Integer> fichasTemporales = new HashMap<>(); // Track tiles in use
+    private JPanel cambiarFichasPanel;
+    private JButton btnConfirmarCambio;
+    private JButton btnCancelarCambio;
+    private List<JCheckBox> checkBoxes = new ArrayList<>();
+    JPanel botonesPanel;
 
     public JugarPartidaView(Partida partida, GestorDePartida gestorDePartida) {
         super("Jugar Partida");
@@ -93,18 +99,50 @@ public class JugarPartidaView extends JFrame {
         lateralPanel.add(panelAtril, BorderLayout.NORTH);
 
         // Botones
-        JPanel botonesPanel = new JPanel(new GridLayout(3, 1, 10, 15));
+        botonesPanel = new JPanel(new GridLayout(3, 1, 10, 15));
         botonesPanel.setOpaque(false);
         botonesPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         addJugarButton(botonesPanel, "Confirmar", COLOR_VERDE, e -> confirmarColocacion());
         addJugarButton(botonesPanel, "Cambiar Fichas", COLOR_AZUL, e -> cambiarFichas());
         addJugarButton(botonesPanel, "Pasar turno", COLOR_AZUL, e -> pasarTurno());
         addJugarButton(botonesPanel, "Salir", COLOR_ROJO, e -> salirPartida());
+
+        // Inside the init() method, after creating the botonesPanel
+        cambiarFichasPanel = new JPanel(new BorderLayout(10, 5));
+        cambiarFichasPanel.setPreferredSize(new Dimension(200, 100)); // Altura máxima
+        cambiarFichasPanel.setOpaque(false);
+        cambiarFichasPanel.setVisible(false); // Hidden by default
+
+        // Add checkboxes for tiles (dynamically populated later)
+        JPanel checkboxPanel = new JPanel(new GridLayout(0, 1, 2, 2)); // Reducir espaciado entre filas
+        checkboxPanel.setOpaque(false);
+        cambiarFichasPanel.add(new JScrollPane(checkboxPanel), BorderLayout.CENTER);
+
+        JPanel btnPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        btnPanel.setPreferredSize(new Dimension(0, 35)); // Altura fija compacta
+        btnPanel.setOpaque(false);
+        btnConfirmarCambio = new JButton("Confirmar");
+        btnCancelarCambio = new JButton("Cancelar");
+        styleButton(btnConfirmarCambio, COLOR_VERDE);
+        styleButton(btnCancelarCambio, COLOR_ROJO);
+        btnPanel.add(btnConfirmarCambio);
+        btnPanel.add(btnCancelarCambio);
+        cambiarFichasPanel.add(btnPanel, BorderLayout.SOUTH);
+
+        lateralPanel.add(cambiarFichasPanel, BorderLayout.CENTER);
         lateralPanel.add(botonesPanel, BorderLayout.SOUTH);
 
         mainPanel.add(lateralPanel, BorderLayout.EAST);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
+    }
+
+    private void styleButton(JButton btn, Color color) {
+        btn.setForeground(Color.WHITE);
+        btn.setFont(BUTTON_FONT);
+        btn.setBackground(color);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
     }
 
     private void pasarTurno() {
@@ -196,12 +234,24 @@ public class JugarPartidaView extends JFrame {
         celda.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (fichaSeleccionada != null) {
-                    try {
+                try {
+                    Ficha fichaEnCelda = partida.getTablero().getFicha(x, y);
+
+                    if (fichaEnCelda != null && colocacionesTemporales.contains(new Point(x, y))) {
+
+                        atrilActual.put(fichaEnCelda, atrilActual.getOrDefault(fichaEnCelda, 0) + 1);
+                        fichasTemporales.put(fichaEnCelda, fichasTemporales.get(fichaEnCelda) - 1);
+
+                        colocacionesTemporales.remove(new Point(x, y));
+
+                        partida.getTablero().eliminarFicha(x, y);
+                        cargarTablero();
+                        cargarAtril();
+                    } else if (fichaSeleccionada != null) {
                         colocarFichaTemporal(x, y);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         });
@@ -222,8 +272,11 @@ public class JugarPartidaView extends JFrame {
     private void cargarAtril() {
         panelAtril.removeAll();
         for (Map.Entry<Ficha, Integer> entry : atrilActual.entrySet()) {
-            for (int i = 0; i < entry.getValue(); i++) {
-                Ficha f = entry.getKey();
+            Ficha f = entry.getKey();
+            int available = entry.getValue();
+            // Only show tiles that are NOT in temporary use
+            available -= fichasTemporales.getOrDefault(f, 0);
+            for (int i = 0; i < available; i++) {
                 JButton btnFicha = new JButton(f.getLetra());
                 btnFicha.setFont(LABEL_FONT);
                 btnFicha.setPreferredSize(new Dimension(50, 50));
@@ -248,17 +301,27 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void colocarFichaTemporal(int x, int y) throws CasillaOcupadaException, CoordenadaFueraDeRangoException {
-        if (partida.getTablero().getFicha(x, y) == null) {
-            colocacionesTemporales.add(new Point(x, y));
-            int index = x * Tablero.COLUMNAS + y;
-            JPanel celda = (JPanel) panelTablero.getComponent(index);
-            celda.removeAll();
-            JLabel lbl = new JLabel(fichaSeleccionada.getLetra(), SwingConstants.CENTER);
-            lbl.setFont(LABEL_FONT);
-            celda.add(lbl);
-            celda.revalidate();
-            celda.repaint();
-            fichaSeleccionada = null;
+        if (partida.getTablero().getFicha(x, y) == null && fichaSeleccionada != null) {
+            // Decrement the selected Ficha's count in the Atril
+            int count = atrilActual.getOrDefault(fichaSeleccionada, 0);
+            if (count > 0) {
+                atrilActual.put(fichaSeleccionada, count - 1);
+                fichasTemporales.put(fichaSeleccionada, fichasTemporales.getOrDefault(fichaSeleccionada, 0) + 1);
+
+                // Update the Atril UI immediately
+                cargarAtril();
+
+                colocacionesTemporales.add(new Point(x, y));
+                int index = x * Tablero.COLUMNAS + y;
+                JPanel celda = (JPanel) panelTablero.getComponent(index);
+                celda.removeAll();
+                JLabel lbl = new JLabel(fichaSeleccionada.getLetra(), SwingConstants.CENTER);
+                lbl.setFont(LABEL_FONT);
+                celda.add(lbl);
+                celda.revalidate();
+                celda.repaint();
+                fichaSeleccionada = null; // Deselect after placement
+            }
         }
     }
 
@@ -270,31 +333,45 @@ public class JugarPartidaView extends JFrame {
             StringBuilder palabra = new StringBuilder();
             int x = colocacionesTemporales.get(0).x;
             int y = colocacionesTemporales.get(0).y;
+            System.out.println(x);
+            System.out.println(y);
             String orientacion = "horizontal";
             if (colocacionesTemporales.size() > 1) {
                 if (colocacionesTemporales.get(1).x != x) orientacion = "vertical";
             }
 
+            System.out.println("1");
             for (Point p : colocacionesTemporales) {
+                System.out.println("loop");
                 Ficha f = partida.getTablero().getFicha(p.x, p.y);
                 if (f == null) {
                     palabra.append(fichaSeleccionada.getLetra());
                 }
             }
-
+            System.out.println("2");
             Turno turnoActual = partida.getRondas().get(partida.getRondas().size()-1);
-            boolean exito = turnoActual.colocarPalabra(
-                    palabra.toString(),
-                    x,
-                    y,
-                    orientacion
-            );
+            boolean exito = turnoActual.colocarPalabra(palabra.toString(), x, y, orientacion);
 
+            System.out.println("3");
             if (exito) {
+                fichasTemporales.clear(); // Clear temporary tracking
                 actualizarEstadoJuego();
                 colocacionesTemporales.clear();
             } else {
-                JOptionPane.showMessageDialog(this, "Movimiento inválido");
+                // Return tiles to Atril on failure
+                colocacionesTemporales.forEach(p -> {
+                    Ficha f = null;
+                    try {
+                        f = partida.getTablero().getFicha(p.x, p.y);
+                    } catch (CoordenadaFueraDeRangoException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (f != null) {
+                        atrilActual.put(f, atrilActual.getOrDefault(f, 0) + 1);
+                    }
+                });
+                fichasTemporales.clear();
+                cargarAtril();
                 revertirColocacionesTemporales();
             }
         } catch (Exception ex) {
@@ -347,50 +424,96 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void cambiarFichas() {
-        List<String> fichasCambio = new ArrayList<>();
-        JPanel dialogPanel = new JPanel(new GridLayout(0, 1));
+        // Hide regular buttons and show tile selection UI
+        botonesPanel.setVisible(false);
+        cambiarFichasPanel.setVisible(true);
 
-        // Expand the map into a list of Fichas (including duplicates)
+        // Populate checkboxes
+        JPanel checkboxPanel = (JPanel) ((JScrollPane) cambiarFichasPanel.getComponent(0)).getViewport().getView();
+        checkboxPanel.removeAll();
+        checkBoxes.clear();
+
+        // Create checkboxes for each tile
         List<Ficha> fichasEnAtril = new ArrayList<>();
         for (Map.Entry<Ficha, Integer> entry : atrilActual.entrySet()) {
-            Ficha ficha = entry.getKey();
-            int count = entry.getValue();
-            for (int i = 0; i < count; i++) {
-                fichasEnAtril.add(ficha);
+            for (int i = 0; i < entry.getValue(); i++) {
+                fichasEnAtril.add(entry.getKey());
             }
         }
 
-        // Create a checkbox for each Ficha instance
         for (Ficha ficha : fichasEnAtril) {
             JCheckBox check = new JCheckBox(ficha.getLetra());
-            dialogPanel.add(check);
+            check.setFont(LABEL_FONT);
+            check.setOpaque(false);
+            checkboxPanel.add(check);
+            checkBoxes.add(check);
         }
 
-        int result = JOptionPane.showConfirmDialog(
-                this, dialogPanel, "Selecciona fichas a cambiar", JOptionPane.OK_CANCEL_OPTION
-        );
+        // Limpiar listeners previos de los botones
+        for (ActionListener al : btnConfirmarCambio.getActionListeners()) {
+            btnConfirmarCambio.removeActionListener(al);
+        }
+        for (ActionListener al : btnCancelarCambio.getActionListeners()) {
+            btnCancelarCambio.removeActionListener(al);
+        }
+        // Add action listeners
+        btnConfirmarCambio.addActionListener(e -> confirmarCambioFichas());
+        btnCancelarCambio.addActionListener(e -> cancelarCambioFichas());
 
-        if (result == JOptionPane.OK_OPTION) {
-            for (Component comp : dialogPanel.getComponents()) {
-                JCheckBox check = (JCheckBox) comp;
-                if (check.isSelected()) {
-                    fichasCambio.add(check.getText());
-                }
-            }
-            Turno turnoActual = partida.getRondas().get(partida.getRondas().size()-1);
-            boolean exito = gestorDePartida.cambiarFichas(
-                    turnoActual,
-                    atrilActual,
-                    fichasCambio
-            );
-            if (exito) {
-                cargarAtril();
-                JOptionPane.showMessageDialog(this, "Fichas cambiadas exitosamente");
-                pasarTurno();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al cambiar fichas");
+        checkboxPanel.revalidate();
+        checkboxPanel.repaint();
+    }
+
+    private void confirmarCambioFichas() {
+        List<String> fichasCambio = new ArrayList<>();
+        for (JCheckBox check : checkBoxes) {
+            if (check.isSelected()) {
+                fichasCambio.add(check.getText());
             }
         }
+
+        Turno turnoActual = partida.getRondas().get(partida.getRondas().size()-1);
+        boolean exito = gestorDePartida.cambiarFichas(turnoActual, atrilActual, fichasCambio);
+
+        if (exito) {
+            turnoActual = partida.getRondas().get(partida.getRondas().size() - 1); // Get the new turn
+            jugadorActual = turnoActual.getJugador(); // <-- Add this line to update the current player
+            atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual); // Now uses the new player
+            cargarTablero();
+            cargarAtril();
+
+            // Remove old components and update labels
+            infoPanel.removeAll();
+
+            lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+            lblJugador.setFont(TITLE_FONT);
+            lblJugador.setForeground(Color.BLACK);
+
+            lblPuntos = new JLabel("Puntos: " + (
+                    jugadorActual.equals(partida.getCreador()) ?
+                            turnoActual.getPuntuacionJ1() :
+                            turnoActual.getPuntuacionJ2()
+            ));
+            lblPuntos.setFont(TITLE_FONT);
+            lblPuntos.setForeground(Color.BLACK);
+
+            infoPanel.add(lblJugador);
+            infoPanel.add(lblPuntos);
+
+            infoPanel.revalidate();
+            infoPanel.repaint();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al cambiar fichas");
+        }
+
+        // Reset UI
+        cancelarCambioFichas();
+    }
+
+    private void cancelarCambioFichas() {
+        botonesPanel.setVisible(true);
+        cambiarFichasPanel.setVisible(false);
+        checkBoxes.clear();
     }
 
     private void salirPartida() {
