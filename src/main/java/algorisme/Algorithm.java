@@ -20,21 +20,36 @@ public class Algorithm {
     /**
      * Prepara el algoritmo para generar movimientos en un tablero dado con un atril especifico
      * @param tablero El tablero actual de juego
-     * @param rack Las letras disponibles en el atril
+     * @param atril Las letras disponibles en el atril
      */
-    public void preparar(Tablero tablero, List<String> rack) {
+    public void preparar(Tablero tablero, Map<Ficha, Integer> atril) {
         this.tablero = tablero;
-        this.atril = contarLetras(rack);
+        this.atril = contarLetras(atril);
         calcularAnclajes();
         calcularCrossChecks();
     }
 
+
+    // ! Parece ser que no tiene en cuenta lo que hay en el tablero por si lo puedes enganchar o no
+    //   Te escupe todas las palabras que puedes formar con lo q hay en el atril
+    //   Debugguear para confirmar
     /**
      * Genera todos los movimientos válidos para la configuración actual
      * @return Lista de movimientos válidos
      */
     public List<Movimiento> generarMovimientos() {
+        System.out.println("estoy generando movimientos");
         List<Movimiento> movimientos = new ArrayList<>();
+        System.out.println("Atril IA: " + atril);
+        System.out.println("Anchors:");
+        for (int i = 0; i < Tablero.FILAS; i++) {
+            for (int j = 0; j < Tablero.COLUMNAS; j++) {
+                if (anchors[i][j]) System.out.print("A ");
+                else System.out.print(". ");
+            }
+            System.out.println();
+        }
+
 
         // Generar movimientos horizontales
         for(int fila = 0; fila < Tablero.FILAS; fila++) {
@@ -48,6 +63,7 @@ public class Algorithm {
         }
         tablero.transponerTablero();
 
+        if (movimientos == null || movimientos.isEmpty()) System.out.println("Estoy vacio");
         return movimientos;
     }
 
@@ -60,13 +76,13 @@ public class Algorithm {
             if(anchors[fila][col]) {
                 // Encontrar el limite izquierdo (máxima longitud del prefijo)
                 int limiteIzquierdo = 0;
-                while(col - limiteIzquierdo - 1 >= 0 && !anchors[fila][col - limiteIzquierdo - 1]) limiteIzquierdo++;
+                while(dawg.casillaCorrecta(fila, col - limiteIzquierdo - 1) && !anchors[fila][col - limiteIzquierdo - 1]) limiteIzquierdo++;
 
                 // Generar prefijos izquierdos y extender a la derecha
                 generarPrefijos(fila, col, limiteIzquierdo, new ArrayList<>(), dawg.getRoot(), movimientos, esVertical);
 
-                // Si hay una letra a la izquierda, extender desde ella
-                if(col > 0) {
+                // Verificar si hay casilla a la izquierda antes de acceder
+                if(dawg.casillaCorrecta(fila, col - 1)) {
                     try {
                         Ficha fichaIzquierda = tablero.getFicha(fila, col-1);
                         if(fichaIzquierda != null) {
@@ -78,22 +94,43 @@ public class Algorithm {
                         // NO deberia ocurrir ya que estamos verificando limites
                     }
                 }
+
+                // Generar prefijos izquierdos seguros
+                generarPrefijos(fila, col, limiteIzquierdo, new ArrayList<>(), dawg.getRoot(), movimientos, esVertical);
             }
         }
     }
 
     private void generarPrefijos(int fila, int colAncla, int limite, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
+        // Primero intentar extender con letras del tablero si hay alguna a la izquierda/arriba
+        if(colAncla > 0) {
+            try {
+                Ficha fichaIzquierda = tablero.getFicha(fila, colAncla - 1);
+                if(fichaIzquierda != null) {
+                    String letraTablero = fichaIzquierda.getLetra();
+                    if(nodo.getHijo(letraTablero) != null) {
+                        List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
+                        nuevaPalabra.add(0, letraTablero);
+                        extenderDerecha(fila, colAncla, nuevaPalabra, nodo.getHijo(letraTablero), movimientos, esVertical);
+                    }
+                    return; // Si hay letra a la izquierda, no generamos prefijo con el atril
+                }
+            } catch (CoordenadaFueraDeRangoException e) {
+                // No debería ocurrir
+            }
+        }
+
         // Exetender hacia la derecha desde el ancla
         extenderDerecha(fila, colAncla, palabraParcial, nodo, movimientos, esVertical);
 
-        // Generar más prefijos si es posible
-        if(limite > 0) {
+        // Generar más prefijos si es posible (solo si no hay letras adyacentes)
+        if(limite > 0 && palabraParcial.isEmpty()) {
             for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
                 String letra = entrada.getKey();
                 NodoDawg hijo = entrada.getValue();
 
                 if(atril.containsKey(letra) && atril.get(letra) > 0) {
-                    // Usar letra del rack
+                    // Usar letra del atril
                     atril.put(letra, atril.get(letra) - 1);   // borrar letra del atril
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
                     nuevaPalabra.add(letra);
@@ -101,7 +138,7 @@ public class Algorithm {
                     atril.put(letra, atril.get(letra) + 1);   //añadir la letra al atril
                 }
 
-                // Verificar si hay un blanco disponible
+                // Verificar si hay un comodín disponible
                 if(atril.containsKey("#") && atril.get("#") > 0) {
                     atril.put("#", atril.get("#") - 1);
                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
@@ -115,23 +152,24 @@ public class Algorithm {
 
     private void extenderDerecha(int fila, int col, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
         try {
-            // Verificar su es un movimiento válido
-            if(nodo.getEsFinal() && (col >= Tablero.COLUMNAS || tablero.getFicha(fila, col) == null)) {
+            // Verificar su es un movimiento válido (también verificando los bordes)
+            if(nodo.getEsFinal() && (!dawg.casillaCorrecta(fila, col) || tablero.getFicha(fila, col) == null)) {
                 // Añadir movimiento válido
+                System.out.println("Posible palabra formada: " + palabraParcial);
                 movimientos.add(new Movimiento(fila, col - palabraParcial.size(), palabraParcial, esVertical));
             }
-             if( col < Tablero.COLUMNAS) {
+             if(dawg.casillaCorrecta(fila,col)) {
                  Ficha ficha = tablero.getFicha(fila,col);
 
                  if(ficha == null) {
-                     // Casilla vacía -- usar letra del rack con cross-check
+                     // Casilla vacía -- usar letra del atril con cross-check
                      for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
                          String letra = entrada.getKey();
                          NodoDawg hijo = entrada.getValue();
 
                          // Verificar cross-check
                          int posicion = fila * Tablero.COLUMNAS + col;
-                         if((crossChecks.containsKey(posicion))) {
+                         if((crossChecks.containsKey(posicion) && crossChecks.get(posicion).contains(letra))) {
                              Set<String> checks = crossChecks.get(posicion);
                              if(checks.contains(letra)) {
                                  if(atril.containsKey(letra) && atril.get(letra) > 0) {
@@ -142,7 +180,7 @@ public class Algorithm {
                                      atril.put(letra, atril.get(letra) + 1);
                                  }
 
-                                 // Usar blanci si está disponible
+                                 // Usar comodín si está disponible
                                  if(atril.containsKey("#") && atril.get("#") > 0) {
                                      atril.put("#", atril.get("#") - 1);
                                      List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
@@ -201,13 +239,13 @@ public class Algorithm {
                         boolean esAncla = false;
 
                         // Verificar arriba
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila - 1, col) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila -1, col) && tablero.getFicha(fila - 1, col) != null) esAncla = true;
                         // Verificar abajo
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila + 1, col) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila +1, col) && tablero.getFicha(fila + 1, col) != null) esAncla = true;
                         // Verificar izquierda
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila, col - 1) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila, col-1) && tablero.getFicha(fila, col - 1) != null) esAncla = true;
                         // Verificar derecha
-                        if(dawg.casillaCorrecta(fila, col) && tablero.getFicha(fila, col + 1) != null) esAncla = true;
+                        if(dawg.casillaCorrecta(fila, col+1) && tablero.getFicha(fila, col + 1) != null) esAncla = true;
 
                         anchors[fila][col] = esAncla;
                     }
@@ -229,26 +267,37 @@ public class Algorithm {
                         Set<String> checks = new HashSet<>();
                         int posicion = fila * Tablero.COLUMNAS + col;
 
-                        // Verificar palabras verticales (para movimeintos horizontales)
-                        List<String> palabraArriba = new ArrayList<>();
-                        for(int f = fila - 1; dawg.casillaCorrecta(fila, col) && tablero.getFicha(f, col) != null; f--) {
-                            palabraArriba.add(0, tablero.getFicha(f, col).getLetra());
+                        // Construir palabra vertical completa (para movimientos horizontales)
+                        StringBuilder palabraVertical = new StringBuilder();
+                        int posicionInsercion = 0;
+
+                        // Arriba
+                        for(int f = fila - 1; dawg.casillaCorrecta(f,col) && tablero.getFicha(f, col) != null; f--) {
+                            palabraVertical.insert(0, tablero.getFicha(f, col).getLetra());
+                            posicionInsercion++;
                         }
 
-                        List<String> palabraAbajo = new ArrayList<>();
-                        for(int f = fila +  1; dawg.casillaCorrecta(fila, col) && tablero.getFicha(f, col) != null; f++) {
-                            palabraAbajo.add(tablero.getFicha(f, col).getLetra());
+                        // Abajo
+                        for(int f = fila + 1; dawg.casillaCorrecta(f,col) && tablero.getFicha(f, col) != null; f++) {
+                            palabraVertical.append(tablero.getFicha(f, col).getLetra());
                         }
 
-                        // Para cada letra posible en el Dawg, verificar si forma una palabra válida
-                        for(String letra : dawg.getRoot().getHijos().keySet()) {
-                            List<String> palabraCompleta = new ArrayList<>(palabraAbajo);
-                            palabraCompleta.add(letra);
-                            palabraCompleta.addAll(palabraAbajo);
+                        // Si hay letras arriba o abajo, necesitamos cross-checks
+                        if(palabraVertical.length() > 0) {
+                            for(String letra : dawg.getRoot().getHijos().keySet()) {
+                                // Insertar la letra en la posición correcta
+                                StringBuilder palabraCompleta = new StringBuilder(palabraVertical);
+                                palabraCompleta.insert(posicionInsercion, letra);
 
-                            if(palabraCompleta.size() == 1 || dawg.existePalabra(concatenarPalabra(palabraCompleta))) {
-                                checks.add(letra);
+                                if(dawg.existePalabra(palabraCompleta.toString())) {
+                                    checks.add(letra);
+                                }
                             }
+                        }
+
+                        else {
+                            // Si no hay letras arriba/abajo, cualquier letra es válida
+                            checks.addAll(dawg.getRoot().getHijos().keySet());
                         }
 
                         if(!checks.isEmpty()) {
@@ -258,17 +307,20 @@ public class Algorithm {
                 }
             }
         } catch (CoordenadaFueraDeRangoException e) {
-            // No deberia ocurrir ya que estamos verificando los limites
+            System.err.println("Error inesperado al calcular cross-checks: " + e.getMessage());
         }
     }
 
-    private Map<String, Integer> contarLetras(List<String> atril) {
+    private Map<String, Integer> contarLetras(Map<Ficha, Integer> atril) {
         Map<String, Integer> count = new HashMap<>();
-        for(String letra : atril) {
-            count.put(letra, count.getOrDefault(letra, 0) + 1);
+        for (Map.Entry<Ficha, Integer> letra : atril.entrySet()) {
+            String l = letra.getKey().getLetra();
+            int cantidad = letra.getValue();  // Cuántas fichas hay de esa letra
+            count.put(l, count.getOrDefault(l, 0) + cantidad);
         }
         return count;
     }
+
 
     private String concatenarPalabra(List<String> letras) {
         StringBuilder palabra = new StringBuilder();

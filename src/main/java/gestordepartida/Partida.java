@@ -73,6 +73,9 @@ public class Partida {
     /** Diccionario DAWG para validación de palabras */
     public  Dawg dawg; // diccionario segun el idioma seleccionado
 
+    /**  */
+    private Algorithm algorithm;        // se mueve a partida
+
     /** Nivel de dificultad IA (0 = no aplicable) */
     private int dificultad; // depende como lo implementemos, 0 es que no se usa este parametro      AUN NO IMPLEMENTADA EN EL ALGORITMO
 
@@ -116,6 +119,7 @@ public class Partida {
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
+        algorithm = null;
         dificultad = 0;
         rondas = new ArrayList<>();
         inicializarPrimerTurno();
@@ -151,6 +155,7 @@ public class Partida {
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
+        algorithm = new Algorithm(dawg);
         this.dificultad = dificultad;
         rondas = new ArrayList<>();
         inicializarPrimerTurno();
@@ -213,6 +218,10 @@ public class Partida {
         return dawg;
     }
 
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
     /**
      * Obtiene el tablero de juego actual.
      * @return Instancia de Tablero
@@ -228,6 +237,18 @@ public class Partida {
     public Queue<Ficha> getBolsa() {
         return bolsa;
     }
+
+    /**
+     * Obtiene el mapa de fichas del alfabeto elegido para la partida
+     * @return Mapa de las fichas del alfabeto de la partida
+     */
+    public Map<Ficha, Integer> getMapaFichas() { return mapaFichas; }
+
+    /**
+     * Obtiene el mapa de letras - fichas para la obtencion de las puntuaciones
+     * @return Mapa String - Ficha del alfabeto de la partida
+     */
+    public Map<String, Ficha> getMapaLetras() { return mapaLetras; }
 
     /**
      * Obtiene el historial completo de turnos.
