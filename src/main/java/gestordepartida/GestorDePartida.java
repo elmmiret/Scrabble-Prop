@@ -76,8 +76,10 @@ public class GestorDePartida {
                     creador = gestorDePerfil.getPerfil(username);
                 } else if (linea.startsWith("OPONENTE|")) {
                     String username = linea.split("\\|")[1];
-                    if (username != "null") {
+                    if (!username.equals("null")) {
                         oponente = gestorDePerfil.getPerfil(username);
+                    } else {
+                        oponente = null;
                     }
                 } else if (linea.startsWith("DIFICULTAD|")) {
                     dificultad = Integer.parseInt(linea.split("\\|")[1]);
@@ -102,7 +104,19 @@ public class GestorDePartida {
                 } else if (linea.startsWith("=== FIN ===")) {
                     // almacenamos la partida en el map de partidas
                     partidas.put(partidaActual.getId(), partidaActual);
+
+                    // Reiniciamos las variables para la siguiente partida
                     partidaActual = null;
+                    enSeccionTablero = false;
+                    enSeccionBolsa = false;
+                    enSeccionTurnos = false;
+                    id = null;
+                    nombre = null;
+                    idioma = null;
+                    modoPartida = null;
+                    creador = null;
+                    oponente = null;
+                    dificultad = null;
                 } else if (enSeccionTablero && linea.startsWith("CELDA|")) {
                     String[] datos = linea.split("\\|");
                     int x = Integer.parseInt(datos[1]);
@@ -122,9 +136,15 @@ public class GestorDePartida {
                 } else if (enSeccionTurnos) {
                     if (linea.startsWith("TURNO|")) {
                         String[] datos = linea.split("\\|");
-                        Perfil jugador = gestorDePerfil.getPerfil(datos[1]);
-                        Turno.TipoJugada tipo = Turno.TipoJugada.valueOf(datos[2]);
+                        String username = datos[1];
+                        Perfil jugador;
+                        if ("IA".equals(username)) {
+                            jugador = null; // ya que IA no tiene perfil
+                        } else {
+                            jugador = gestorDePerfil.getPerfil(username);
+                        }
                         turnoActual = new Turno(partidaActual, jugador, 0, 0, true);
+                        Turno.TipoJugada tipo = Turno.TipoJugada.valueOf(datos[2]);
                         turnoActual.setTipoJugada(tipo);
                         partidaActual.getRondas().add(turnoActual);
 
@@ -169,10 +189,12 @@ public class GestorDePartida {
 
         for (String entry : data.split(",")) {
             String[] partes = entry.split(":");
-            int cantidad = Integer.parseInt(partes[1]);
-            Ficha ficha = mapaLetras.get(partes[0]);
-            if (ficha != null) {
-                atril.put(ficha, cantidad);
+            if (partes.length == 2) {
+                int cantidad = Integer.parseInt(partes[1]);
+                Ficha ficha = mapaLetras.get(partes[0]);
+                if (ficha != null) {
+                    atril.put(ficha, cantidad);
+                }
             }
         }
         return atril;
@@ -205,14 +227,18 @@ public class GestorDePartida {
 
                 // guardamos las fichas que había en la bolsa
                 writer.println("=== BOLSA ===");
-                partida.getBolsa().forEach(f -> writer.print(f.getLetra() + ","));
-                writer.println();
+                StringBuilder bolsaStr = new StringBuilder();
+                for (Ficha f : partida.getBolsa()) {
+                    bolsaStr.append(f.getLetra()).append(",");
+                }
+                writer.println(bolsaStr.toString());
 
                 // y finalmente guardamos todos los turnos de esa partida
                 writer.println("=== TURNOS ===");
                 for (Turno turno : partida.getRondas()) {
                     if (turno.getTipoJugada() == null) turno.setTipoJugada(Turno.TipoJugada.pasar); // con esto evitamos errores y en el turnoActual podemos seguir con el jugador qeu deberia
-                    writer.println("TURNO|" + turno.getJugador().getUsername() + "|" + turno.getTipoJugada());
+                    String username = (partida.getModoPartida() == Partida.Modo.PvP) ? turno.getJugador().getUsername() : (turno.getJugador() == null ? "IA" : turno.getJugador().getUsername());
+                    writer.println("TURNO|" + username + "|" + turno.getTipoJugada());
                     writer.println("TABLERO_TURNO|" + guardarTableroTurno(turno.getTableroTurno()));
                     if (turno.getTipoJugada() == Turno.TipoJugada.colocar) {
                         writer.println("COLOCAR|" + turno.getPalabra() + "|" + turno.getX() + "|" + turno.getY() + "|" + (turno.getHorizontal() ? "horizontal" : "vertical"));
@@ -227,6 +253,7 @@ public class GestorDePartida {
             }
         } catch (Exception e) {
             System.err.println("Error al guardar: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -235,18 +262,22 @@ public class GestorDePartida {
         int index = 0;
         for (int i = 0; i < Tablero.FILAS; i++) {
             for (int j = 0; j < Tablero.COLUMNAS; j++) {
-                String letra = celdas[index++];
-                if (!letra.equals("-")) {
-                    Ficha f = mapaLetras.get(letra);
-                    try {
-                        tablero.setFicha(f, i, j);
-                    } catch (Exception ignored) {}
+                if (index < celdas.length) {
+                    String letra = celdas[index++];
+                    if (!letra.equals("-")) {
+                        Ficha f = mapaLetras.get(letra);
+                        try {
+                            tablero.setFicha(f, i, j);
+                        } catch (Exception ignored) {}
+                    }
                 }
             }
         }
     }
 
     private String guardarTableroTurno(Tablero tablero) {
+        if (tablero == null) return "-".repeat(Tablero.FILAS * Tablero.COLUMNAS - 1);
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Tablero.FILAS; i++) {
             for (int j = 0; j < Tablero.COLUMNAS; j++) {
@@ -263,6 +294,7 @@ public class GestorDePartida {
     }
 
     private String guardarAtril(Map<Ficha, Integer> atril) {
+        if (atril == null || atril.isEmpty()) return "";
         return atril.entrySet().stream().map(e -> e.getKey().getLetra() + ":" + e.getValue()).collect(Collectors.joining(","));
     }
 
@@ -360,9 +392,7 @@ public class GestorDePartida {
      * @param dificultad Nivel de dificultad IA (0-10)
      * @return Instancia de la partida recién creada
      */
-    public Partida crearPartida(int id, String nombre, Partida.Idioma idioma,
-                                Perfil jugadorPrincipal, Partida.Modo modo,
-                                Perfil oponente, int dificultad) {
+    public Partida crearPartida(int id, String nombre, Partida.Idioma idioma, Perfil jugadorPrincipal, Partida.Modo modo, Perfil oponente, int dificultad) {
         Partida nuevaPartida;
         if (modo == Partida.Modo.PvP) {
             nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma);
@@ -469,7 +499,7 @@ public class GestorDePartida {
         Perfil jugadorActivo = turno.getJugador();
         Map<Ficha, Integer> atrilJugador, atrilOponente;
 
-        if (jugadorActivo.equals(partida.getCreador())) {
+        if (jugadorActivo != null && jugadorActivo.equals(partida.getCreador())) {
             atrilJugador = turno.getAtrilJ1();
             atrilOponente = turno.getAtrilJ2();
         } else {

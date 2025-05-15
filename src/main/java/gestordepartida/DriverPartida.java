@@ -239,19 +239,24 @@ public class DriverPartida {
         }
 
         String usernameCreador = partida.getCreador().getUsername();
-        String usernameOponente = gestor.getOponenteUsername(partida);
+        Partida.Modo modo = partida.getModoPartida();
 
         while (!salir) {
             Turno turnoRepe = gestor.getTurno(partida, i);
             Perfil jugadorActivo = turnoRepe.getJugador();
-
-            System.out.println("=== TURNO " + (i + 1) + ", le toca jugar a " + jugadorActivo.getUsername());
+            String username;
+            if (modo == Partida.Modo.PvP) {
+                username = jugadorActivo != null ? jugadorActivo.getUsername() : "?";
+            } else {
+                username = (jugadorActivo == null) ? "IA" : usernameCreador;
+            }
+            System.out.println("=== TURNO " + (i + 1) + ", le toca jugar a " + username);
             gestor.obtenerRepresentacionTablero(turnoRepe.getTableroTurno());
 
             Map<Ficha, Integer>[] atriles = gestor.getAtrilesTurno(turnoRepe);
             Map<Ficha, Integer> atrilJugadorSiguiente = atriles[1];
 
-            if (jugadorActivo.getUsername().equals(usernameCreador)) {
+            if (username.equals(usernameCreador)) {
                 mostrarAtril(atrilJugadorSiguiente, 1);
             } else {
                 mostrarAtril(atrilJugadorSiguiente, 1);

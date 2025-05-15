@@ -369,8 +369,11 @@ public class Turno {
     public void avanzarTurno() {
         Perfil nextJugador;
         tableroTurno = partida.getTablero().clonar();
-        if (jugador == partida.getCreador()) nextJugador = partida.getOponente();
-        else nextJugador = partida.getCreador();
+        if (partida.getModoPartida() == Partida.Modo.PvIA) {
+            nextJugador = (jugador == partida.getCreador()) ? null : partida.getCreador();
+        } else {
+            nextJugador = (jugador == partida.getCreador()) ? partida.getOponente() : partida.getCreador();
+        }
         partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
     }
 
@@ -686,7 +689,6 @@ public class Turno {
         else {
             System.out.println("PETO");
             // compruebo la palabra y esta mal
-            pasarTurno();
             return false;
         }
 

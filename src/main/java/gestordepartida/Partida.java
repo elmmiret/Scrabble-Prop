@@ -101,10 +101,10 @@ public class Partida {
      * @throws IllegalArgumentException Si hay error al cargar el diccionario
      */
     public Partida(Perfil creador, Perfil oponente, int id, String nombre, Modo modoPartida, Idioma idiomaPartida) {
-        this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
+        //this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
-        idPartida = id;
+        this.idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         try {
@@ -137,10 +137,10 @@ public class Partida {
      * @throws IllegalArgumentException Si hay error al cargar el diccionario
      */
     public Partida(Perfil creador, int id, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad) {
-        this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
+        //this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
-        idPartida = id;
+        this.idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         try {
@@ -248,8 +248,6 @@ public class Partida {
      * Obtiene el mapa de letras - fichas para la obtencion de las puntuaciones
      * @return Mapa String - Ficha del alfabeto de la partida
      */
-    public Map<String, Ficha> getMapaLetras() { return mapaLetras; }
-
     /**
      * Obtiene el historial completo de turnos.
      * @return Lista de Turnos en orden cronológico
