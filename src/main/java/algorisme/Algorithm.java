@@ -158,50 +158,50 @@ public class Algorithm {
                 System.out.println("Posible palabra formada: " + palabraParcial);
                 movimientos.add(new Movimiento(fila, col - palabraParcial.size(), palabraParcial, esVertical));
             }
-             if(dawg.casillaCorrecta(fila,col)) {
-                 Ficha ficha = tablero.getFicha(fila,col);
+            if(dawg.casillaCorrecta(fila,col)) {
+                Ficha ficha = tablero.getFicha(fila,col);
 
-                 if(ficha == null) {
-                     // Casilla vacía -- usar letra del atril con cross-check
-                     for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
-                         String letra = entrada.getKey();
-                         NodoDawg hijo = entrada.getValue();
+                if(ficha == null) {
+                    // Casilla vacía -- usar letra del atril con cross-check
+                    for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
+                        String letra = entrada.getKey();
+                        NodoDawg hijo = entrada.getValue();
 
-                         // Verificar cross-check
-                         int posicion = fila * Tablero.COLUMNAS + col;
-                         if((crossChecks.containsKey(posicion) && crossChecks.get(posicion).contains(letra))) {
-                             Set<String> checks = crossChecks.get(posicion);
-                             if(checks.contains(letra)) {
-                                 if(atril.containsKey(letra) && atril.get(letra) > 0) {
-                                     atril.put(letra, atril.get(letra) - 1);
-                                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
-                                     nuevaPalabra.add(letra);
-                                     extenderDerecha(fila, col + 1, nuevaPalabra, hijo, movimientos, esVertical);
-                                     atril.put(letra, atril.get(letra) + 1);
-                                 }
+                        // Verificar cross-check
+                        int posicion = fila * Tablero.COLUMNAS + col;
+                        if((crossChecks.containsKey(posicion) && crossChecks.get(posicion).contains(letra))) {
+                            Set<String> checks = crossChecks.get(posicion);
+                            if(checks.contains(letra)) {
+                                if(atril.containsKey(letra) && atril.get(letra) > 0) {
+                                    atril.put(letra, atril.get(letra) - 1);
+                                    List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
+                                    nuevaPalabra.add(letra);
+                                    extenderDerecha(fila, col + 1, nuevaPalabra, hijo, movimientos, esVertical);
+                                    atril.put(letra, atril.get(letra) + 1);
+                                }
 
-                                 // Usar comodín si está disponible
-                                 if(atril.containsKey("#") && atril.get("#") > 0) {
-                                     atril.put("#", atril.get("#") - 1);
-                                     List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
-                                     nuevaPalabra.add(letra);
-                                     extenderDerecha(fila, col + 1, nuevaPalabra, hijo, movimientos, esVertical);
-                                     atril.put("#", atril.get("#") + 1);
-                                 }
-                             }
-                         }
-                     }
-                 }
-                 else {
-                     // Casilla ocuapada -- usar la letra que ya está allí
-                     String letra = ficha.getLetra();
-                     if(nodo.getHijos().containsKey(letra)) {
-                         List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
-                         nuevaPalabra.add(letra);
-                         extenderDerecha(fila, col + 1, nuevaPalabra, nodo.getHijo(letra), movimientos, esVertical);
-                     }
-                 }
-             }
+                                // Usar comodín si está disponible
+                                if(atril.containsKey("#") && atril.get("#") > 0) {
+                                    atril.put("#", atril.get("#") - 1);
+                                    List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
+                                    nuevaPalabra.add(letra);
+                                    extenderDerecha(fila, col + 1, nuevaPalabra, hijo, movimientos, esVertical);
+                                    atril.put("#", atril.get("#") + 1);
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    // Casilla ocuapada -- usar la letra que ya está allí
+                    String letra = ficha.getLetra();
+                    if(nodo.getHijos().containsKey(letra)) {
+                        List<String> nuevaPalabra = new ArrayList<>(palabraParcial);
+                        nuevaPalabra.add(letra);
+                        extenderDerecha(fila, col + 1, nuevaPalabra, nodo.getHijo(letra), movimientos, esVertical);
+                    }
+                }
+            }
         } catch (CoordenadaFueraDeRangoException e) {
             // No deberia ocurrir ya que estamos verificando los límites
         }

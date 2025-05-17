@@ -205,7 +205,10 @@ public class DriverPartida {
             System.out.println("Partida no encontrada");
             return;
         }
-
+        if (partida.getRondas().get(partida.getRondas().size() - 2).getTipoJugada().equals(Turno.TipoJugada.finalizar)) {
+            System.out.println("No se ha podido cargar la partida: ya se ha finalizado");
+            return;
+        }
         System.out.println("\n=== PARTIDA CARGADA ===");
         if (partida.getModoPartida() == Partida.Modo.PvP) {
             jugar(partida);
@@ -362,6 +365,7 @@ public class DriverPartida {
                     if (pasarPartidaSeguidos >= 2)
                     {
                         enJuego = false;
+                        partida.getRondas().get(partida.getRondas().size() - 2).setTipoJugada(Turno.TipoJugada.finalizar);
                         System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!\n");
                         mostrarResultadosFinales(partida);
                         if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2())
@@ -498,6 +502,8 @@ public class DriverPartida {
                         else if (pasarPartidaSeguidos >= 2)
                         {
                             enJuego = false;
+                            partida.getRondas().get(partida.getRondas().size() - 2).setTipoJugada(Turno.TipoJugada.finalizar);
+
                             System.out.println("Habéis pasado dos veces seguidas de turno. Fin de la partida!\n");
                             mostrarResultadosFinales(partida);
                             if (turnoActual.getPuntuacionJ1() > turnoActual.getPuntuacionJ2())

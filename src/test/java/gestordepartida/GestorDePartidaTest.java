@@ -12,10 +12,24 @@ import java.util.Map;
 import ranking.Ranking;
 
 /**
+<<<<<<< Updated upstream:src/test/java/gestordepartida/GestorDePartidaTest.java
  * Clase de pruebas unitarias para la clase {@link GestorDePartida}.
  * Verifica la creación, gestión y eliminación de partidas, así como operaciones
  * relacionadas con jugadores, intercambio de fichas y validación de frases de recuperación.
  *
+=======
+ * Clase de pruebas unitarias para el GestorDePartida que verifica la funcionalidad relacionada
+ * con la gestión de partidas en el sistema. Incluye pruebas para:
+ * <ul>
+ *   <li>Creación de partidas en diferentes modos (PvP y PvIA)</li>
+ *   <li>Gestión del ciclo de vida de partidas (creación, consulta y eliminación)</li>
+ *   <li>Interacciones con fichas y atriles de jugadores</li>
+ *   <li>Verificación de funcionalidades asociadas a perfiles de usuario</li>
+ * </ul>
+ *
+ * <p>Utiliza datos de prueba y configuraciones iniciales para garantizar el aislamiento
+ * de cada prueba unitaria.</p>
+>>>>>>> Stashed changes:src/test/java/ctrldomini/GestorDePartidaTest.java
  * @author Albert Aulet Niubó
  */
 public class GestorDePartidaTest {
