@@ -505,7 +505,7 @@ public class DriverPartida {
                         }
                         if (!accionValida && (num == 1 || num == 2 || num == 3)) {
                             mostrarAtril(atril);
-                            num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
+                            num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pedir pista\n4- Pasar turno\n5- Salir de la partida\n");
                         }
                         else if (pasarPartidaSeguidos >= 2)
                         {
