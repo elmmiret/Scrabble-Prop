@@ -63,9 +63,15 @@ public class GestorDeView {
         gestionPartidaView.setVisible(true);
     }
 
+    public void volverMenuGestionPartida(JugarPartidaView jugarPartidaView)
+    {
+        jugarPartidaView.setVisible(false);
+        mostrarGestionPartida();
+    }
+
     public void mostrarPartida(Partida partida)
     {
-        JugarPartidaView jugarPartidaView = new JugarPartidaView(partida, gestorDePartida);
+        JugarPartidaView jugarPartidaView = new JugarPartidaView(this, partida, gestorDePartida);
         mainView.setVisible(false);
         gestionPerfilView.setVisible(false);
         gestionPartidaView.setVisible(false);
