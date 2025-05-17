@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import algorisme.Algorithm;
+import algorisme.Movimiento;
 import gestordeperfil.*;
 import persistencia.*;
 import exceptions.CasillaOcupadaException;
@@ -230,6 +232,11 @@ public class GestorDePartida {
         Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
         if (jugador == null) return turno.getAtrilJ2();
         else return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
+    }
+
+    public Movimiento pedirPista(Partida partida, Perfil jugador) {
+        Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
+        return turno.pedirPista(jugador);
     }
 
 

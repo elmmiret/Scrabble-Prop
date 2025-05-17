@@ -37,13 +37,19 @@ public class Turno {
     private Map<Ficha,Integer> atrilJ1; // creador
 
     /** Mapa de fichas en el atril del oponente o IA (clave: Ficha, valor: cantidad). */
-    private Map<Ficha,Integer> atrilJ2; // oponente o IA
+    private Map<Ficha,Integer> atrilJ2; // oponente oi IA
 
     /** Puntuación acumulada del jugador creador. */
     private Integer puntosJ1; // creador
 
     /** Puntuación acumulada del oponente o IA. */
     private Integer puntosJ2; // oponente oi IA
+
+    /** Número de pistas disponibles que tiene el jugador 1. */
+    private Integer pistasRestantesJ1;
+
+    /** Número de pistas disponibles que tiene el jugador 2. */
+    private Integer pistasRestantesJ2;
 
     /** Número máximo de fichas permitidas en un atril. */
     public static final int MAX_FICHAS = 7;
@@ -90,6 +96,8 @@ public class Turno {
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
+        pistasRestantesJ1 = 3;
+        pistasRestantesJ2 = 3;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
         this.tipoJugada = TipoJugada.pasar;
@@ -107,11 +115,15 @@ public class Turno {
      * @param atrilJ1   Atril del jugador creador.
      * @param atrilJ2   Atril del oponente/IA.
      */
-    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, int numPistasJ1, int numPistasJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
         this.partida = partida;
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
+        pistasRestantesJ1 = numPistasJ1;
+        pistasRestantesJ2 = numPistasJ2;
+        this.atrilJ1 = atrilJ1;
+        this.atrilJ2 = atrilJ2;
         this.atrilJ1 = new HashMap<>(atrilJ1);
         this.atrilJ2 = new HashMap<>(atrilJ2);
         this.tableroTurno = new Tablero(partida.getIdioma());
@@ -258,6 +270,14 @@ public class Turno {
         this.horizontal = horizontal;
     }
 
+    public void setPistasRestantesJ1(int pistasRestantesJ1) {
+        this.pistasRestantesJ1 = pistasRestantesJ1;
+    }
+
+    public void setPistasRestantesJ2(int pistasRestantesJ2) {
+        this.pistasRestantesJ2 = pistasRestantesJ2;
+    }
+
     public void setPuntosJ1(int puntos) {
         this.puntosJ1 = puntos;
     }
@@ -274,6 +294,18 @@ public class Turno {
     public void setAtrilJ2(Map<Ficha, Integer> atril) {
         this.atrilJ2 = atril;
     }
+    public int getPistas(Perfil jugador) {
+        return jugador == partida.getCreador() ? pistasRestantesJ1 : pistasRestantesJ2;
+    }
+
+    public int getPistasJ1() {
+        return pistasRestantesJ1;
+    }
+
+    public int getPistasJ2() {
+        return pistasRestantesJ2;
+    }
+
     /**
      * Establece el tipo de jugada realizada en el turno.
      *
@@ -374,7 +406,7 @@ public class Turno {
         } else {
             nextJugador = (jugador == partida.getCreador()) ? partida.getOponente() : partida.getCreador();
         }
-        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
+        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, pistasRestantesJ1, pistasRestantesJ2, atrilJ1, atrilJ2);
     }
 
     public Tablero getTableroTurno() {
@@ -449,6 +481,18 @@ public class Turno {
         return puntosPorSumar;
     }
 
+    public Movimiento pedirPista(Perfil jugador) {
+       if (jugador.equals(partida.getCreador())) {
+           partida.getAlgorithm().preparar(getTablero(), atrilJ1);
+           pistasRestantesJ1--;
+       } else {
+           partida.getAlgorithm().preparar(getTablero(), atrilJ2);
+           pistasRestantesJ2--;
+       }
+       List<Movimiento>  movimientosPosibles = partida.getAlgorithm().generarMovimientos();
+       return (movimientosPosibles == null || movimientosPosibles.isEmpty()) ? null : movimientosPosibles.get(0);
+    }
+
     /**
      * Coloca una palabra en el tablero y calcula los puntos.
      *
@@ -458,7 +502,7 @@ public class Turno {
      * @param orientacion  Dirección de colocación ("vertical" u "horizontal").
      * @return             true si la palabra se colocó correctamente, false en caso contrario.
      * @throws CoordenadaFueraDeRangoException Si las coordenadas están fuera del tablero.
-     * @throws CasillaOcupadaException Si una casilla ya está ocupada.
+     * @throws CasillaOcupadaException         Si una casilla ya está ocupada.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         System.out.println("Entro a colocarPalabra " + palabra + " " + x_ini + " " + y_ini + " " + orientacion);
@@ -719,7 +763,7 @@ public class Turno {
      * Ejecuta la lógica de la IA para seleccionar y colocar la mejor palabra posible.
      *
      * @throws CoordenadaFueraDeRangoException Si las coordenadas generadas son inválidas.
-     * @throws CasillaOcupadaException Si se intenta colocar en una casilla ocupada.
+     * @throws CasillaOcupadaException         Si se intenta colocar en una casilla ocupada.
      */
     public void jugarIA(int dificultad) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int nroFichas = getTotalFichas(atrilJ2);

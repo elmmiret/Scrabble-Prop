@@ -140,6 +140,10 @@ public class PartidaDAO {
                             turnoActual.setTableroTurno(new Tablero(partidaActual.getIdioma()));
                         }
                         cargarTableroTurno(turnoActual.getTableroTurno(), estadoTablero, partidaActual.getMapaLetras());
+                    } else if (linea.startsWith("PISTAS|")) {
+                        String[] datosPistas = linea.split("\\|");
+                        turnoActual.setPistasRestantesJ1(Integer.parseInt(datosPistas[1]));
+                        turnoActual.setPistasRestantesJ2(Integer.parseInt(datosPistas[2]));
                     } else if (linea.startsWith("ATRIL_J1|")) {
                         String data = linea.split("\\|")[1];
                         turnoActual.setAtrilJ1(cargarAtril(data, partidaActual.getMapaLetras()));
@@ -204,6 +208,7 @@ public class PartidaDAO {
                     } else if (turno.getTipoJugada() == Turno.TipoJugada.cambiar) {
                         writer.println("CAMBIAR|" + guardarAtril(turno.getFichasCambiadas()));
                     }
+                    writer.println("PISTAS|" + turno.getPistasJ1() + "|" + turno.getPistasJ2());
                     writer.println("PUNTOS|" + turno.getPuntuacionJ1() + "|" + turno.getPuntuacionJ2());
                     writer.println("ATRIL_J1|" + guardarAtril(turno.getAtrilJ1()));
                     writer.println("ATRIL_J2|" + guardarAtril(turno.getAtrilJ2()));

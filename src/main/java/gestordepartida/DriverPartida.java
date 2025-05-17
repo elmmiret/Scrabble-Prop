@@ -3,6 +3,7 @@ package gestordepartida;
 import java.awt.datatransfer.SystemFlavorMap;
 import java.util.*;
 
+import algorisme.Movimiento;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 import gestordeperfil.*;
@@ -331,7 +332,7 @@ public class DriverPartida {
             Map <Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
             if (!atril.isEmpty()) {
                 mostrarAtril(atril);
-                int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
+                int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pedir pista\n4- Pasar turno\n5- Salir de la partida\n");
                 boolean accionValida = false;
                 while (!accionValida) {
                     switch(num) {
@@ -344,11 +345,14 @@ public class DriverPartida {
                             pasarPartidaSeguidos = 0;
                             break;
                         case 3:
+                            pedirPista(partida, jugador);
+                            break;
+                        case 4:
                             turnoActual.pasarTurno();
                             ++pasarPartidaSeguidos;
                             accionValida = true;
                             break;
-                        case 4:
+                        case 5:
                             System.out.println("¡Has salido de la partida!");
                             accionValida = true;
                             enJuego = false;
@@ -358,9 +362,9 @@ public class DriverPartida {
                             break;
 
                     }
-                    if (!accionValida && (num == 1 || num == 2)) {
+                    if (!accionValida && (num == 1 || num == 2 || num == 3)) {
                         mostrarAtril(atril);
-                        num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
+                        num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pedir pista\n4- Pasar turno\n5- Salir de la partida\n");
                     }
                     if (pasarPartidaSeguidos >= 2)
                     {
@@ -442,6 +446,7 @@ public class DriverPartida {
             if (jugador != partida.getCreador()) { // es la IA
                 System.out.println("\n=== TURNO DE LA IA ===");
                 try {
+//                    gestor.obtenerRepresentacionTablero(partida.getTablero());
                     gestor.obtenerRepresentacionTablero(turnoActual.getTablero());
 
                 } catch (CoordenadaFueraDeRangoException e) {
@@ -468,7 +473,7 @@ public class DriverPartida {
                 Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
                 if (!atril.isEmpty()) {
                     mostrarAtril(atril);
-                    int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
+                    int num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pedir pista\n4- Pasar turno\n5- Salir de la partida\n");
                     boolean accionValida = false;
                     while (!accionValida) {
                         switch (num) {
@@ -481,11 +486,14 @@ public class DriverPartida {
                                 pasarPartidaSeguidos = 0;
                                 break;
                             case 3:
+                                pedirPistaIA(partida, jugador);
+                                break;
+                            case 4:
                                 turnoActual.pasarTurno();
                                 accionValida = true;
                                 ++pasarPartidaSeguidos;
                                 break;
-                            case 4:
+                            case 5:
                                 System.out.println("¡Has salido de la partida!");
                                 accionValida = true;
                                 enJuego = false;
@@ -495,7 +503,7 @@ public class DriverPartida {
                                 break;
 
                         }
-                        if (!accionValida && (num == 1 || num == 2)) {
+                        if (!accionValida && (num == 1 || num == 2 || num == 3)) {
                             mostrarAtril(atril);
                             num = leerEntero("Acciones:\n1- Colocar palabra\n2- Cambiar fichas\n3- Pasar turno\n4- Salir de la partida\n");
                         }
@@ -510,10 +518,11 @@ public class DriverPartida {
                             {
                                 System.out.printf("\nGANADOR: %s\n", partida.getCreador().getUsername());
                                 gestorPerfiles.incrementarPartidasGanadas(partida.getCreador().getUsername());
+                                gestorPerfiles.incrementarPartidasPerdidas(partida.getOponente().getUsername());
                             }
                             else if (turnoActual.getPuntuacionJ2() > turnoActual.getPuntuacionJ1())
                             {
-                                System.out.printf("\nGANADOR: IA");
+                                System.out.printf("\nGANADOR: IA\n");
                                 gestorPerfiles.incrementarPartidasPerdidas(partida.getCreador().getUsername());
                             }
 
@@ -523,12 +532,6 @@ public class DriverPartida {
 
                             return;
                         }
-                    }
-
-                    // printeo
-
-                    for (Turno turno : partida.getRondas()) {
-                        System.out.print(turno.getTipoJugada() + "   |    ");
                     }
                 }
                 else {
@@ -543,7 +546,7 @@ public class DriverPartida {
                     }
                     else if (turnoActual.getPuntuacionJ2() > turnoActual.getPuntuacionJ1())
                     {
-                        System.out.printf("\nGANADOR: IA");
+                        System.out.printf("\nGANADOR: IA\n");
                         gestorPerfiles.incrementarPartidasPerdidas(partida.getCreador().getUsername());
                     }
 
@@ -607,6 +610,66 @@ public class DriverPartida {
         System.out.println(exito ? "Fichas cambiadas" : "No se pudo cambiar las fichas seleccionadas");
 
         return exito;
+    }
+
+    private void pedirPista(Partida partida, Perfil jugador) {
+        Turno turnoActual = partida.getRondas().get(partida.getRondas().size() -1);
+        if (turnoActual.getPistas(jugador) == 0) {
+            System.out.println("No tienes pistas disponibles para pedir...");
+
+        } else {
+            Movimiento mov = turnoActual.pedirPista(jugador);
+            if (mov == null) {
+                System.out.println("No hay ningún movimiento posible con tus fichas y el tablero actual. Cambia de fichas o pasa el turno!");
+            } else {
+                List<String> palabraPista = mov.getPalabra();
+                Collections.shuffle(palabraPista);
+                System.out.print("Puedes hacer una palabra que tenga las siguientes letras:  | ");
+                for (String s : palabraPista) {
+                    System.out.print(s + " | ");
+                }
+            }
+        }
+    }
+
+    private void pedirPistaIA(Partida partida, Perfil jugador) {
+        Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+        if (turnoActual.getPistas(jugador) == 0) {
+            System.out.println("No tienes pistas disponibles para pedir...");
+        } else {
+            Movimiento mov = turnoActual.pedirPista(jugador);
+            if (mov == null) {
+                System.out.println("No hay ningún movimiento posible con tus fichas y el tablero actual. Cambia de fichas o pasa el turno!");
+            } else {
+                int dif = partida.getDificultad();
+                List<String> palabraPista = mov.getPalabra();
+                switch (dif) {
+                    case 1:
+                        char letra = (char) ('a' + mov.getFila());
+                        String pos_x = String.valueOf(letra);
+                        int pos_y = mov.getColumna() + 1;
+                        System.out.print("Puedes colocar una palabra en la posicion " + pos_x + " " + pos_y + " que tiene las siguientes letras: | ");
+                        for (String s: palabraPista) {
+                            System.out.print(s + " | ");
+                        }
+                        break;
+                    case 2:
+                        System.out.print("Puedes colocar una palabra que tiene las siguientes letras: | ");
+                        for (String s : palabraPista) {
+                            System.out.print(s + " | ");
+                        }
+                        break;
+                    case 3:
+                        Collections.shuffle(palabraPista);
+                        System.out.print("Puedes hacer una palabra que tenga las siguientes letras:  | ");
+                        for (String s : palabraPista) {
+                            System.out.print(s + " | ");
+                        }
+                        break;
+
+                }
+            }
+        }
     }
 
     /**
