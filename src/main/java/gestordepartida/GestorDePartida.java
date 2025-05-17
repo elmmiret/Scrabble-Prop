@@ -1,11 +1,14 @@
 package gestordepartida;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import algorisme.Algorithm;
+import algorisme.Movimiento;
 import gestordeperfil.*;
+import persistencia.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
@@ -29,6 +32,8 @@ public class GestorDePartida {
     /** Gestor de perfiles para operaciones relacionadas con jugadores */
     private GestorDePerfil gestorDePerfil;
 
+    private final ControladorPersistencia persistencia;
+
     /**
      * Construye un gestor de partidas vinculado a un gestor de perfiles.
      *
@@ -37,7 +42,26 @@ public class GestorDePartida {
     public GestorDePartida(GestorDePerfil gdp) {
         partidas = new HashMap<>();
         gestorDePerfil = gdp;
+        persistencia = new ControladorPersistencia(gestorDePerfil);
+
+        cargarPartidas();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            guardarPartidas();
+            System.out.println("Partidas guardadas existosamente.");
+        }));
     }
+
+    public void cargarPartidas() {
+        partidas = persistencia.cargarPartidas();
+    }
+
+
+
+    public void guardarPartidas() {
+        persistencia.guardarPartidas(partidas);
+    }
+
 
     /**
      * Recupera todas las partidas registradas en el sistema.
@@ -133,9 +157,7 @@ public class GestorDePartida {
      * @param dificultad Nivel de dificultad IA (0-10)
      * @return Instancia de la partida recién creada
      */
-    public Partida crearPartida(int id, String nombre, Partida.Idioma idioma,
-                                Perfil jugadorPrincipal, Partida.Modo modo,
-                                Perfil oponente, int dificultad) {
+    public Partida crearPartida(int id, String nombre, Partida.Idioma idioma, Perfil jugadorPrincipal, Partida.Modo modo, Perfil oponente, int dificultad) {
         Partida nuevaPartida;
         if (modo == Partida.Modo.PvP) {
             nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma);
@@ -143,6 +165,7 @@ public class GestorDePartida {
             nuevaPartida = new Partida(jugadorPrincipal, id, nombre, modo, idioma, dificultad);
         }
         partidas.put(id, nuevaPartida);
+        guardarPartidas();
         return nuevaPartida;
     }
 
@@ -191,7 +214,11 @@ public class GestorDePartida {
      * @return true si la partida existía y fue eliminada, false en caso contrario
      */
     public boolean eliminarPartida(int idPartida) {
-        return partidas.remove(idPartida) != null;
+        boolean eliminada = partidas.remove(idPartida) != null;
+        if (eliminada) {
+            guardarPartidas();
+        }
+        return eliminada;
     }
 
     /**
@@ -205,6 +232,52 @@ public class GestorDePartida {
         Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
         if (jugador == null) return turno.getAtrilJ2();
         else return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
+    }
+
+    public Movimiento pedirPista(Partida partida, Perfil jugador) {
+        Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
+        return turno.pedirPista(jugador);
+    }
+
+
+    public int getMaxTurnos(Partida partida) {
+        return partida.getRondas().size()-1;
+    }
+
+    public boolean isTurnoValido(Partida partida, int numTurno) {
+        int max = getMaxTurnos(partida);
+        return numTurno >= 1 && numTurno <= max;
+    }
+
+    public Turno getTurno(Partida partida, int index) {
+        if (index < 0 || index >= partida.getRondas().size()) {
+            throw new IllegalArgumentException("Índex de torn invàlid");
+        }
+        return partida.getRondas().get(index);
+    }
+
+    public String getOponenteUsername(Partida partida) {
+        if (partida.getModoPartida() == Partida.Modo.PvP) {
+            return partida.getOponente().getUsername();
+        } else {
+            return "IA";
+        }
+    }
+
+    public Map<Ficha, Integer>[] getAtrilesTurno(Turno turno) {
+        Partida partida = turno.getPartida();
+        Perfil jugadorActivo = turno.getJugador();
+        Map<Ficha, Integer> atrilJugador, atrilOponente;
+
+        if (jugadorActivo != null && jugadorActivo.equals(partida.getCreador())) {
+            atrilJugador = turno.getAtrilJ1();
+            atrilOponente = turno.getAtrilJ2();
+        } else {
+            atrilJugador = turno.getAtrilJ2();
+            atrilOponente = turno.getAtrilJ1();
+        }
+
+        return new Map[] {atrilJugador, atrilOponente};
     }
 
 }
