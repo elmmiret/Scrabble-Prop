@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
+
+import persistencia.ControladorPersistencia;
 import ranking.Ranking;
 
 /**
@@ -41,15 +43,18 @@ public class GestorDePerfil {
      */
     private Scanner lector;
 
+
+    private final ControladorPersistencia persistencia;
     /**
      * Construye un nuevo gestor de perfiles asociado a un sistema de rankings.
      * Inicializa las estructuras de datos para almacenamiento en memoria
      * Carga automáticamente los perfiles desde el archivo de persistencia
      * Registra un hook de cierre para guardar los perfiles automáticamente al finalizar la aplicación
      *
-     * @param rkg Sistema de rankings que se actualizará con los perfiles cargados
+     *
      */
     public GestorDePerfil(Ranking rkg) {
+        persistencia = new ControladorPersistencia(this);
         jugadores = new HashMap<>();
         ranking = rkg;
         cargarPerfiles();
@@ -69,35 +74,11 @@ public class GestorDePerfil {
      * @throws NumberFormatException Si los valores numéricos en el archivo no son válidos
      */
     public void cargarPerfiles() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordeperfil/perfilesbd.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\|");
-                if (parts.length != 7) {
-                    System.err.println("Línea inválida: " + line);
-                    continue;
-                }
-                String username = parts[0];
-                String password = parts[1];
-                String frase = parts[2];
-                int partidasJugadas = Integer.parseInt(parts[3]);
-                int partidasGanadas = Integer.parseInt(parts[4]);
-                int partidasPerdidas = Integer.parseInt(parts[5]);
-                int puntos = Integer.parseInt(parts[6]);
+        jugadores = persistencia.cargarPerfiles();
 
-                Perfil perfil = new Perfil(username, password, frase);
-                perfil.setPartidasJugadas(partidasJugadas);
-                perfil.setPartidasGanadas(partidasGanadas);
-                perfil.setPartidasPerdidas(partidasPerdidas);
-                perfil.setPuntos(puntos);
-
-                jugadores.put(username, perfil);
-                ranking.addToRankings(perfil);
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Archivo de perfiles no encontrado. Iniciando con lista vacía.");
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error al cargar perfiles: " + e.getMessage());
+        ranking.getPerfilesRanking().clear();
+        for (Perfil perfil : jugadores.values()) {
+            ranking.addToRankings(perfil);
         }
     }
 
@@ -108,21 +89,7 @@ public class GestorDePerfil {
      * @throws IOException Si ocurre un error de escritura en el archivo
      */
     public void guardarPerfiles() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordeperfil/perfilesbd.txt"))) {
-            for (Perfil perfil : jugadores.values()) {
-                String line = String.join("|",
-                        perfil.getUsername(),
-                        perfil.getPassword(),
-                        perfil.getFraseRecuperacion(),
-                        String.valueOf(perfil.getPartidasJugadas()),
-                        String.valueOf(perfil.getPartidasGanadas()),
-                        String.valueOf(perfil.getPartidasPerdidas()),
-                        String.valueOf(perfil.getPuntos()));
-                writer.println(line);
-            }
-        } catch (IOException e) {
-            System.err.println("Error al guardar perfiles: " + e.getMessage());
-        }
+        persistencia.guardarPerfiles(jugadores);
     }
 
     /**
@@ -333,5 +300,9 @@ public class GestorDePerfil {
         jugadores.put(username, perfil);
 
         ranking.addToRankings(jugadores.get(username));
+    }
+
+    public Ranking getRanking() {
+        return ranking;
     }
 }

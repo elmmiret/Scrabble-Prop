@@ -1,12 +1,14 @@
 package gestordepartida;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import algorisme.Algorithm;
+import algorisme.Movimiento;
 import gestordeperfil.*;
+import persistencia.*;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
 
@@ -30,6 +32,8 @@ public class GestorDePartida {
     /** Gestor de perfiles para operaciones relacionadas con jugadores */
     private GestorDePerfil gestorDePerfil;
 
+    private final ControladorPersistencia persistencia;
+
     /**
      * Construye un gestor de partidas vinculado a un gestor de perfiles.
      *
@@ -38,6 +42,7 @@ public class GestorDePartida {
     public GestorDePartida(GestorDePerfil gdp) {
         partidas = new HashMap<>();
         gestorDePerfil = gdp;
+        persistencia = new ControladorPersistencia(gestorDePerfil);
 
         cargarPartidas();
 
@@ -48,43 +53,15 @@ public class GestorDePartida {
     }
 
     public void cargarPartidas() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordepartida/partidasbd.txt"))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] parts = linea.split("\\|");
-                if (parts.length < 8) {
-                    System.err.println("Línea inválida: " + linea);
-                }
-                int id = Integer.parseInt(parts[0]);
-                String nombre = parts[1];
-                Partida.Idioma idioma = Partida.Idioma.valueOf(parts[2]);
-                Partida.Modo modo = Partida.Modo.valueOf(parts[3]);
-                Perfil creador = gestorDePerfil.getPerfil(parts[4]);
-                Perfil oponente = modo.equals(Partida.Modo.PvIA) ? null : gestorDePerfil.getPerfil(parts[5]);
-                int dificultad = modo.equals(Partida.Modo.PvIA) ? Integer.parseInt(parts[6]) : null;
-
-                Partida partida = modo.equals(Partida.Modo.PvP) ? new Partida(creador, oponente, id, nombre, modo, idioma) : new Partida(creador, id, nombre, modo, idioma, dificultad);
-                partidas.put(id, partida);
-
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Archivo de partidas no encontrado. Iniciando con lista vacía.");
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error al cargar partidas: " + e.getMessage());
-        }
+        partidas = persistencia.cargarPartidas();
     }
+
 
 
     public void guardarPartidas() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordepartida/partidasbd.txt"))) {
-            for (Partida partida : partidas.values()) {
-                String linea = String.join("|", String.valueOf(partida.getId()), partida.getNombre(), String.valueOf(partida.getIdioma()), String.valueOf(partida.getModoPartida()), partida.getCreador().getUsername(), partida.getOponente() != null ? partida.getOponente().getUsername() : "null", String.valueOf(partida.getDificultad()));
-                writer.println(linea);
-            }
-        } catch (IOException e) {
-            System.err.println("Error al guardar partidas: " + e.getMessage());
-        }
+        persistencia.guardarPartidas(partidas);
     }
+
 
     /**
      * Recupera todas las partidas registradas en el sistema.
@@ -180,9 +157,7 @@ public class GestorDePartida {
      * @param dificultad Nivel de dificultad IA (0-10)
      * @return Instancia de la partida recién creada
      */
-    public Partida crearPartida(int id, String nombre, Partida.Idioma idioma,
-                                Perfil jugadorPrincipal, Partida.Modo modo,
-                                Perfil oponente, int dificultad) {
+    public Partida crearPartida(int id, String nombre, Partida.Idioma idioma, Perfil jugadorPrincipal, Partida.Modo modo, Perfil oponente, int dificultad) {
         Partida nuevaPartida;
         if (modo == Partida.Modo.PvP) {
             nuevaPartida = new Partida(jugadorPrincipal, oponente, id, nombre, modo, idioma);
@@ -257,6 +232,52 @@ public class GestorDePartida {
         Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
         if (jugador == null) return turno.getAtrilJ2();
         else return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
+    }
+
+    public Movimiento pedirPista(Partida partida, Perfil jugador) {
+        Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
+        return turno.pedirPista(jugador);
+    }
+
+
+    public int getMaxTurnos(Partida partida) {
+        return partida.getRondas().size()-1;
+    }
+
+    public boolean isTurnoValido(Partida partida, int numTurno) {
+        int max = getMaxTurnos(partida);
+        return numTurno >= 1 && numTurno <= max;
+    }
+
+    public Turno getTurno(Partida partida, int index) {
+        if (index < 0 || index >= partida.getRondas().size()) {
+            throw new IllegalArgumentException("Índex de torn invàlid");
+        }
+        return partida.getRondas().get(index);
+    }
+
+    public String getOponenteUsername(Partida partida) {
+        if (partida.getModoPartida() == Partida.Modo.PvP) {
+            return partida.getOponente().getUsername();
+        } else {
+            return "IA";
+        }
+    }
+
+    public Map<Ficha, Integer>[] getAtrilesTurno(Turno turno) {
+        Partida partida = turno.getPartida();
+        Perfil jugadorActivo = turno.getJugador();
+        Map<Ficha, Integer> atrilJugador, atrilOponente;
+
+        if (jugadorActivo != null && jugadorActivo.equals(partida.getCreador())) {
+            atrilJugador = turno.getAtrilJ1();
+            atrilOponente = turno.getAtrilJ2();
+        } else {
+            atrilJugador = turno.getAtrilJ2();
+            atrilOponente = turno.getAtrilJ1();
+        }
+
+        return new Map[] {atrilJugador, atrilOponente};
     }
 
 }

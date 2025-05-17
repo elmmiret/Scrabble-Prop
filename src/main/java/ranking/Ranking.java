@@ -2,7 +2,9 @@ package ranking;
 
 import gestordeperfil.Perfil;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -121,4 +123,8 @@ public class Ranking {
      * @return true si no hay perfiles en ningún ranking, false en caso contrario
      */
     public boolean rankingsVacios() { return rankingPuntos.isEmpty(); }
+
+    public List<Perfil> getPerfilesRanking() {
+        return new ArrayList<>(rankingPuntos);
+    }
 }
