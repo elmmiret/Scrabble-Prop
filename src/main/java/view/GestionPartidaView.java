@@ -3,6 +3,8 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import gestordepartida.GestorDePartida;
@@ -55,7 +57,7 @@ public class GestionPartidaView extends JFrame {
         titleLabel.setForeground(COLOR_NARANJA);
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 25));
+        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 25));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(60, 20, 60, 20));
         buttonPanel.setOpaque(false);
 
@@ -63,6 +65,7 @@ public class GestionPartidaView extends JFrame {
         addPartidaButton(buttonPanel, "Cargar partida", COLOR_AZUL, this::cargarPartida);
         addPartidaButton(buttonPanel, "Eliminar partida", COLOR_AZUL, this::eliminarPartida);
         addPartidaButton(buttonPanel, "Consultar partidas", COLOR_AZUL, this::mostrarPartidas);
+        addPartidaButton(buttonPanel, "Ver repetición", COLOR_AZUL, this::verRepeticion);
         addPartidaButton(buttonPanel, "Atrás", COLOR_ROJO, e -> gestorDeView.mostrarMain());
 
         panel.add(buttonPanel, BorderLayout.CENTER);
@@ -349,6 +352,110 @@ public class GestionPartidaView extends JFrame {
         dialog.setVisible(true);
     }
 
+    private void mostrarPartidas(ActionEvent e, boolean paraRepeticion) {  // Añadir parámetro
+        Perfil jugador = autenticarUsuario();
+        if (jugador == null) return;
+
+        List<Partida> partidas = gestorDePartida.obtenerPartidasJugador(jugador);
+
+        JDialog dialog = new JDialog(this, "Tus Partidas", true);
+        dialog.setSize(600, 500);  // Aumentar tamaño
+        dialog.setLocationRelativeTo(this);
+
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        content.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(2, 0, 2, 0);
+
+        JLabel title = new JLabel(paraRepeticion ? "SELECCIONA PARTIDA PARA REPRODUCIR" : "TUS PARTIDAS ACTIVAS");
+        title.setFont(BUTTON_FONT);
+        title.setForeground(Color.BLACK);
+        content.add(title, gbc);
+
+        if (partidas.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No tienes partidas activas");
+            emptyLabel.setFont(BUTTON_FONT);
+            content.add(emptyLabel, gbc);
+        } else {
+            for (Partida p : partidas) {
+                JPanel entryPanel = crearPanelPartida(p);
+
+                if (paraRepeticion) {
+                    entryPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    entryPanel.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            dialog.dispose();
+                            iniciarRepeticion(p);
+                        }
+                    });
+                }
+
+                content.add(entryPanel, gbc);
+                content.add(new JSeparator(), gbc);
+            }
+        }
+
+        gbc.weighty = 1;
+        content.add(Box.createGlue(), gbc);
+
+        JScrollPane scrollPane = new JScrollPane(content);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        dialog.add(scrollPane);
+        dialog.setVisible(true);
+    }
+
+
+    private JPanel crearPanelPartida(Partida p) {
+        JPanel entryPanel = new JPanel(new BorderLayout(10, 0));
+        entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        entryPanel.setBackground(new Color(240, 240, 240));
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        leftPanel.setBackground(new Color(240, 240, 240));
+
+        JLabel idLabel = new JLabel("ID: " + p.getId());
+        idLabel.setFont(BUTTON_FONT);
+        idLabel.setForeground(COLOR_AZUL);
+
+        JLabel nameLabel = new JLabel(p.getNombre());
+        nameLabel.setFont(BUTTON_FONT);
+        nameLabel.setForeground(Color.BLACK);
+
+        leftPanel.add(idLabel);
+        leftPanel.add(nameLabel);
+
+        JPanel rightPanel = new JPanel(new GridLayout(2, 1));
+        rightPanel.setBackground(new Color(240, 240, 240));
+
+        JLabel modeLabel = new JLabel("Modo: " + p.getModoPartida());
+        modeLabel.setFont(BUTTON_FONT);
+        modeLabel.setForeground(Color.BLACK);
+
+        JLabel detailLabel = new JLabel(
+                p.getModoPartida() == Partida.Modo.PvP ?
+                        "Oponente: " + p.getOponente().getUsername() :
+                        "Dificultad IA: " + p.getDificultad()
+        );
+        detailLabel.setFont(BUTTON_FONT);
+        detailLabel.setForeground(Color.BLACK);
+
+        rightPanel.add(modeLabel);
+        rightPanel.add(detailLabel);
+
+        entryPanel.add(leftPanel, BorderLayout.WEST);
+        entryPanel.add(rightPanel, BorderLayout.EAST);
+
+        return entryPanel;
+    }
+
     private Perfil autenticarUsuario() {
         JTextField usernameField = new JTextField();
         JPasswordField passwordField = new JPasswordField();
@@ -371,5 +478,20 @@ public class GestionPartidaView extends JFrame {
             } else JOptionPane.showMessageDialog(this, "No existe ningún perfil con este username");
         }
         return null;
+    }
+
+    // En el método verRepeticion
+    private void verRepeticion(ActionEvent e) {
+        mostrarPartidas(e, true);
+    }
+
+    private void iniciarRepeticion(Partida partida) {
+        SwingUtilities.invokeLater(() -> {
+            new RepeticionPartidaView(
+                    partida,
+                    gestorDePartida,
+                    gestorDePerfil
+            ).setVisible(true);
+        });
     }
 }
