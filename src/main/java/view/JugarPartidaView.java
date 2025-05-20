@@ -81,9 +81,12 @@ public class JugarPartidaView extends JFrame {
                 ? turnoActual.getPuntuacionJ1()
                 : turnoActual.getPuntuacionJ2()));
         lblPuntos.setFont(TITLE_FONT);
+        JLabel lblPistas = new JLabel("Pistas restantes: " + obtenerPistasRestantes(turnoActual));
+        lblPistas.setFont(LABEL_FONT);
         lblPuntos.setForeground(Color.BLACK);
         infoPanel.add(lblJugador);
         infoPanel.add(lblPuntos);
+        infoPanel.add(lblPistas);
         mainPanel.add(infoPanel, BorderLayout.NORTH);
 
         // Panel del tablero
@@ -223,7 +226,6 @@ public class JugarPartidaView extends JFrame {
     private void actualizarPanelInformacion() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
 
-        // Eliminar componentes antiguos
         infoPanel.removeAll();
 
         // Nuevo layout con 3 filas
@@ -257,9 +259,7 @@ public class JugarPartidaView extends JFrame {
     }
 
     private int obtenerPistasRestantes(Turno turno) {
-        return jugadorActual.equals(partida.getCreador())
-                ? turno.getPistasJ1()
-                : turno.getPistasJ2();
+        return jugadorActual.equals(partida.getCreador()) ? turno.getPistasJ1() : turno.getPistasJ2();
     }
     private void addJugarButton(JPanel panel, String text, Color color, ActionListener action) {
         JButton btn = new JButton(text) {
