@@ -15,7 +15,7 @@ import java.util.*;
  * ancla en el tablero y extendiendo palabras a partir de ellas, verificando restricciones
  * como cross-checks y disponibilidad de letras en el atril.</p>
  *
- * @author Arnau Mirets
+ * @author Arnau Miret Barrull
  */
 
 public class Algorithm {
