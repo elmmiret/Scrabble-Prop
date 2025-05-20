@@ -6,21 +6,47 @@ import exceptions.CoordenadaFueraDeRangoException;
 
 import java.util.*;
 
+/**
+ * Clase que implementa el algoritmo para generar movimientos válidos en un juego de palabras.
+ * Utiliza una estructura DAWG (Directed Acyclic Word Graph) para verificar palabras válidas
+ * y genera posibles movimientos basados en el estado actual del tablero y las fichas disponibles.
+ *
+ * @author Arnau Miret
+ */
+
 public class Algorithm {
+    /** El DAWG que contiene el diccionario de palabras válidas */
     private final Dawg dawg;
+
+    /** El tablero actual de juego */
     private Tablero tablero;
+
+    /** Mapa que representa las letras disponibles en el atril y sus cantidades */
     private Map<String, Integer> atril;  // atril de Strings (letras)
+
+    /** Matriz que indica las posiciones ancla en el tablero */
     private boolean[][] anchors;
+
+    /** Mapa de conjuntos que contiene las letras válidas para cada posición (cross-checks) */
     private Map<Integer, Set<String>> crossChecks;  // Usamos un mapa de conjuntos para cross-checks
 
+    /**
+     * Constructor que inicializa el algoritmo con un DAWG específico.
+     *
+     * @param dawg El DAWG que servirá como diccionario de palabras válidas
+     * @throws IllegalArgumentException Si el DAWG proporcionado es nulo
+     */
     public Algorithm(Dawg dawg) {
         this.dawg = dawg;
     }
 
     /**
-     * Prepara el algoritmo para generar movimientos en un tablero dado con un atril especifico
-     * @param tablero El tablero actual de juego
-     * @param atril Las letras disponibles en el atril
+     * Prepara el algoritmo para generar movimientos con un tablero y atril específicos.
+     * Calcula las posiciones ancla y los cross-checks necesarios para la generación de movimientos.
+     *
+     * @param tablero El tablero actual del juego
+     * @param atril Mapa de fichas disponibles en el atril y sus cantidades
+     * @throws IllegalArgumentException Si el tablero o el atril son nulos
      */
     public void preparar(Tablero tablero, Map<Ficha, Integer> atril) {
         this.tablero = tablero;
@@ -30,8 +56,10 @@ public class Algorithm {
     }
 
     /**
-     * Genera todos los movimientos válidos para la configuración actual
-     * @return Lista de movimientos válidos
+     * Genera todos los movimientos válidos posibles con la configuración actual.
+     *
+     * @return Lista de movimientos válidos ordenados según algún criterio (puntuación, longitud, etc.)
+     * @throws IllegalStateException Si el algoritmo no ha sido preparado previamente
      */
     public List<Movimiento> generarMovimientos() {
         System.out.println("estoy generando movimientos");
@@ -63,10 +91,23 @@ public class Algorithm {
         return movimientos;
     }
 
+    /**
+     * Genera movimientos válidos para una fila específica del tablero.
+     *
+     * @param fila La fila del tablero para la cual generar movimientos
+     * @param movimientos La lista donde se acumularán los movimientos generados
+     */
     private void generarMovimientosFila(int fila, List<Movimiento> movimientos) {
         generarMovimientosFila(fila, movimientos, false);
     }
 
+    /**
+     * Genera movimientos válidos para una fila específica, considerando la orientación.
+     *
+     * @param fila La fila del tablero para la cual generar movimientos
+     * @param movimientos La lista donde se acumularán los movimientos generados
+     * @param esVertical Indica si los movimientos son verticales (true) u horizontales (false)
+     */
     private void generarMovimientosFila(int fila, List<Movimiento> movimientos, boolean esVertical) {
         for(int col = 0; col < Tablero.COLUMNAS; col++) {
             if(anchors[fila][col]) {
@@ -94,6 +135,17 @@ public class Algorithm {
         }
     }
 
+    /**
+     * Genera prefijos válidos para extender desde una posición ancla.
+     *
+     * @param fila Fila de la posición ancla
+     * @param colAncla Columna de la posición ancla
+     * @param limite Máxima longitud del prefijo
+     * @param palabraParcial Lista de letras que forman el prefijo actual
+     * @param nodo Nodo actual en el DAWG
+     * @param movimientos Lista donde se acumularán los movimientos generados
+     * @param esVertical Indica si la orientación es vertical
+     */
     private void generarPrefijos(int fila, int colAncla, int limite, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
         // Exetender hacia la derecha desde el ancla
         extenderDerecha(fila, colAncla, palabraParcial, nodo, movimientos, esVertical);
@@ -125,6 +177,16 @@ public class Algorithm {
         }
     }
 
+    /**
+     * Extiende una palabra parcial hacia la derecha desde una posición dada.
+     *
+     * @param fila Fila actual en el tablero
+     * @param col Columna actual en el tablero
+     * @param palabraParcial Lista de letras que forman la palabra parcial
+     * @param nodo Nodo actual en el DAWG
+     * @param movimientos Lista donde se acumularán los movimientos generados
+     * @param esVertical Indica si la orientación es vertical
+     */
     private void extenderDerecha(int fila, int col, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
         try {
             // Verificar su es un movimiento válido
@@ -182,6 +244,15 @@ public class Algorithm {
         }
     }
 
+    /**
+     * Extiende una palabra existente en el tablero para formar nuevos movimientos.
+     *
+     * @param fila Fila de la posición inicial
+     * @param colAncla Columna de la posición inicial
+     * @param palabraParcial Lista de letras que forman la palabra existente
+     * @param movimientos Lista donde se acumularán los movimientos generados
+     * @param esVertical Indica si la orientación es vertical
+     */
     private void extenderDesdePalabraExistente(int fila, int colAncla, List<String> palabraParcial, List<Movimiento> movimientos, boolean esVertical) {
         try {
             NodoDawg nodo = dawg.getRoot();
@@ -203,6 +274,9 @@ public class Algorithm {
         }
     }
 
+    /**
+     * Calcula las posiciones ancla en el tablero (casillas vacías adyacentes a fichas existentes).
+     */
     private void calcularAnclajes(){
         anchors = new boolean[Tablero.FILAS][Tablero.COLUMNAS];
 
@@ -231,6 +305,11 @@ public class Algorithm {
         }
     }
 
+    /**
+     * Calcula los cross-checks para cada posición vacía del tablero.
+     * Un cross-check determina qué letras pueden colocarse en una posición sin crear palabras inválidas
+     * en la dirección perpendicular.
+     */
     private void calcularCrossChecks() {
         crossChecks = new HashMap<>();
 
@@ -275,6 +354,12 @@ public class Algorithm {
         }
     }
 
+    /**
+     * Convierte un mapa de fichas a un mapa de letras con sus cantidades.
+     *
+     * @param atril Mapa original de fichas y sus cantidades
+     * @return Mapa de letras y sus cantidades correspondientes
+     */
     private Map<String, Integer> contarLetras(Map<Ficha, Integer> atril) {
         Map<String, Integer> count = new HashMap<>();
         for (Map.Entry<Ficha, Integer> letra : atril.entrySet()) {
@@ -285,7 +370,12 @@ public class Algorithm {
         return count;
     }
 
-
+    /**
+     * Concatena una lista de letras para formar una palabra.
+     *
+     * @param letras Lista de letras a concatenar
+     * @return Cadena resultante de concatenar las letras
+     */
     private String concatenarPalabra(List<String> letras) {
         StringBuilder palabra = new StringBuilder();
         for(String s : letras) {
