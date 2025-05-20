@@ -148,14 +148,12 @@ public class JugarPartidaView extends JFrame {
     private void pedirPista() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
 
-        // Verificar pistas disponibles
         int pistasDisponibles = turnoActual.getPistas(jugadorActual);
         if (pistasDisponibles <= 0) {
             JOptionPane.showMessageDialog(this, "No tienes pistas disponibles");
             return;
         }
 
-        // Obtener movimiento sugerido
         Movimiento mov = gestorDePartida.pedirPista(partida, jugadorActual);
 
         if (mov == null) {
@@ -163,12 +161,10 @@ public class JugarPartidaView extends JFrame {
             return;
         }
 
-        // Mostrar pista según dificultad
         String mensaje = construirMensajePista(mov, partida.getDificultad());
         JOptionPane.showMessageDialog(this, mensaje, "Pista", JOptionPane.INFORMATION_MESSAGE);
 
-        // Actualizar contador de pistas
-        actualizarContadorPistas(turnoActual);
+        actualizarPanelInformacion();
     }
 
     private String construirMensajePista(Movimiento mov, int dificultad) {
@@ -180,26 +176,27 @@ public class JugarPartidaView extends JFrame {
                 sb.append("Posición sugerida: ").append(letra).append(columna).append("\n");
                 break;
             case 2:
-                sb.append("Letras para usar: ");
+                sb.append("Palabra: ");
                 break;
             case 3:
                 Collections.shuffle(mov.getPalabra());
-                sb.append("Letras disponibles: ");
+                sb.append("Letras para usar: ");
                 break;
         }
 
         mov.getPalabra().forEach(letra -> sb.append(letra).append(" "));
         return sb.toString();
     }
-
+    /**
     private void actualizarContadorPistas(Turno turno) {
         if (jugadorActual.equals(partida.getCreador())) {
-            turno.setPistasRestantesJ1(turno.getPistasJ1() - 1);
+            turno.setPistasRestantesJ1(turno.getPistasJ1());
         } else {
             turno.setPistasRestantesJ2(turno.getPistasJ2() - 1);
         }
-        actualizarPanelInformacion();
+
     }
+     */
 
     private void styleButton(JButton btn, Color color) {
         btn.setForeground(Color.WHITE);
