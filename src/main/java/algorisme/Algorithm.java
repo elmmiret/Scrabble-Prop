@@ -11,7 +11,11 @@ import java.util.*;
  * Utiliza una estructura DAWG (Directed Acyclic Word Graph) para verificar palabras válidas
  * y genera posibles movimientos basados en el estado actual del tablero y las fichas disponibles.
  *
- * @author Arnau Miret
+ * <p>El algoritmo sigue el enfoque estándar para juegos de palabras, identificando posiciones
+ * ancla en el tablero y extendiendo palabras a partir de ellas, verificando restricciones
+ * como cross-checks y disponibilidad de letras en el atril.</p>
+ *
+ * @author Arnau Mirets
  */
 
 public class Algorithm {
