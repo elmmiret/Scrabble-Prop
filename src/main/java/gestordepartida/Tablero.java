@@ -86,7 +86,6 @@ public class Tablero {
         montarTablero();
     }
 
-
     /**
      * Inicializa el conjunto de letras válidas según el idioma.
      * @param mapaFichas Mapa de fichas del alfabeto correspondiente.
@@ -299,6 +298,23 @@ public class Tablero {
             nuevo.add(fila);
         }
         this.tablero = nuevo;
+    }
+
+    public Tablero clonar() {
+        Tablero copia = new Tablero(this.idiomaPartida);
+        try {
+            for (int i = 0; i < FILAS; i++) {
+                for (int j = 0; j < COLUMNAS; j++) {
+                    Ficha f = this.getFicha(i, j);
+                    if (f != null) {
+                        copia.setFicha(f, i, j); // Copia las fichas
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return copia;
     }
 
     /**
