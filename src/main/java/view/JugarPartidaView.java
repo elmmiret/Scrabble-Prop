@@ -661,6 +661,31 @@ public class JugarPartidaView extends JFrame {
                 }
             }
 
+            // 5.1. Manejar comodines: Solicitar letras al usuario
+            List<Integer> posicionesComodin = new ArrayList<>();
+            for (int i = 0; i < fullWord.length(); i++) {
+                if (fullWord.charAt(i) == '#') {
+                    posicionesComodin.add(i);
+                }
+            }
+
+            if (!posicionesComodin.isEmpty()) {
+                for (int pos : posicionesComodin) {
+                    String letraElegida = solicitarLetraComodin();
+                    if (letraElegida == null) {
+                        revertirColocacionesTemporales();
+                        return; // Usuario canceló
+                    }
+                    fullWord.setCharAt(pos, letraElegida.charAt(0));
+
+                    // Actualizar la ficha temporal para reflejar el cambio visual
+                    Point p = todasLasLetras.get(pos);
+                    Ficha fichaReal = new Ficha(letraElegida, partida.getPuntuacionFicha(letraElegida));
+                    colocacionesTemporales.put(p, fichaReal);
+                }
+                cargarTablero(); // Actualizar vista con letras elegidas
+            }
+
             // 6. Validar todas las palabras nuevas (horizontal + verticales)
             Set<String> palabrasValidadas = new HashSet<>();
             for (Point p : todasLasLetras) {
@@ -685,6 +710,7 @@ public class JugarPartidaView extends JFrame {
             for (String palabra : palabrasValidadas) {
                 if (!partida.getDawg().existePalabra(palabra)) {
                     JOptionPane.showMessageDialog(this, "Palabra inválida: " + palabra);
+                    revertirColocacionesTemporales();
                     return;
                 }
             }
@@ -727,6 +753,21 @@ public class JugarPartidaView extends JFrame {
         fichasEnUso.clear();
         cargarAtril();
         cargarTablero();
+    }
+
+    private String solicitarLetraComodin() {
+        Set<String> letrasValidas = partida.getMapaLetras().keySet();
+        String[] opciones = letrasValidas.toArray(new String[0]);
+
+        return (String) JOptionPane.showInputDialog(
+                this,
+                "Selecciona la letra para el comodín:",
+                "Usar comodín",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                "A"
+        );
     }
 
     private boolean isAdyacenteAExistente(int x, int y) throws CoordenadaFueraDeRangoException {
@@ -778,9 +819,11 @@ public class JugarPartidaView extends JFrame {
     }
 
     private Ficha getFichaAtPosition(int x, int y) throws CoordenadaFueraDeRangoException {
-        // Prioritize newly placed tiles, then check the board
-        Ficha tempFicha = colocacionesTemporales.get(new Point(x, y));
-        return (tempFicha != null) ? tempFicha : partida.getTablero().getFicha(x, y);
+        Point p = new Point(x, y);
+        // Priorizar comodines ya sustituidos
+        return colocacionesTemporales.containsKey(p) ?
+                colocacionesTemporales.get(p) :
+                partida.getTablero().getFicha(x, y);
     }
 
     private Point findWordStart(List<Point> points, boolean isHorizontal) throws CoordenadaFueraDeRangoException {
