@@ -71,7 +71,7 @@ public class GestorDeView {
 
     public void mostrarPartida(Partida partida)
     {
-        JugarPartidaView jugarPartidaView = new JugarPartidaView(this, partida, gestorDePartida);
+        JugarPartidaView jugarPartidaView = new JugarPartidaView(this, partida, gestorDePartida, gestorPerfil);
         mainView.setVisible(false);
         gestionPerfilView.setVisible(false);
         gestionPartidaView.setVisible(false);

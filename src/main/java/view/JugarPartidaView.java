@@ -2,6 +2,7 @@ package view;
 
 import algorisme.Movimiento;
 import gestordepartida.*;
+import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
@@ -42,20 +43,23 @@ public class JugarPartidaView extends JFrame {
     JPanel botonesPanel;
     private Map<Ficha, Integer> fichasEnUso = new HashMap<>(); // Fichas colocadas temporalmente
     GestorDeView gestorDeView;
+    private int pasarConsecutivos = 0;
+    private boolean partidaFinalizada = false;
+    GestorDePerfil gestorDePerfil;
 
-    public JugarPartidaView(GestorDeView gestorDeView, Partida partida, GestorDePartida gestorDePartida) {
+    public JugarPartidaView(GestorDeView gestorDeView, Partida partida, GestorDePartida gestorDePartida, GestorDePerfil gestorDePerfil) {
         super("Jugar Partida");
         this.partida = partida;
         this.gestorDePartida = gestorDePartida;
         this.jugadorActual = partida.getRondas().get(partida.getRondas().size()-1).getJugador();
         this.atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
         this.gestorDeView = gestorDeView;
+        this.gestorDePerfil = gestorDePerfil;
         init();
         cargarEstadoInicial();
     }
 
     private void init() {
-
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -210,6 +214,14 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void pasarTurno() {
+        if (partidaFinalizada) return;
+
+        pasarConsecutivos++;
+        if (pasarConsecutivos >= 2) {
+            finalizarPartida("¡Dos pases consecutivos! Fin de la partida.");
+            return;
+        }
+
         revertirColocacionesTemporales(); // Limpiar antes de avanzar
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         turnoActual.pasarTurno();
@@ -221,7 +233,81 @@ public class JugarPartidaView extends JFrame {
         actualizarPanelInformacion();
     }
 
+    private void finalizarPartida(String motivo) {
+        partidaFinalizada = true;
+        pasarConsecutivos = 0;
 
+        // Obtener puntuaciones finales
+        Turno ultimoTurno = partida.getRondas().getLast();
+        int puntosJ1 = ultimoTurno.getPuntuacionJ1();
+        int puntosJ2 = ultimoTurno.getPuntuacionJ2();
+
+        // Determinar ganador
+        String ganador = "";
+        String perdedor = "";
+        if (partida.getModoPartida() == Partida.Modo.PvP)
+        {
+            if (puntosJ1 > puntosJ2) {
+                ganador = partida.getCreador().getUsername();
+                perdedor = partida.getOponente().getUsername();
+            }
+            else if (puntosJ2 > puntosJ1) {
+                ganador = partida.getOponente().getUsername();
+                perdedor = partida.getCreador().getUsername();
+            }
+            else {
+                ganador = "Empate";
+                perdedor = "";
+            }
+        }
+        else if (partida.getModoPartida() == Partida.Modo.PvIA)
+        {
+            if (puntosJ1 > puntosJ2)
+            {
+                ganador = partida.getCreador().getUsername();
+                perdedor = "";
+            }
+            else
+            {
+                ganador = "";
+                perdedor = "";
+            }
+        }
+
+        // Mostrar diálogo con resultados
+        String mensaje = String.format(
+                "%s\nPuntos %s: %d\nPuntos %s: %d\nGanador: %s",
+                motivo,
+                partida.getCreador().getUsername(), puntosJ1,
+                (partida.getModoPartida() == Partida.Modo.PvP)
+                        ? partida.getOponente().getUsername() : "IA", puntosJ2,
+                ganador
+        );
+
+        JOptionPane.showMessageDialog(this, mensaje, "Fin de la partida", JOptionPane.INFORMATION_MESSAGE);
+
+        // Actualizar estadísticas de perfiles
+        actualizarEstadisticasPerfiles(ganador, perdedor, puntosJ1, puntosJ2);
+
+        // Cerrar vista y volver al menú
+        gestorDeView.volverMenuGestionPartida(this);
+    }
+
+    private void actualizarEstadisticasPerfiles(String ganador, String perdedor, int puntosJ1, int puntosJ2) {
+        if (partida.getModoPartida() == Partida.Modo.PvP) {
+            gestorDePerfil.incrementarPartidasJugadas(partida.getCreador().getUsername());
+            gestorDePerfil.incrementarPartidasJugadas(partida.getOponente().getUsername());
+            gestorDePerfil.incrementarPuntosJugador(ganador, ganador.equals(partida.getCreador().getUsername()) ? puntosJ1 : puntosJ2);
+            gestorDePerfil.incrementarPuntosJugador(perdedor, perdedor.equals(partida.getCreador().getUsername()) ? puntosJ1 : puntosJ2);
+
+            if (!ganador.equals("Empate")) {
+                gestorDePerfil.incrementarPartidasGanadas(ganador);
+                gestorDePerfil.incrementarPartidasPerdidas(perdedor);
+            }
+        } else {
+            // Lógica para modo IA
+        }
+    }
 
     private void actualizarPanelInformacion() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
@@ -545,6 +631,11 @@ public class JugarPartidaView extends JFrame {
             );
 
             if (isValid) {
+                pasarConsecutivos = 0;
+                if (atrilActual.isEmpty()) {
+                    finalizarPartida("¡Atril vacío! Fin de la partida.");
+                    return;
+                }
                 Turno nuevoTurno = partida.getRondas().get(partida.getRondas().size() - 1);
                 jugadorActual = nuevoTurno.getJugador(); // Actualizar jugador
                 atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
@@ -739,6 +830,7 @@ public class JugarPartidaView extends JFrame {
         boolean exito = gestorDePartida.cambiarFichas(turnoActual, atrilActual, fichasCambio);
 
         if (exito) {
+            pasarConsecutivos = 0;
             // Limpiar definitivamente después del cambio
             colocacionesTemporales.clear();
             fichasEnUso.clear();
