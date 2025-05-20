@@ -90,7 +90,7 @@ public class JugarPartidaView extends JFrame {
         lblJugador.setForeground(Color.BLACK);
         if (partida.getModoPartida()==Partida.Modo.PvP)
         {
-            lblPuntos.setText("Puntos: " + (jugadorActual.equals(partida.getCreador())
+            lblPuntos = new JLabel("Puntos: " + (jugadorActual.equals(partida.getCreador())
                     ? turnoActual.getPuntuacionJ1()
                     : turnoActual.getPuntuacionJ2()));
         }
@@ -254,7 +254,7 @@ public class JugarPartidaView extends JFrame {
 
         pasarConsecutivos++;
         if (pasarConsecutivos >= 2) {
-            turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
+            partida.getRondas().get(partida.getRondas().size() - 2).setTipoJugada(Turno.TipoJugada.finalizar);
             finalizarPartida("¡Dos pases consecutivos! Fin de la partida.");
             return;
         }
@@ -267,7 +267,7 @@ public class JugarPartidaView extends JFrame {
         cargarTablero();
         cargarAtril();
         actualizarPanelInformacion();
-        ejecutarTurnoIA();
+        if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
     }
 
     private void finalizarPartida(String motivo) {
@@ -701,6 +701,9 @@ public class JugarPartidaView extends JFrame {
             if (isValid) {
                 pasarConsecutivos = 0;
                 if (atrilActual.isEmpty()) {
+                    Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+                    turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
+                    turnoActual.pasarTurno();
                     finalizarPartida("¡Atril vacío! Fin de la partida.");
                     return;
                 }
@@ -711,7 +714,7 @@ public class JugarPartidaView extends JFrame {
                 colocacionesTemporales.clear();
                 fichasEnUso.clear();
                 actualizarEstadoJuego();
-                ejecutarTurnoIA();
+                if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
             } else {
                 revertirColocacionesTemporales();
             }
@@ -915,7 +918,7 @@ public class JugarPartidaView extends JFrame {
             cargarAtril();
 
             actualizarPanelInformacion();
-            ejecutarTurnoIA();
+            if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
 
         } else {
             JOptionPane.showMessageDialog(this, "Error al cambiar fichas");
