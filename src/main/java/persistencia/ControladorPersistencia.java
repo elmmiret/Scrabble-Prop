@@ -11,6 +11,8 @@ import java.util.Map;
  * Controlador central para todas las operaciones de persistencia.
  * Coordina los DAO específicos para cada entidad y proporciona una interfaz unificada
  * para las operaciones de guardado y carga.
+ *
+ * @author Albert Aulet Niubó
  */
 public class ControladorPersistencia {
     private final PartidaDAO partidaDAO;

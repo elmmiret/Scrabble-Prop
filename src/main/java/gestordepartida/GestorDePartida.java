@@ -52,12 +52,17 @@ public class GestorDePartida {
         }));
     }
 
+    /**
+     * Carga las partidas desde el sistema de persistencia
+     */
     public void cargarPartidas() {
         partidas = persistencia.cargarPartidas();
     }
 
 
-
+    /**
+     * Guarda el estado actual de todas las partidas
+     */
     public void guardarPartidas() {
         persistencia.guardarPartidas(partidas);
     }
@@ -234,21 +239,44 @@ public class GestorDePartida {
         else return jugador.equals(partida.getCreador()) ? turno.getAtrilJ1() : turno.getAtrilJ2();
     }
 
+    /**
+     * Solicita una pista estratégica para el jugador actual
+     * @param partida Partida en curso
+     * @param jugador Jugador que solicita la pista
+     * @return Movimiento sugerido o null si no hay opciones válidas
+     */
     public Movimiento pedirPista(Partida partida, Perfil jugador) {
         Turno turno = partida.getRondas().get(partida.getRondas().size() - 1);
         return turno.pedirPista(jugador);
     }
 
-
+    /**
+     * Obtiene el número máximo de turnos registrados en una partida
+     * @param partida Partida a consultar
+     * @return Cantidad total de turnos - 1
+     */
     public int getMaxTurnos(Partida partida) {
         return partida.getRondas().size()-1;
     }
 
+    /**
+     * Verifica si un número de turno es válido para la partida
+     * @param partida Partida a validar
+     * @param numTurno Número de turno a comprobar
+     * @return true si el turno existe dentro del rango válido
+     */
     public boolean isTurnoValido(Partida partida, int numTurno) {
         int max = getMaxTurnos(partida);
         return numTurno >= 1 && numTurno <= max;
     }
 
+    /**
+     * Recupera un turno específico de la partida
+     * @param partida Partida contenedora
+     * @param index Índice del turno a obtener
+     * @return Turno solicitado
+     * @throws IllegalArgumentException Si el índice está fuera de rango
+     */
     public Turno getTurno(Partida partida, int index) {
         if (index < 0 || index >= partida.getRondas().size()) {
             throw new IllegalArgumentException("Índex de torn invàlid");
@@ -256,6 +284,11 @@ public class GestorDePartida {
         return partida.getRondas().get(index);
     }
 
+    /**
+     * Obtiene el nombre del oponente en formato legible
+     * @param partida Partida a consultar
+     * @return Nombre de usuario del oponente o "IA" en modo singleplayer
+     */
     public String getOponenteUsername(Partida partida) {
         if (partida.getModoPartida() == Partida.Modo.PvP) {
             return partida.getOponente().getUsername();
@@ -264,6 +297,11 @@ public class GestorDePartida {
         }
     }
 
+    /**
+     * Obtiene los atriles de ambos jugadores para un turno específico
+     * @param turno Turno a consultar
+     * @return Arreglo con dos elementos: [atril jugador activo, atril oponente]
+     */
     public Map<Ficha, Integer>[] getAtrilesTurno(Turno turno) {
         Partida partida = turno.getPartida();
         Perfil jugadorActivo = turno.getJugador();

@@ -217,6 +217,11 @@ public class DriverPartida {
         }
     }
 
+    /**
+     * Muestra la repetición de una partida guardada, permitiendo navegar por sus turnos.
+     *
+     * @throws CoordenadaFueraDeRangoException Si hay coordenadas inválidas en los turnos guardados
+     */
     private void verRepeticionPartida() throws CoordenadaFueraDeRangoException {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -588,11 +593,11 @@ public class DriverPartida {
     }
 
     /**
-     * Gestiona el intercambio de fichas del jugador durante su turno.
+     * Procesa el intercambio de fichas del jugador durante su turno.
      *
      * @param partida Partida en curso
      * @param jugador Perfil del jugador activo
-     * @return true si el intercambio se realizó correctamente
+     * @return true si el intercambio se realizó correctamente, false en caso contrario
      */
     private boolean cambiarFichas(Partida partida, Perfil jugador) {
         Map<Ficha, Integer> atril = gestor.obtenerAtrilJugador(partida, jugador);
@@ -611,6 +616,12 @@ public class DriverPartida {
         return exito;
     }
 
+    /**
+     * Proporciona una pista al jugador durante su turno.
+     *
+     * @param partida Partida en curso
+     * @param jugador Perfil del jugador que solicita la pista
+     */
     private void pedirPista(Partida partida, Perfil jugador) {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() -1);
         if (turnoActual.getPistas(jugador) == 0) {
@@ -631,6 +642,12 @@ public class DriverPartida {
         }
     }
 
+    /**
+     * Proporciona una pista al jugador durante su turno contra la IA.
+     *
+     * @param partida Partida en curso
+     * @param jugador Perfil del jugador que solicita la pista
+     */
     private void pedirPistaIA(Partida partida, Perfil jugador) {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         if (turnoActual.getPistas(jugador) == 0) {
@@ -685,7 +702,11 @@ public class DriverPartida {
 
         });
     }
-
+    /**
+     * Consulta las partidas asociadas a un jugador específico.
+     *
+     * @param jugador Perfil del jugador cuyas partidas se listarán
+     */
     private void consultarPartidas(Perfil jugador) {
         List<Partida> partidas = gestor.obtenerPartidasJugador(jugador);
         System.out.println("\n=== TUS PARTIDAS ===");
@@ -739,15 +760,20 @@ public class DriverPartida {
         }
     }
 
-
+    /**
+     * Muestra visualmente las fichas disponibles en el atril del jugador actual.
+     *
+     * @param atril Mapa de fichas con sus cantidades a mostrar
+     */
     private void mostrarAtril(Map<Ficha, Integer> atril) {
         mostrarAtril(atril, 0);
     }
 
     /**
-     * Muestra visualmente las fichas disponibles en el atril.
+     * Muestra las fichas del atril de un jugador con formato visual.
      *
-     * @param atril Mapa de fichas con sus cantidades
+     * @param atril Mapa de fichas y sus cantidades
+     * @param num Identificador para personalizar el mensaje (0: jugador actual, 1: próximo jugador)
      */
     private void mostrarAtril(Map<Ficha, Integer> atril, int num) {
         if (num == 0) {

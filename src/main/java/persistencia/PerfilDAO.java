@@ -12,17 +12,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Data Access Object para operaciones de persistencia de perfiles.
- * Proporciona métodos para cargar y guardar perfiles.
+ * Data Access Object para operaciones de persistencia de perfiles de jugadores.
+ * Maneja la carga y almacenamiento de perfiles en formato de texto plano,
+ * manteniendo consistencia entre las instancias en memoria y el almacenamiento persistente.
+ *
+ * <p>Formato del archivo de persistencia:</p>
+ * <ul>
+ *   <li>Una línea por perfil con campos separados por pipes (|)</li>
+ *   <li>Estructura: username|password|fraseRecuperacion|partidasJugadas|partidasGanadas|partidasPerdidas|puntos</li>
+ *   <li>Codificación UTF-8</li>
+ * </ul>
+ *
+ * @author Marc Ribas Acon
  */
 public class PerfilDAO {
 
     private static final String RUTA_ARCHIVO = "src/main/java/gestordeperfil/perfilesbd.txt";
 
     /**
-     * Carga los perfiles desde el archivo de persistencia.
+     * Carga todos los perfiles desde el archivo de persistencia.
      *
-     * @return Mapa de perfiles cargados, con el nombre de usuario como clave
+     * @return Mapa de perfiles cargados donde la clave es el nombre de usuario
+     * @throws FileNotFoundException Si el archivo no existe (se ignora creando mapa vacío)
+     * @throws IOException Si ocurren errores de lectura del archivo
+     * @throws NumberFormatException Si hay valores numéricos corruptos en los datos
      */
     public Map<String, Perfil> cargar() {
         Map<String, Perfil> jugadores = new HashMap<>();
@@ -59,9 +72,11 @@ public class PerfilDAO {
     }
 
     /**
-     * Guarda los perfiles en el archivo de persistencia.
+     * Persiste todos los perfiles en el archivo de almacenamiento.
      *
-     * @param perfiles Mapa de perfiles a guardar
+     * @param perfiles Mapa de perfiles a guardar (username => Perfil)
+     * @throws IOException Si ocurren errores de escritura del archivo
+     * @throws SecurityException Si no hay permisos de escritura en el archivo
      */
     public void guardar(Map<String, Perfil> perfiles) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(RUTA_ARCHIVO))) {

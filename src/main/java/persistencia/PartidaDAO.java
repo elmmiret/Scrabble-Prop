@@ -1,3 +1,18 @@
+/**
+ * Clase DAO (Data Access Object) para gestionar la persistencia de partidas de Scrabble.
+ * Maneja la carga y guardado de partidas desde/hacia archivos de texto, manteniendo
+ * la integridad del estado del juego entre sesiones.
+ *
+ * <p>Formato del archivo de persistencia:</p>
+ * <ul>
+ *   <li>Almacena datos estructurados con marcadores de sección</li>
+ *   <li>Preserva estado completo del tablero, bolsa de fichas y secuencia de turnos</li>
+ *   <li>Mantiene referencias a los perfiles de jugadores mediante sus username</li>
+ * </ul>
+ *
+ * @author Albert Aulet Niubó
+ */
+
 package persistencia;
 
 import gestordepartida.*;
@@ -11,13 +26,22 @@ import java.util.stream.Collectors;
 public class PartidaDAO {
     private  GestorDePerfil gestorDePerfil;
 
-    // Constructor que recibe el GestorDePerfil
+    /**
+     * Construye un DAO para partidas vinculado al gestor de perfiles
+     * @param gestorDePerfil Gestor que provee acceso a los perfiles de jugadores
+     */
     public PartidaDAO(GestorDePerfil gestorDePerfil) {
         this.gestorDePerfil = gestorDePerfil;
     }
 
-    private static final String RUTA_PARTIDAS = "src/main/resources/datos/partidasbd.txt";
-
+    /**
+     * Carga todas las partidas almacenadas desde el archivo de persistencia
+     * @return Mapa de partidas cargadas (ID => Partida)
+     * @throws IOException Si ocurren errores de lectura del archivo
+     * @throws NumberFormatException Si hay datos numéricos corruptos
+     * @throws CoordenadaFueraDeRangoException Si se detectan coordenadas inválidas
+     * @throws CasillaOcupadaException Si hay conflictos en la colocación de fichas
+     */
     public  Map<Integer, Partida> cargar() {
         try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordepartida/partidasbd.txt"))) {
             Map<Integer, Partida> partidas = new HashMap<>();
@@ -164,6 +188,11 @@ public class PartidaDAO {
         return null;
     }
 
+    /**
+     * Persiste el estado actual de todas las partidas en el archivo
+     * @param partidas Mapa de partidas a guardar (ID => Partida)
+     * @throws IOException Si ocurren errores de escritura del archivo
+     */
     public  void guardar(Map<Integer, Partida> partidas) {
         try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordepartida/partidasbd.txt"))) {
             for (Partida partida : partidas.values()) {
@@ -221,6 +250,12 @@ public class PartidaDAO {
         }
     }
 
+    /**
+     * Convierte datos crudos en la representación del atril de un jugador
+     * @param data Cadena con formato "letra:cantidad,letra:cantidad,..."
+     * @param mapaLetras Diccionario de fichas disponibles
+     * @return Mapa de fichas con sus cantidades correspondientes
+     */
     private  Map<Ficha, Integer> cargarAtril(String data, Map<String, Ficha> mapaLetras) {
         Map<Ficha, Integer> atril = new HashMap<>();
         if (data.isEmpty()) return atril;
@@ -238,6 +273,12 @@ public class PartidaDAO {
         return atril;
     }
 
+    /**
+     * Reconstruye el estado del tablero para un turno específico
+     * @param tablero Instancia del tablero a poblar
+     * @param estado Representación serializada del tablero
+     * @param mapaLetras Diccionario de fichas disponibles
+     */
     private  void cargarTableroTurno(Tablero tablero, String estado, Map<String, Ficha> mapaLetras) {
         String[] celdas = estado.split(",");
         int index = 0;
@@ -256,6 +297,11 @@ public class PartidaDAO {
         }
     }
 
+    /**
+     * Serializa el estado actual del tablero para almacenamiento
+     * @param tablero Tablero a serializar
+     * @return Cadena con formato "letra,letra,..." representando cada celda
+     */
     private  String guardarTableroTurno(Tablero tablero) {
         if (tablero == null) return "-".repeat(Tablero.FILAS * Tablero.COLUMNAS - 1);
 
@@ -274,6 +320,11 @@ public class PartidaDAO {
         return sb.toString();
     }
 
+    /**
+     * Serializa el contenido de un atril para almacenamiento
+     * @param atril Mapa de fichas a serializar
+     * @return Cadena con formato "letra:cantidad,letra:cantidad,..."
+     */
     private  String guardarAtril(Map<Ficha, Integer> atril) {
         if (atril == null || atril.isEmpty()) return "";
         return atril.entrySet().stream().map(e -> e.getKey().getLetra() + ":" + e.getValue()).collect(Collectors.joining(","));
