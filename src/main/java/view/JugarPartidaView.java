@@ -122,9 +122,8 @@ public class JugarPartidaView extends JFrame {
         cambiarFichasPanel = new JPanel(new BorderLayout(10, 5));
         cambiarFichasPanel.setPreferredSize(new Dimension(200, 100)); // Altura máxima
         cambiarFichasPanel.setOpaque(false);
-        cambiarFichasPanel.setVisible(false); // Hidden by default
+        cambiarFichasPanel.setVisible(false);
 
-        // Add checkboxes for tiles (dynamically populated later)
         JPanel checkboxPanel = new JPanel(new GridLayout(0, 1, 2, 2)); // Reducir espaciado entre filas
         checkboxPanel.setOpaque(false);
         cambiarFichasPanel.add(new JScrollPane(checkboxPanel), BorderLayout.CENTER);
@@ -176,14 +175,14 @@ public class JugarPartidaView extends JFrame {
             case 1:
                 char letra = (char) ('A' + mov.getFila());
                 int columna = mov.getColumna() + 1;
-                sb.append("Posición sugerida: ").append(letra).append(columna).append("\n");
+                sb.append("Palabra y posición sugerida: ").append(letra).append(columna).append("\n");
                 break;
             case 2:
-                sb.append("Palabra: ");
+                sb.append("Posible palabra: ");
                 break;
             case 3:
                 Collections.shuffle(mov.getPalabra());
-                sb.append("Letras para usar: ");
+                sb.append("Letras de posible palabra: ");
                 break;
         }
 
@@ -261,6 +260,7 @@ public class JugarPartidaView extends JFrame {
     private int obtenerPistasRestantes(Turno turno) {
         return jugadorActual.equals(partida.getCreador()) ? turno.getPistasJ1() : turno.getPistasJ2();
     }
+
     private void addJugarButton(JPanel panel, String text, Color color, ActionListener action) {
         JButton btn = new JButton(text) {
             @Override
