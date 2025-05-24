@@ -108,7 +108,7 @@ public class Tablero {
      *   <li>Doble letra: Dispersas simétricamente.</li>
      * </ul>
      */
-    public void montarTablero () {
+    private void montarTablero () {
         TipoModificador m;
         for (int i = 0; i < FILAS; i++) {
             List<SimpleEntry<SimpleEntry<Ficha, TipoModificador>, Set<String>>> fila = new ArrayList<>();
@@ -158,7 +158,7 @@ public class Tablero {
      * @return Ficha en la posición o {@code null} si está vacía.
      * @throws CoordenadaFueraDeRangoException Si x o y están fuera del rango 0-14.
      */
-    public Ficha getFicha( int x, int y) throws CoordenadaFueraDeRangoException {
+    public Ficha setLetras( int x, int y) throws CoordenadaFueraDeRangoException {
         if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
         return tablero.get(x).get(y).getKey().getKey();
     }
@@ -300,6 +300,16 @@ public class Tablero {
         this.tablero = nuevo;
     }
 
+    /**
+     * Crea y devuelve una copia del tablero actual.
+     * <p>
+     * Este método genera una nueva instancia de Tablero utilizando el mismo idioma
+     * que el tablero original, y copia cada ficha existente en las mismas posiciones.
+     * Si ocurre una excepción durante la clonación, se imprime la traza del error en la salida estándar.
+     * </p>
+     *
+     * @return una nueva instancia de Tablero que contiene copias de las fichas del tablero original.
+     */
     public Tablero clonar() {
         Tablero copia = new Tablero(this.idiomaPartida);
         try {
