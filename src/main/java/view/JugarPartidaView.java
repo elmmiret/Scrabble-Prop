@@ -32,6 +32,7 @@ public class JugarPartidaView extends JFrame {
     private JPanel panelAtril;
     private JLabel lblJugador;
     private JLabel lblPuntos;
+    private JButton btnPedirPista;
     JPanel infoPanel;
     JPanel mainPanel;
     private Map<Point, Ficha> colocacionesTemporales = new HashMap<>();
@@ -350,6 +351,17 @@ public class JugarPartidaView extends JFrame {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         jugadorActual = turnoActual.getJugador();
 
+        if (btnPedirPista != null) {
+            boolean esTurnoHumano = jugadorActual != null;
+            int pistasDisponibles = esTurnoHumano ?
+                    obtenerPistasRestantes(turnoActual) : 0;
+
+            btnPedirPista.setEnabled(esTurnoHumano && pistasDisponibles > 0);
+            btnPedirPista.setToolTipText(!esTurnoHumano ?
+                    "No disponible para IA" :
+                    (pistasDisponibles > 0 ? "" : "Sin pistas disponibles"));
+        }
+
         infoPanel.removeAll();
 
         // Nuevo layout con 3 filas
@@ -386,6 +398,7 @@ public class JugarPartidaView extends JFrame {
         infoPanel.add(lblJugador);
         infoPanel.add(lblPuntos);
 
+
         // Contador de pistas
         JLabel lblPistas = new JLabel("Pistas restantes: " + obtenerPistasRestantes(turnoActual));
         lblPistas.setFont(LABEL_FONT);
@@ -399,7 +412,11 @@ public class JugarPartidaView extends JFrame {
     }
 
     private int obtenerPistasRestantes(Turno turno) {
-        return jugadorActual.equals(partida.getCreador()) ? turno.getPistasJ1() : turno.getPistasJ2();
+        if (jugadorActual == null) {
+            return 0;
+        } else {
+            return jugadorActual.equals(partida.getCreador()) ? turno.getPistasJ1() : turno.getPistasJ2();
+        }
     }
 
     private void addJugarButton(JPanel panel, String text, Color color, ActionListener action) {
@@ -416,6 +433,7 @@ public class JugarPartidaView extends JFrame {
         };
 
         if (text.equals("Pedir Pista")) {
+            btnPedirPista = btn;
             boolean esTurnoHumano = jugadorActual != null;
             int pistasDisponibles = esTurnoHumano ?
                     obtenerPistasRestantes(partida.getRondas().getLast()) :
@@ -430,11 +448,6 @@ public class JugarPartidaView extends JFrame {
         btn.setFont(BUTTON_FONT);
         btn.setContentAreaFilled(false);
         btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        if (text.equals("Pedir Pista")) {
-            int pistas = obtenerPistasRestantes(partida.getRondas().getLast());
-            btn.setEnabled(pistas > 0);
-            btn.setToolTipText(pistas > 0 ? "" : "Sin pistas disponibles");
-        }
         btn.addActionListener(action);
         panel.add(btn);
     }

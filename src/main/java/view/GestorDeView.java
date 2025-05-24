@@ -63,8 +63,7 @@ public class GestorDeView {
         gestionPartidaView.setVisible(true);
     }
 
-    public void volverMenuGestionPartida(JugarPartidaView jugarPartidaView)
-    {
+    public void volverMenuGestionPartida(JugarPartidaView jugarPartidaView) {
         jugarPartidaView.setVisible(false);
         mostrarGestionPartida();
     }
@@ -77,5 +76,15 @@ public class GestorDeView {
         gestionPartidaView.setVisible(false);
         rankingView.setVisible(false);
         jugarPartidaView.setVisible(true);
+    }
+
+    public void mostrarRepeticion(Partida partida) {
+        mainView.setVisible(false);
+        gestionPerfilView.setVisible(false);
+        rankingView.setVisible(false);
+        gestionPartidaView.setVisible(false);
+
+        RepeticionPartidaView repeticionView = new RepeticionPartidaView(partida, gestorDePartida, this);
+        repeticionView.setVisible(true);
     }
 }

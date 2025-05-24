@@ -25,6 +25,7 @@ public class RepeticionPartidaView extends JFrame {
     private JLabel lblJugador;
     private JLabel lblPuntos;
     private JTextField txtTurno;
+    private GestorDeView gestorDeView;
 
     private static final int ANCHO = 1400;
     private static final int ALTO = 1000;
@@ -40,12 +41,16 @@ public class RepeticionPartidaView extends JFrame {
      *
      * @param partida           Partida a visualizar.
      * @param gestorDePartida   Gestor que proporciona lógica relacionada con la partida.
-     * @param gestorPerfil      Gestor de perfiles (no utilizado directamente en esta versión).
+     * @param gestorDeView     Gestor de perfiles (no utilizado directamente en esta versión).
      */
-    public RepeticionPartidaView(Partida partida, GestorDePartida gestorDePartida, GestorDePerfil gestorPerfil) {
+    public RepeticionPartidaView(Partida partida, GestorDePartida gestorDePartida, GestorDeView gestorDeView) {
         super("Repetición - " + partida.getNombre());
+        if (partida == null || partida.getRondas() == null || partida.getRondas().isEmpty()) {
+            throw new IllegalArgumentException("Partida no válida o sin turnos guardados");
+        }
         this.partida = partida;
         this.gestorDePartida = gestorDePartida;
+        this.gestorDeView = gestorDeView;
         this.currentTurnIndex = 0;
         initUI();
         cargarTurno(0);
@@ -107,7 +112,10 @@ public class RepeticionPartidaView extends JFrame {
         jumpPanel.add(btnIr);
         controlsPanel.add(jumpPanel);
 
-        addStyledButton(controlsPanel, "Salir", COLOR_ROJO, e -> dispose());
+        addStyledButton(controlsPanel, "Salir", COLOR_ROJO, e -> {
+            dispose();
+            gestorDeView.mostrarGestionPartida();
+        });
 
         lateralPanel.add(controlsPanel, BorderLayout.SOUTH);
         mainPanel.add(lateralPanel, BorderLayout.EAST);
@@ -150,15 +158,31 @@ public class RepeticionPartidaView extends JFrame {
      * @param turnIndex Índice del turno a cargar (basado en 0).
      */
     private void cargarTurno(int turnIndex) {
+        if (partida.getRondas() == null || turnIndex < 0 || turnIndex >= partida.getRondas().size()) {
+            JOptionPane.showMessageDialog(this, "Turno no válido");
+            return;
+        }
+
         Turno turno = partida.getRondas().get(turnIndex);
+        if (turno == null) {
+            JOptionPane.showMessageDialog(this, "Turno no existe");
+            return;
+        }
+
         txtTurno.setText(String.valueOf(turnIndex + 1));
 
-        // Actualizamos información
-        lblJugador.setText("Turno de: " + (turno.getJugador() != null ?
-                turno.getJugador().getUsername() : "IA"));
+        String nombreJugador = "IA";
+        if (turno.getJugador() != null) {
+            nombreJugador = turno.getJugador().getUsername();
+        }
+        lblJugador.setText("Turno de: " + nombreJugador);
 
-        lblPuntos.setText("Puntos: " + (turno.getJugador() == partida.getCreador() ?
-                turno.getPuntuacionJ1() : turno.getPuntuacionJ2()));
+        int puntos = 0;
+        if (turno.getJugador() != null) {
+            puntos = (turno.getJugador() == partida.getCreador()) ?
+                    turno.getPuntuacionJ1() : turno.getPuntuacionJ2();
+        }
+        lblPuntos.setText("Puntos: " + puntos);
 
         cargarTableroHistorico(turno.getTableroTurno());
         cargarAtrilHistorico(turno);
@@ -220,29 +244,43 @@ public class RepeticionPartidaView extends JFrame {
      */
     private void cargarAtrilHistorico(Turno turno) {
         panelAtril.removeAll();
+        if (turno == null || gestorDePartida == null || partida == null) return;
+
         Map<Ficha, Integer>[] atriles = gestorDePartida.getAtrilesTurno(turno);
+        if (atriles == null || atriles.length < 2) return;
 
         Perfil creador = partida.getCreador();
         Perfil oponente = partida.getOponente();
 
-        Perfil jugadorContrario = turno.getJugador().equals(creador) ? oponente : creador;
+        Perfil jugadorTurno = turno.getJugador();
+        Perfil jugadorContrario;
 
-        int indiceAtrilContrario =
-                (atriles[0].equals(gestorDePartida.obtenerAtrilJugador(partida, jugadorContrario))
-                        ? 0 : 1);
+        if (jugadorTurno == null) { // Turno de la IA
+            // Asumimos que el creador es el humano (si la IA es el oponente)
+            jugadorContrario = creador;
+        } else { // Turno de jugador humano
+            jugadorContrario = jugadorTurno.equals(creador) ? oponente : creador;
+        }
 
-        Map<Ficha, Integer> atrilMostrar = atriles[indiceAtrilContrario];
+        //if (jugadorContrario == null) return;
 
-        atrilMostrar.forEach((ficha, cantidad) -> {
-            for (int i = 0; i < cantidad; i++) {
-                JButton btn = new JButton(ficha.getLetra());
-                btn.setFont(LABEL_FONT);
-                btn.setPreferredSize(new Dimension(50, 50));
-                btn.setBackground(new Color(200, 200, 200));
-                btn.setEnabled(false);
-                panelAtril.add(btn);
-            }
-        });
+        Map<Ficha, Integer> atrilJugador = gestorDePartida.obtenerAtrilJugador(partida, jugadorContrario);
+        int indiceAtrilContrario = atriles[0].equals(atrilJugador) ? 0 : 1;
+
+        // Validar y mostrar
+        if (indiceAtrilContrario >= 0 && indiceAtrilContrario < atriles.length) {
+            Map<Ficha, Integer> atrilMostrar = atriles[indiceAtrilContrario];
+            atrilMostrar.forEach((ficha, cantidad) -> {
+                for (int i = 0; i < cantidad; i++) {
+                    JButton btn = new JButton(ficha.getLetra());
+                    btn.setFont(LABEL_FONT);
+                    btn.setPreferredSize(new Dimension(50, 50));
+                    btn.setBackground(new Color(200, 200, 200));
+                    btn.setEnabled(false);
+                    panelAtril.add(btn);
+                }
+            });
+        }
         panelAtril.revalidate();
         panelAtril.repaint();
     }
@@ -278,13 +316,18 @@ public class RepeticionPartidaView extends JFrame {
      */
     private void saltarATurno(String input) {
         try {
+            int totalTurnos = partida.getRondas().size()-1;
+            if (totalTurnos == 0) {
+                JOptionPane.showMessageDialog(this, "No hay turnos guardados");
+                return;
+            }
             int target = Integer.parseInt(input) - 1;
-            if (target >= 0 && target < partida.getRondas().size()-1) {
+            if (target >= 0 && target < totalTurnos) {
                 currentTurnIndex = target;
                 cargarTurno(currentTurnIndex);
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "Turno fuera de rango (1-" + partida.getRondas().size() + ")");
+                        "Turno fuera de rango (1-" + totalTurnos + ")");
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Ingrese un número válido");

@@ -358,14 +358,14 @@ public class GestionPartidaView extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void mostrarPartidas(ActionEvent e, boolean paraRepeticion) {  // Añadir parámetro
+    private void mostrarPartidas(boolean paraRepeticion) {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
 
         List<Partida> partidas = gestorDePartida.obtenerPartidasJugador(jugador);
 
         JDialog dialog = new JDialog(this, "Tus Partidas", true);
-        dialog.setSize(600, 500);  // Aumentar tamaño
+        dialog.setSize(600, 500);
         dialog.setLocationRelativeTo(this);
 
         JPanel content = new JPanel(new GridBagLayout());
@@ -397,7 +397,7 @@ public class GestionPartidaView extends JFrame {
                         @Override
                         public void mouseClicked(MouseEvent e) {
                             dialog.dispose();
-                            iniciarRepeticion(p);
+                            gestorDeView.mostrarRepeticion(p);
                         }
                     });
                 }
@@ -486,18 +486,9 @@ public class GestionPartidaView extends JFrame {
         return null;
     }
 
-    // En el método verRepeticion
     private void verRepeticion(ActionEvent e) {
-        mostrarPartidas(e, true);
+        mostrarPartidas(true);
     }
 
-    private void iniciarRepeticion(Partida partida) {
-        SwingUtilities.invokeLater(() -> {
-            new RepeticionPartidaView(
-                    partida,
-                    gestorDePartida,
-                    gestorDePerfil
-            ).setVisible(true);
-        });
-    }
+
 }
