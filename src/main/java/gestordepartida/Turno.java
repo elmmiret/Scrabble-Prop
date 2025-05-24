@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Random;
 
 /**
  * Clase que representa un turno dentro de una partida de Scrabble.
@@ -44,11 +45,35 @@ public class Turno {
     /** Puntuación acumulada del oponente o IA. */
     private Integer puntosJ2; // oponente oi IA
 
+    /** Número de pistas disponibles que tiene el jugador 1. */
+    private Integer pistasRestantesJ1;
+
+    /** Número de pistas disponibles que tiene el jugador 2. */
+    private Integer pistasRestantesJ2;
+
     /** Número máximo de fichas permitidas en un atril. */
     public static final int MAX_FICHAS = 7;
 
     /** Tipo de jugada realizada en el turno (cambiar, pasar, colocar, finalizar). */
     private TipoJugada tipoJugada;
+
+    /** Palabra que se ha colocado en el tablero en ese turno*/
+    private String palabra;
+
+    /** Posición x inicial de la palabra colocada */
+    private Integer x_ini;
+
+    /** Posición y inicial de la palabra colocada */
+    private Integer y_ini;
+
+    /** Orientación de la palabra colocada */
+    private Boolean horizontal;
+
+    /** Fichas cambiadas durante el turno */
+    private Map<Ficha, Integer> fichasCambiadas;
+
+    /** Estado del tablero en el turno*/
+    private Tablero tableroTurno;
 
     /**
      * Enumeración que representa los tipos de acciones disponibles en un turno.
@@ -71,9 +96,13 @@ public class Turno {
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
+        pistasRestantesJ1 = 3;
+        pistasRestantesJ2 = 3;
         this.atrilJ1 = new HashMap<>();
         this.atrilJ2 = new HashMap<>();
-        this.tipoJugada = tipoJugada;
+        this.tipoJugada = TipoJugada.pasar;
+        this.tableroTurno = partida.getTablero().clonar();
+
     }
 
     /**
@@ -86,14 +115,37 @@ public class Turno {
      * @param atrilJ1   Atril del jugador creador.
      * @param atrilJ2   Atril del oponente/IA.
      */
-    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, int numPistasJ1, int numPistasJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
         this.partida = partida;
         this.jugador = jugador;
         this.puntosJ1 = puntosJ1;
         this.puntosJ2 = puntosJ2;
+        pistasRestantesJ1 = numPistasJ1;
+        pistasRestantesJ2 = numPistasJ2;
         this.atrilJ1 = atrilJ1;
         this.atrilJ2 = atrilJ2;
+        this.atrilJ1 = new HashMap<>(atrilJ1);
+        this.atrilJ2 = new HashMap<>(atrilJ2);
+        this.tableroTurno = new Tablero(partida.getIdioma());
     }
+
+
+    public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, boolean noClonarTablero) {
+        this.partida = partida;
+        this.jugador = jugador;
+        this.puntosJ1 = puntosJ1;
+        this.puntosJ2 = puntosJ2;
+        this.atrilJ1 = new HashMap<>();
+        this.atrilJ2 = new HashMap<>();
+        this.tipoJugada = TipoJugada.pasar;
+
+        if (!noClonarTablero) {
+            this.tableroTurno = partida.getTablero().clonar();
+        } else {
+            this.tableroTurno = new Tablero(partida.getIdioma());
+        }
+    }
+
 
     /**
      * Obtiene el jugador actual del turno.
@@ -182,13 +234,85 @@ public class Turno {
         return total;
     }
 
+    public String getPalabra() {
+        return palabra;
+    }
+
+    public Integer getX() {
+        return x_ini;
+    }
+
+    public Integer getY() {
+        return y_ini;
+    }
+
+    public Boolean getHorizontal() {
+        return horizontal;
+    }
+
+    public Map<Ficha, Integer> getFichasCambiadas() {
+        return fichasCambiadas;
+    }
+
+    public void setPalabra(String palabra) {
+        this.palabra = palabra;
+    }
+
+    public void setX(int x_ini) {
+        this.x_ini = x_ini;
+    }
+
+    public void setY (int y_ini) {
+        this.y_ini = y_ini;
+    }
+
+    public void setHorizontal (boolean horizontal) {
+        this.horizontal = horizontal;
+    }
+
+    public void setPistasRestantesJ1(int pistasRestantesJ1) {
+        this.pistasRestantesJ1 = pistasRestantesJ1;
+    }
+
+    public void setPistasRestantesJ2(int pistasRestantesJ2) {
+        this.pistasRestantesJ2 = pistasRestantesJ2;
+    }
+
+    public void setPuntosJ1(int puntos) {
+        this.puntosJ1 = puntos;
+    }
+
+    public void setPuntosJ2(int puntos) {
+        this.puntosJ2 = puntos;
+    }
+
+    // Setters para atriles (si es necesario)
+    public void setAtrilJ1(Map<Ficha, Integer> atril) {
+        this.atrilJ1 = atril;
+    }
+
+    public void setAtrilJ2(Map<Ficha, Integer> atril) {
+        this.atrilJ2 = atril;
+    }
+    public int getPistas(Perfil jugador) {
+        return jugador == partida.getCreador() ? pistasRestantesJ1 : pistasRestantesJ2;
+    }
+
+    public int getPistasJ1() {
+        return pistasRestantesJ1;
+    }
+
+    public int getPistasJ2() {
+        return pistasRestantesJ2;
+    }
+
     /**
      * Establece el tipo de jugada realizada en el turno.
      *
-     * @param tipojugada El tipo de jugada a establecer.
+     * @param tipo El tipo de jugada a establecer.
      */
-    public void setTipoJugada(TipoJugada tipojugada) {
-        this.tipoJugada = tipoJugada;
+    public void setTipoJugada(TipoJugada tipo) {
+        this.tipoJugada = tipo;
     }
 
     /**
@@ -199,6 +323,8 @@ public class Turno {
      */
     public void cambiarFichas(Map<Ficha,Integer> atril, Map<Ficha,Integer> fichasParaCambiar) {
         // Reconstruir el mapa usando las instancias reales del atril
+        this.fichasCambiadas = fichasParaCambiar;
+
         Map<Ficha,Integer> cambioReal = new HashMap<>();
         for (Map.Entry<Ficha,Integer> entry : fichasParaCambiar.entrySet()) {
             String letra = entry.getKey().getLetra();
@@ -274,11 +400,23 @@ public class Turno {
      */
     public void avanzarTurno() {
         Perfil nextJugador;
-        if (jugador == partida.getCreador()) nextJugador = partida.getOponente();
-        else nextJugador = partida.getCreador();
-        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
+        tableroTurno = partida.getTablero().clonar();
+        if (partida.getModoPartida() == Partida.Modo.PvIA) {
+            nextJugador = (jugador == partida.getCreador()) ? null : partida.getCreador();
+        } else {
+            nextJugador = (jugador == partida.getCreador()) ? partida.getOponente() : partida.getCreador();
+        }
+        partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, pistasRestantesJ1, pistasRestantesJ2, atrilJ1, atrilJ2);
     }
 
+    public Tablero getTableroTurno() {
+        return tableroTurno;
+    }
+
+
+    public void setTableroTurno(Tablero tablero) {
+        tableroTurno = tablero;
+    }
     /**
      * Retira una ficha específica del atril.
      *
@@ -296,6 +434,7 @@ public class Turno {
                 return fichaEncontrada;
             }
         }
+
         return null;
     }
 
@@ -342,6 +481,18 @@ public class Turno {
         return puntosPorSumar;
     }
 
+    public Movimiento pedirPista(Perfil jugador) {
+       if (jugador.equals(partida.getCreador())) {
+           partida.getAlgorithm().preparar(getTablero(), atrilJ1);
+           pistasRestantesJ1--;
+       } else {
+           partida.getAlgorithm().preparar(getTablero(), atrilJ2);
+           pistasRestantesJ2--;
+       }
+       List<Movimiento>  movimientosPosibles = partida.getAlgorithm().generarMovimientos();
+       return (movimientosPosibles == null || movimientosPosibles.isEmpty()) ? null : movimientosPosibles.get(0);
+    }
+
     /**
      * Coloca una palabra en el tablero y calcula los puntos.
      *
@@ -365,6 +516,7 @@ public class Turno {
         // pasarle si es el primer turno o no
         boolean esPrimerTurno = false;
         if (getTablero().estaVacio()) esPrimerTurno = true;
+
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
 
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
@@ -428,9 +580,15 @@ public class Turno {
                 }
                 System.out.println("Tengo las fichas en el atril");
 
-
+                StringBuilder palabraColocada = new StringBuilder();
+                this.x_ini = x_ini;
+                this.y_ini = y_ini;
+                horizontal = false;
                 for (int i = 0; i < fichas.size(); i++) { // por cada ficha
                     String letraBuscada = fichas.get(i);
+                    palabraColocada.append(letraBuscada);
+
+
                     Ficha f;
                     if (partida.getTablero().getFicha(x_ini + i, y_ini) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal y los modificadores
                         Ficha fichaEncontrada;
@@ -484,6 +642,8 @@ public class Turno {
                 }
                 System.out.println("HOLA2");
 
+                this.palabra = palabraColocada.toString();
+
                 // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
                 // y se le suman los puntos totales al jugador que le pertoca.
 
@@ -526,8 +686,13 @@ public class Turno {
                 // fin de la nueva implementacion
                 System.out.println("Tengo las fichas en el atril");
 
+                StringBuilder palabraColocada = new StringBuilder();
+                this.x_ini = x_ini;
+                this.y_ini = y_ini;
+                horizontal = false;
                 for (int i = 0; i < fichas.size(); i++) {
                     String letraBuscada = fichas.get(i);
+                    palabraColocada.append(letraBuscada);
                     Ficha f;
                     if (partida.getTablero().getFicha(x_ini, y_ini + i) == null) {  // hay que quitar la ficha del atril, colocarla en el tablero y sumar los puntos como de normal
                         Ficha fichaEncontrada;
@@ -584,6 +749,8 @@ public class Turno {
 
                 }
 
+                this.palabra = palabraColocada.toString();
+
                 // cuando acabamos de iterar por todas las fichas, que ya las tenemos colocadas, se multiplican los modificadores de palabra
                 // y se le suman los puntos totales al jugador que le pertoca.
 
@@ -596,7 +763,6 @@ public class Turno {
         else {
             System.out.println("PETO");
             // compruebo la palabra y esta mal
-            pasarTurno();
             return false;
         }
 
@@ -642,7 +808,7 @@ public class Turno {
      * @throws CoordenadaFueraDeRangoException Si las coordenadas generadas son inválidas.
      * @throws CasillaOcupadaException         Si se intenta colocar en una casilla ocupada.
      */
-    public void jugarIA() throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
+    public void jugarIA(int dificultad) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
         int nroFichas = getTotalFichas(atrilJ2);
         String[] atril = new String[nroFichas];
         int index = 0;
@@ -655,6 +821,8 @@ public class Turno {
         // nueva implementacion:
         partida.getAlgorithm().preparar(getTablero(), atrilJ2);
         List<Movimiento> movimientosValidos = partida.getAlgorithm().generarMovimientos();
+
+        // si la IA no ha encontrado posibles movimientos
         if (movimientosValidos == null || movimientosValidos.isEmpty()) {
             if (partida.getBolsa() == null) pasarTurno();
             else {
@@ -669,13 +837,11 @@ public class Turno {
                 cambiarFichas(atrilJ2, fichasPorCambiar);
             }
         }
-        else {   // hay movimientos por poner
-            // TODO:
-            // llamar a una funcion para que ordene los movimientos segun los puntos que de
-            // segun la dificultad, escoger uno u otro
 
-            // de momento lo hago con uno cualquiera hasta tenerlo ordenado mas adelante
-            Movimiento m = movimientosValidos.get(0);
+        // si la IA ha encoentrado movimientos
+        else {
+            Movimiento m = getMejorMovimiento(movimientosValidos, dificultad);
+
             List<String> trozosPalabra = m.getPalabra();
             StringBuilder palabra = new StringBuilder();
             for (String trozo : trozosPalabra) palabra.append(trozo);
@@ -685,5 +851,288 @@ public class Turno {
             else orientacion = "horizontal";
             colocarPalabra(palabra.toString(), m.getFila(), m.getColumna(), orientacion);
         }
+    }
+
+    private Movimiento getMejorMovimiento(List<Movimiento> movimientos, int dificultad) {
+        Map<String, Ficha> fichasAlfabeto = partida.getMapaLetras();
+        Tablero tablero = partida.getTablero();
+
+        Movimiento best = null;
+
+        // Recorrer toda la lista y obtener el mejor movimiento en funcion de la dificultad en la que se esté jugando y las posiciones del tablero
+        // Ver si al colocar la palabra en el tablero, su puntuación es mayor que mejorPuntuacion
+        // por cada movimiento, bucle de las letras del movimeinto, viendo las puntuaciones de la colocacion de las palabras en el tablero
+
+        switch (dificultad) {
+            // Fácil
+            case 1 :
+                int mejorPuntuacionFacil = 1000000;
+                Movimiento mejorMovimientoFacil = null;
+
+                for(Movimiento mov : movimientos) {
+                    List<String> letras = mov.getPalabra();
+                    int idx = 0;
+                    int puntuacionPalabra = 0;
+                    boolean dobleTantoPalabra = false;
+                    boolean tripleTantoPalabra = false;
+                    // si el movimiento es vertical
+                    if(mov.isVertical()) {
+                        int y = mov.getColumna();
+
+                        for(int x = mov.getFila(); idx < letras.size(); x++) {
+                            int puntuacionLetra;
+                            try {
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 2 * puntuacionLetra;
+                                            ++idx;
+                                            break;
+
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 3 * puntuacionLetra;
+                                            ++idx;
+                                            break;
+
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
+
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra += fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    idx++;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra && tripleTantoPalabra) puntuacionPalabra *= 6;
+                        else if(dobleTantoPalabra) puntuacionPalabra *= 2;
+                        else if(tripleTantoPalabra) puntuacionPalabra *= 3;
+
+                        if(puntuacionPalabra < mejorPuntuacionFacil) {
+                            mejorPuntuacionFacil = puntuacionPalabra;
+                            mejorMovimientoFacil = mov;
+                        }
+                    }
+
+                    // si el movimiento es horizontal
+                    else {
+                        int x = mov.getFila();
+
+                        for(int y = mov.getColumna(); idx < letras.size(); y++) {
+                            int puntuacionLetra;
+                            try {
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 2 * puntuacionLetra;
+                                            ++idx;
+                                            break;
+
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += 3 * puntuacionLetra;
+                                            ++idx;
+                                            break;
+
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
+
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                            puntuacionPalabra += puntuacionLetra;
+                                            ++idx;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra += fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
+                                    idx++;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra && tripleTantoPalabra) puntuacionPalabra *= 6;
+                        else if(dobleTantoPalabra) puntuacionPalabra *= 2;
+                        else if(tripleTantoPalabra) puntuacionPalabra *= 3;
+
+                        if(puntuacionPalabra < mejorPuntuacionFacil) {
+                            mejorPuntuacionFacil = puntuacionPalabra;
+                            mejorMovimientoFacil = mov;
+                        }
+                    }
+                }
+
+                best = mejorMovimientoFacil;
+                break;
+
+            // Medio
+            case 2:
+                Random rand = new Random();
+                int size = movimientos.size();
+                int idx_random = rand.nextInt(size);
+
+                best = movimientos.get(idx_random);
+                break;
+
+
+            // Difícil
+            case 3:
+                int mejorPuntuacionDificil = 0;
+                Movimiento mejorMovimientoDificil = null;
+
+                for(Movimiento mov2 : movimientos) {
+                    List<String> letras2 = mov2.getPalabra();
+                    int idx2 = 0;
+                    int puntuacionPalabra2 = 0;
+                    boolean dobleTantoPalabra2 = false;
+                    boolean tripleTantoPalabra2 = false;
+                    // si el movimiento es vertical
+                    if(mov2.isVertical()) {
+                        int y = mov2.getColumna();
+
+                        for(int x = mov2.getFila(); idx2 < letras2.size(); x++) {
+                            int puntuacionLetra;
+                            try {
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 2 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
+
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 3 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
+
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
+
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra2 += fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                    idx2++;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra2 && tripleTantoPalabra2) puntuacionPalabra2 *= 6;
+                        else if(dobleTantoPalabra2) puntuacionPalabra2 *= 2;
+                        else if(tripleTantoPalabra2) puntuacionPalabra2 *= 3;
+
+                        if(puntuacionPalabra2 > mejorPuntuacionDificil) {
+                            mejorPuntuacionDificil = puntuacionPalabra2;
+                            mejorMovimientoDificil = mov2;
+                        }
+                    }
+
+                    // si el movimiento es horizontal
+                    else {
+                        int x = mov2.getFila();
+
+                        for(int y = mov2.getColumna(); idx2 < letras2.size(); y++) {
+                            int puntuacionLetra;
+                            try {
+                                if(tablero.getTipoModificador(x, y) != null) {
+                                    switch (tablero.getTipoModificador(x, y)) {
+                                        case dobleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 2 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
+
+                                        case tripleTantoDeLetra:
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += 3 * puntuacionLetra;
+                                            ++idx2;
+                                            break;
+
+                                        case dobleTantoDePalabra:
+                                            dobleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
+
+                                        case tripleTantoDePalabra:
+                                            tripleTantoPalabra2 = true;
+                                            puntuacionLetra = fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                            puntuacionPalabra2 += puntuacionLetra;
+                                            ++idx2;
+                                            break;
+                                    }
+                                }
+
+                                else {
+                                    puntuacionPalabra2 += fichasAlfabeto.get(letras2.get(idx2)).getPuntuacion();
+                                    idx2++;
+                                }
+                            }
+                            catch (CoordenadaFueraDeRangoException e){
+                                // No debería passar
+                            }
+                        }
+
+                        if(dobleTantoPalabra2 && tripleTantoPalabra2) puntuacionPalabra2 *= 6;
+                        else if(dobleTantoPalabra2) puntuacionPalabra2 *= 2;
+                        else if(tripleTantoPalabra2) puntuacionPalabra2 *= 3;
+
+                        if(puntuacionPalabra2 > mejorPuntuacionDificil) {
+                            mejorPuntuacionDificil = puntuacionPalabra2;
+                            mejorMovimientoDificil = mov2;
+                        }
+                    }
+                }
+
+                best = mejorMovimientoDificil;
+                break;
+
+        }
+        return best;
     }
 }

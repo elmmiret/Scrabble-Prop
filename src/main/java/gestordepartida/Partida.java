@@ -101,10 +101,10 @@ public class Partida {
      * @throws IllegalArgumentException Si hay error al cargar el diccionario
      */
     public Partida(Perfil creador, Perfil oponente, int id, String nombre, Modo modoPartida, Idioma idiomaPartida) {
-        this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
+        //this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = oponente;
-        idPartida = id;
+        this.idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         try {
@@ -119,7 +119,7 @@ public class Partida {
         setBolsa();
         fechaHoraCreacion = LocalDateTime.now();
         this.modoPartida = modoPartida;
-        algorithm = null;
+        algorithm = new Algorithm(dawg);
         dificultad = 0;
         rondas = new ArrayList<>();
         inicializarPrimerTurno();
@@ -137,10 +137,10 @@ public class Partida {
      * @throws IllegalArgumentException Si hay error al cargar el diccionario
      */
     public Partida(Perfil creador, int id, String nombre, Modo modoPartida, Idioma idiomaPartida, int dificultad) {
-        this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
+        //this.idPartida = idPartida; // no se como lo vamos a implementar, hacer que simplemente sea incremental?
         this.creador = creador;
         this.oponente = null;
-        idPartida = id;
+        this.idPartida = id;
         this.nombre = nombre;
         this.idiomaPartida = idiomaPartida;
         try {
@@ -177,6 +177,9 @@ public class Partida {
         return nombre;
     }
 
+    public void setAlgorithm(Algorithm algorithm) {
+        this.algorithm = algorithm;
+    }
 
     /**
      * Obtiene la fecha y hora de creación.
@@ -239,6 +242,16 @@ public class Partida {
     }
 
     /**
+     * Obtiene el mapa de fichas del alfabeto elegido para la partida
+     * @return Mapa de las fichas del alfabeto de la partida
+     */
+    public Map<Ficha, Integer> getMapaFichas() { return mapaFichas; }
+
+    /**
+     * Obtiene el mapa de letras - fichas para la obtencion de las puntuaciones
+     * @return Mapa String - Ficha del alfabeto de la partida
+     */
+    /**
      * Obtiene el historial completo de turnos.
      * @return Lista de Turnos en orden cronológico
      */
@@ -252,6 +265,11 @@ public class Partida {
      */
     public Perfil getCreador() {
         return creador;
+    }
+
+
+    public Map<String, Ficha> getMapaLetras() {
+        return mapaLetras;
     }
 
     /**
@@ -271,8 +289,8 @@ public class Partida {
      * @param atrilJ1 Fichas disponibles del jugador 1
      * @param atrilJ2 Fichas disponibles del jugador 2
      */
-    public void nuevoTurno(Perfil jugador, int puntosJ1, int puntosJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
-        Turno turno = new Turno(this, jugador, puntosJ1, puntosJ2, atrilJ1, atrilJ2);
+    public void nuevoTurno(Perfil jugador, int puntosJ1, int puntosJ2, int numPistasJ1, int numPistasJ2, Map<Ficha,Integer> atrilJ1, Map<Ficha,Integer> atrilJ2) {
+        Turno turno = new Turno(this, jugador, puntosJ1, puntosJ2, numPistasJ1, numPistasJ2, atrilJ1, atrilJ2);
         rondas.add(turno);
     }
 
@@ -335,9 +353,15 @@ public class Partida {
             for (int i = 0; i < cantidad; i++) listaTemporal.add(ficha);
         }
 
+        System.out.println("Comodín en mapaLetras: " + mapaLetras.containsKey("#")); // Debe imprimir "true"
+        System.out.println("PUNTUACION COMODIN : " + getPuntuacionFicha("#"));
         // mezclo las fichas para randomizar las posiciones
         Collections.shuffle(listaTemporal);
         bolsa.addAll(listaTemporal);
+    }
+
+    public void setBolsa(Queue<Ficha> bolsa) {
+        this.bolsa = bolsa;
     }
 
     /**
