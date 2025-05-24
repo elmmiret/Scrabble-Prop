@@ -114,7 +114,7 @@ public class RepeticionPartidaView extends JFrame {
 
         addStyledButton(controlsPanel, "Salir", COLOR_ROJO, e -> {
             dispose();
-            gestorDeView.mostrarGestionPartida();
+            gestorDeView.volverMenuGestionPartida(this);
         });
 
         lateralPanel.add(controlsPanel, BorderLayout.SOUTH);

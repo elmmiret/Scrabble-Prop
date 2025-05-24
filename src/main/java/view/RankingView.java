@@ -7,19 +7,42 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.TreeSet;
 
-public class RankingView extends JFrame {
-    private static final int ANCHO = 400;
-    private static final int ALTO = 700;
-    private final Color COLOR_AZUL = new Color(40, 100, 240);
-    private final Color COLOR_ROJO = new Color(220, 50, 40);
-    private final Color COLOR_NARANJA = new Color(240, 73, 48);
-    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
-    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
-    private final Font RANKING_FONT = new Font("Segoe UI", Font.PLAIN, 14);
+/**
+ * Clase que representa la interfaz gráfica para visualizar los rankings de los jugadores en la aplicación.
+ * Muestra diferentes tipos de rankings ordenados por puntos, partidas jugadas, victorias y derrotas.
+ * Permite navegar entre las distintas vistas de ranking y volver a la pantalla principal.
+ *
+ * @author Marc Ribas Acon
+ */
 
+public class RankingView extends JFrame {
+    /** Ancho predeterminado de la ventana */
+    private static final int ANCHO = 400;
+    /** Alto predeterminado de la ventana */
+    private static final int ALTO = 700;
+    /** Color azul utilizado en los botones de ranking */
+    private final Color COLOR_AZUL = new Color(40, 100, 240);
+    /** Color rojo utilizado para el botón de retroceso */
+    private final Color COLOR_ROJO = new Color(220, 50, 40);
+    /** Color naranja utilizado en el título de la ventana */
+    private final Color COLOR_NARANJA = new Color(240, 73, 48);
+    /** Fuente utilizada en los botones de acciones */
+    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
+    /** Fuente utilizada en el título de la ventana */
+    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
+    /** Fuente utilizada en las entradas del ranking */
+    private final Font RANKING_FONT = new Font("Segoe UI", Font.PLAIN, 14);
+    /** Referencia al gestor de vistas para navegación entre pantallas */
     private final GestorDeView gestorDeView;
+    /** Gestor de dominio relacionado con los datos de ranking */
     private final Ranking ranking;
 
+    /**
+     * Constructora que inicializa la vista de rankings.
+     *
+     * @param gestorDeView    Gestor de vistas para coordinar la navegación
+     * @param ranking         Gestor de ranking para obtener datos estadísticos
+     */
     public RankingView(GestorDeView gestorDeView, Ranking ranking) {
         super("Ranking");
         this.gestorDeView = gestorDeView;
@@ -27,6 +50,10 @@ public class RankingView extends JFrame {
         init();
     }
 
+    /**
+     * Configura los componentes gráficos de la ventana.
+     * Incluye animación de fondo, título y botones de selección de ranking.
+     */
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(ANCHO, ALTO);
@@ -48,6 +75,11 @@ public class RankingView extends JFrame {
         tableroMoviendo.iniciarMovimiento();
     }
 
+    /**
+     * Crea el panel principal con el título y los botones de selección de ranking.
+     *
+     * @return JPanel con la estructura principal de la interfaz
+     */
     private JPanel createMainPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -73,6 +105,14 @@ public class RankingView extends JFrame {
         return panel;
     }
 
+    /**
+     * Genera un botón personalizado para seleccionar tipos de ranking.
+     *
+     * @param panel   Panel contenedor del botón
+     * @param text    Texto del botón
+     * @param color   Color base del botón
+     * @param action  Acción a ejecutar al hacer clic
+     */
     private void addRankingButton(JPanel panel, String text, Color color, Runnable action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
@@ -128,6 +168,11 @@ public class RankingView extends JFrame {
         panel.add(button);
     }
 
+    /**
+     * Muestra un diálogo modal con el ranking específico solicitado.
+     *
+     * @param tipo  Criterio de ordenamiento del ranking (puntos, victorias, derrotas o partidas jugadas)
+     */
     private void mostrarRanking(String tipo) {
         JDialog dialog = new JDialog(this, "Ranking", true);
         dialog.setSize(400, 400);
@@ -192,6 +237,12 @@ public class RankingView extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Obtiene el conjunto ordenado de perfiles según el criterio especificado (puntos, victorias, derrotas o partidas jugadas)
+     *
+     * @param tipo  Criterio de ordenamiento del ranking
+     * @return TreeSet<Perfil> con los datos ordenados
+     */
     private TreeSet<Perfil> getRankingSet(String tipo) {
         switch (tipo) {
             case "puntos": return ranking.getRankingPuntos();
@@ -202,6 +253,13 @@ public class RankingView extends JFrame {
         }
     }
 
+    /**
+     * Genera el texto descriptivo para las estadísticas en las entradas del ranking.
+     *
+     * @param tipo    Criterio de ranking usado
+     * @param perfil  Perfil del jugador a mostrar
+     * @return String con la estadística formateada
+     */
     private String getStatsText(String tipo, Perfil perfil) {
         return switch (tipo) {
             case "puntos" -> "- Puntos: " + perfil.getPuntos();

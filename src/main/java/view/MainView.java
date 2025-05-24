@@ -6,16 +6,35 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 
-public class MainView extends JFrame {
-    private static final int ANCHO = 400;
-    private static final int ALTO = 700;
-    private final Color COLOR_FONDO = new Color(238, 238, 238);
-    private final Color COLOR_AZUL = new Color(40, 100, 240);
-    private final Color COLOR_ROJO = new Color(220, 50, 40);
-    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 24);
+/**
+ * Clase que representa la ventana principal de la aplicación Scrabble.
+ * Contiene el menú inicial con acceso a las diferentes funcionalidades del sistema.
+ * Implementa componentes gráficos personalizados y gestiona las interacciones del usuario.
+ *
+ * @author Marc Ribas Acon
+ */
 
+public class MainView extends JFrame {
+    /** Ancho predeterminado de la ventana */
+    private static final int ANCHO = 400;
+    /** Alto predeterminado de la ventana */
+    private static final int ALTO = 700;
+    /** Color de fondo de la interfaz */
+    private final Color COLOR_FONDO = new Color(238, 238, 238);
+    /** Color azul utilizado en los elementos de la interfaz */
+    private final Color COLOR_AZUL = new Color(40, 100, 240);
+    /** Color rojo utilizado para el botón de salida */
+    private final Color COLOR_ROJO = new Color(220, 50, 40);
+    /** Fuente utilizada en los botones principales */
+    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 24);
+    /** Referencia al gestor de vistas para la navegación entre pantallas */
     GestorDeView gestorDeView;
 
+    /**
+     * Constructor que inicializa la vista principal.
+     *
+     * @param gestorDeView Gestor de vistas inyectado para coordinar la navegación
+     */
     public MainView(GestorDeView gestorDeView) {
         super("Scrabble");
         this.gestorDeView = gestorDeView;
@@ -23,6 +42,10 @@ public class MainView extends JFrame {
         init();
     }
 
+    /**
+     * Inicializa los componentes gráficos de la ventana.
+     * Configura el diseño, añade el logo y los botones de navegación.
+     */
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(ANCHO, ALTO);
@@ -71,6 +94,14 @@ public class MainView extends JFrame {
         tableroMoviendo.iniciarMovimiento();
     }
 
+    /**
+     * Crea y configura un botón personalizado para el menú principal.
+     *
+     * @param panel    Panel contenedor donde se añadirá el botón
+     * @param text     Texto a mostrar en el botón
+     * @param color    Color base del botón
+     * @param action   Acción a ejecutar al hacer clic
+     */
     private void addMainButton(JPanel panel, String text, Color color, Runnable action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
@@ -130,6 +161,10 @@ public class MainView extends JFrame {
         panel.add(button);
     }
 
+    /**
+     * Configura el tema visual de la aplicación usando el look and feel Nimbus.
+     * Define colores personalizados para la interfaz.
+     */
     private void setTema() {
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -142,6 +177,9 @@ public class MainView extends JFrame {
         }
     }
 
+    /**
+     * Cierra la aplicación completamente.
+     */
     private void salir() {
         System.exit(0);
     }

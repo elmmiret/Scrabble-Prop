@@ -6,18 +6,41 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
 
-public class GestionPerfilView extends JFrame {
-    private static final int ANCHO = 400;
-    private static final int ALTO = 700;
-    private final Color COLOR_AZUL = new Color(40, 100, 240);
-    private final Color COLOR_ROJO = new Color(220, 50, 40);
-    private final Color COLOR_NARANJA = new Color(240, 73, 48);
-    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
-    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
+/**
+ * Clase que representa la interfaz gráfica para la gestión de perfiles de usuario en la aplicación.
+ * Permite realizar operaciones como creación, eliminación y modificación de perfiles, así como cambios
+ * de credenciales y recuperación de contraseñas. Interactúa con el gestor de perfiles para validar
+ * y ejecutar las operaciones solicitadas.
+ *
+ * @author Marc Ribas Acon
+ */
 
+public class GestionPerfilView extends JFrame {
+    /** Ancho predeterminado de la ventana */
+    private static final int ANCHO = 400;
+    /** Alto predeterminado de la ventana */
+    private static final int ALTO = 700;
+    /** Color azul utilizado en botones y elementos de la interfaz */
+    private final Color COLOR_AZUL = new Color(40, 100, 240);
+    /** Color rojo utilizado para el botón de retroceso */
+    private final Color COLOR_ROJO = new Color(220, 50, 40);
+    /** Color naranja utilizado en el título de la ventana */
+    private final Color COLOR_NARANJA = new Color(240, 73, 48);
+    /** Fuente utilizada en los botones de acciones */
+    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
+    /** Fuente utilizada en el título de la ventana */
+    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
+    /** Referencia al gestor de vistas para navegación entre pantallas */
     private final GestorDeView gestorDeView;
+    /** Gestor de dominio relacionado con operaciones de perfiles */
     private final GestorDePerfil gestorDePerfil;
 
+    /**
+     * Constructora que inicializa la vista de gestión de perfiles.
+     *
+     * @param gestorDeView    Gestor de vistas para coordinar la navegación
+     * @param gestorDePerfil  Gestor de perfiles para realizar operaciones lógicas
+     */
     public GestionPerfilView(GestorDeView gestorDeView, GestorDePerfil gestorDePerfil) {
         super("Gestión de perfil");
         this.gestorDeView = gestorDeView;
@@ -25,6 +48,10 @@ public class GestionPerfilView extends JFrame {
         init();
     }
 
+    /**
+     * Configura los componentes gráficos de la ventana.
+     * Incluye animación de fondo, título y botones de acciones.
+     */
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(ANCHO, ALTO);
@@ -68,6 +95,14 @@ public class GestionPerfilView extends JFrame {
         tableroMoviendo.iniciarMovimiento();
     }
 
+    /**
+     * Crea un botón personalizado con efectos visuales para las acciones de perfil.
+     *
+     * @param panel   Panel contenedor del botón
+     * @param text    Texto del botón
+     * @param color   Color base del botón
+     * @param action  Acción a ejecutar al hacer clic
+     */
     private void addPerfilButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
@@ -126,6 +161,12 @@ public class GestionPerfilView extends JFrame {
         panel.add(button);
     }
 
+    /**
+     * Muestra un diálogo para crear un nuevo perfil.
+     * Valida el username, la seguridad de la contraseña y la coincidencia de contraseñas.
+     *
+     * @param e Evento de acción del botón
+     */
     private void nuevoPerfil(ActionEvent e)
     {
         JTextField usernameField = new JTextField();
@@ -160,6 +201,12 @@ public class GestionPerfilView extends JFrame {
         }
     }
 
+    /**
+     * Muestra un diálogo para eliminar un perfil existente.
+     * Valida las credenciales y confirma la eliminación.
+     *
+     * @param e Evento de acción del botón
+     */
     private void eliminarPerfil(ActionEvent e)
     {
         JTextField usernameField = new JTextField();
@@ -194,6 +241,12 @@ public class GestionPerfilView extends JFrame {
         }
     }
 
+    /**
+     * Muestra un diálogo para cambiar la contraseña de un perfil.
+     * Valida la contraseña actual, la nueva contraseña y su coincidencia.
+     *
+     * @param e Evento de acción del botón
+     */
     private void cambiarPassword(ActionEvent e)
     {
         JTextField usernameField = new JTextField();
@@ -236,6 +289,12 @@ public class GestionPerfilView extends JFrame {
         }
     }
 
+    /**
+     * Muestra un diálogo para restablecer la contraseña usando la frase de recuperación.
+     * Valida la frase y las nuevas contraseñas.
+     *
+     * @param e Evento de acción del botón
+     */
     private void restablecerPassword(ActionEvent e)
     {
         JTextField usernameField = new JTextField();
@@ -276,6 +335,12 @@ public class GestionPerfilView extends JFrame {
         }
     }
 
+    /**
+     * Muestra un diálogo para cambiar el nombre de usuario de un perfil.
+     * Valida el nombre actual, el nuevo nombre y su disponibilidad.
+     *
+     * @param e Evento de acción del botón
+     */
     private void cambiarUsername(ActionEvent e)
     {
         JTextField usernameField = new JTextField();

@@ -13,19 +13,43 @@ import gestordepartida.Turno;
 import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 
-public class GestionPartidaView extends JFrame {
-    private static final int ANCHO = 400;
-    private static final int ALTO = 700;
-    private final Color COLOR_AZUL = new Color(40, 100, 240);
-    private final Color COLOR_ROJO = new Color(220, 50, 40);
-    private final Color COLOR_NARANJA = new Color(240, 73, 48);
-    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
-    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
+/**
+ * Clase que representa la interfaz gráfica para la gestión de partidas en la aplicación Scrabble.
+ * Permite crear, cargar, eliminar, consultar partidas y reproducir partidas guardadas.
+ * Interactúa con los gestores de partida y perfiles para ejecutar operaciones lógicas.
+ *
+ * @author Marc Ribas Acon
+ */
 
+public class GestionPartidaView extends JFrame {
+    /** Ancho predeterminado de la ventana */
+    private static final int ANCHO = 400;
+    /** Alto predeterminado de la ventana */
+    private static final int ALTO = 700;
+    /** Color azul utilizado en botones y elementos de la interfaz */
+    private final Color COLOR_AZUL = new Color(40, 100, 240);
+    /** Color rojo utilizado para el botón de retroceso */
+    private final Color COLOR_ROJO = new Color(220, 50, 40);
+    /** Color naranja utilizado en el título de la ventana */
+    private final Color COLOR_NARANJA = new Color(240, 73, 48);
+    /** Fuente utilizada en los botones de acciones */
+    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
+    /** Fuente utilizada en el título de la ventana */
+    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 24);
+    /** Referencia al gestor de vistas para navegación entre pantallas */
     private final GestorDeView gestorDeView;
+    /** Gestor de lógica relacionada con operaciones de partidas */
     private final GestorDePartida gestorDePartida;
+    /** Gestor de lógica relacionada con perfiles de usuario */
     private final GestorDePerfil gestorDePerfil;
 
+    /**
+     * Constructor que inicializa la vista de gestión de partidas.
+     *
+     * @param gestorDeView      Gestor de vistas para coordinar la navegación
+     * @param gestorDePartida   Gestor de partidas para operaciones lógicas
+     * @param gestorDePerfil    Gestor de perfiles para autenticación y datos de jugadores
+     */
     public GestionPartidaView(GestorDeView gestorDeView, GestorDePartida gestorDePartida, GestorDePerfil gestorDePerfil) {
         super("Gestión de Partida");
         this.gestorDeView = gestorDeView;
@@ -34,6 +58,10 @@ public class GestionPartidaView extends JFrame {
         init();
     }
 
+    /**
+     * Configura los componentes gráficos de la ventana.
+     * Incluye animación de fondo, título y botones de acciones principales.
+     */
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(ANCHO, ALTO);
@@ -77,6 +105,14 @@ public class GestionPartidaView extends JFrame {
         tableroMoviendo.iniciarMovimiento();
     }
 
+    /**
+     * Crea un botón personalizado con efectos visuales para las acciones de partida.
+     *
+     * @param panel   Panel contenedor del botón
+     * @param text    Texto del botón
+     * @param color   Color base del botón
+     * @param action  Acción a ejecutar al hacer clic
+     */
     private void addPartidaButton(JPanel panel, String text, Color color, java.awt.event.ActionListener action) {
         JButton button = new JButton(text) {
             private boolean isHovering = false;
@@ -133,6 +169,12 @@ public class GestionPartidaView extends JFrame {
         panel.add(button);
     }
 
+    /**
+     * Muestra un diálogo para crear una nueva partida.
+     * Valida la autenticación del jugador y recoge los parámetros de configuración.
+     *
+     * @param e Evento de acción del botón
+     */
     private void crearNuevaPartida(ActionEvent e) {
         if (!gestorDePerfil.hayJugadores()) {
             JOptionPane.showMessageDialog(this, "No hay jugadores registrados para jugar.");
@@ -226,6 +268,11 @@ public class GestionPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Carga una partida existente tras autenticar al jugador y validar el ID proporcionado.
+     *
+     * @param e Evento de acción del botón
+     */
     private void cargarPartida(ActionEvent e) {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -253,6 +300,11 @@ public class GestionPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Elimina una partida existente tras autenticar al jugador y validar el ID proporcionado.
+     *
+     * @param e Evento de acción del botón
+     */
     private void eliminarPartida(ActionEvent e) {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -272,6 +324,11 @@ public class GestionPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Muestra un diálogo con la lista de partidas activas del jugador autenticado.
+     *
+     * @param e Evento de acción del botón
+     */
     private void mostrarPartidas(ActionEvent e) {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -358,6 +415,11 @@ public class GestionPartidaView extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Muestra un diálogo con la lista de partidas activas del jugador autenticado para poder acceder a las repeticiones
+     *
+     * @param paraRepeticion indica si el diálogo a mostrar es para escoger repeticiones o no
+     */
     private void mostrarPartidas(boolean paraRepeticion) {
         Perfil jugador = autenticarUsuario();
         if (jugador == null) return;
@@ -418,7 +480,12 @@ public class GestionPartidaView extends JFrame {
         dialog.setVisible(true);
     }
 
-
+    /**
+     * Genera un panel UI con la información de una partida específica.
+     *
+     * @param p Partida a representar en el panel
+     * @return Panel con detalles de la partida
+     */
     private JPanel crearPanelPartida(Partida p) {
         JPanel entryPanel = new JPanel(new BorderLayout(10, 0));
         entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -462,6 +529,11 @@ public class GestionPartidaView extends JFrame {
         return entryPanel;
     }
 
+    /**
+     * Autentica al usuario mediante un diálogo de inicio de sesión.
+     *
+     * @return Perfil autenticado, o null si falla la autenticación
+     */
     private Perfil autenticarUsuario() {
         JTextField usernameField = new JTextField();
         JPasswordField passwordField = new JPasswordField();
@@ -486,6 +558,11 @@ public class GestionPartidaView extends JFrame {
         return null;
     }
 
+    /**
+     * Muestra un diálogo para seleccionar una partida y reproducir su repetición.
+     *
+     * @param e Evento de acción del botón
+     */
     private void verRepeticion(ActionEvent e) {
         mostrarPartidas(true);
     }

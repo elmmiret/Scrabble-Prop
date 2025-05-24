@@ -13,40 +13,88 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Clase que representa la interfaz gráfica para jugar una partida de Scrabble.
+ * Gestiona todos los elementos visuales y la interacción del usuario durante el juego,
+ * incluyendo el tablero, el atril de fichas, las acciones del turno y la comunicación
+ * con los gestores de partida y perfiles. Coordina la lógica de colocación de fichas,
+ * validación de movimientos, cambio de turnos y finalización de partidas.
+ *
+ * @author Marc Ribas Acon
+ */
+
 public class JugarPartidaView extends JFrame {
+    /** Ancho predeterminado de la ventana */
     private static final int ANCHO = 1400;
+    /** Alto predeterminado de la ventana */
     private static final int ALTO = 1000;
+    /** Color azul utilizado en botones y elementos de la interfaz */
     private final Color COLOR_AZUL = new Color(40, 100, 240);
+    /** Color rojo utilizado para botones críticos como salir */
     private final Color COLOR_ROJO = new Color(220, 50, 40);
+    /** Color verde utilizado para acciones de confirmación */
     private final Color COLOR_VERDE = new Color(50, 200, 100);
+    /** Fuente utilizada en botones principales */
     private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
+    /** Fuente utilizada en títulos y encabezados */
     private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 20);
+    /** Fuente utilizada en etiquetas y texto general */
     private final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 16);
-
+    /** Gestor de dominio relacionado con operaciones de partida */
     private GestorDePartida gestorDePartida;
+    /** Instancia de la partida en curso */
     private Partida partida;
+    /** Perfil del jugador activo en el turno actual */
     private Perfil jugadorActual;
+    /** Mapa de fichas disponibles en el atril del jugador actual */
     private Map<Ficha, Integer> atrilActual;
+    /** Ficha seleccionada por el usuario para colocar */
     private Ficha fichaSeleccionada;
+    /** Panel gráfico que representa el tablero de juego */
     private JPanel panelTablero;
+    /** Panel gráfico que muestra las fichas del atril */
     private JPanel panelAtril;
+    /** Etiqueta para mostrar el jugador actual */
     private JLabel lblJugador;
+    /** Etiqueta para mostrar la puntuación actual */
     private JLabel lblPuntos;
+    /** Botón para solicitar pistas estratégicas */
     private JButton btnPedirPista;
-    JPanel infoPanel;
-    JPanel mainPanel;
+    /** Panel que contiene información del jugador y puntuación */
+    private JPanel infoPanel;
+    /** Panel principal que organiza todos los componentes */
+    private JPanel mainPanel;
+    /** Mapa temporal de fichas colocadas durante un turno */
     private Map<Point, Ficha> colocacionesTemporales = new HashMap<>();
+    /** Panel para la interfaz de cambio de fichas */
     private JPanel cambiarFichasPanel;
+    /** Botón para confirmar el cambio de fichas */
     private JButton btnConfirmarCambio;
+    /** Botón para cancelar el cambio de fichas */
     private JButton btnCancelarCambio;
+    /** Lista de checkboxes para seleccionar fichas a cambiar */
     private List<JCheckBox> checkBoxes = new ArrayList<>();
-    JPanel botonesPanel;
-    private Map<Ficha, Integer> fichasEnUso = new HashMap<>(); // Fichas colocadas temporalmente
-    GestorDeView gestorDeView;
+    /** Panel que contiene los botones de acciones principales */
+    private JPanel botonesPanel;
+    /** Mapa de fichas utilizadas durante el turno actual */
+    private Map<Ficha, Integer> fichasEnUso = new HashMap<>();
+    /** Gestor de vistas para navegación entre pantallas */
+    private GestorDeView gestorDeView;
+    /** Contador de turnos pasados consecutivamente */
     private int pasarConsecutivos = 0;
+    /** Indicador de si la partida ha finalizado */
     private boolean partidaFinalizada = false;
-    GestorDePerfil gestorDePerfil;
+    /** Gestor de perfiles para actualizar estadísticas */
+    private GestorDePerfil gestorDePerfil;
 
+    /**
+     * Constructora que inicializa la vista de juego con una partida existente.
+     *
+     * @param gestorDeView      Gestor de vistas para navegación entre pantallas
+     * @param partida           Partida a jugar
+     * @param gestorDePartida   Gestor de lógica de partida
+     * @param gestorDePerfil    Gestor de perfiles para actualización de estadísticas
+     */
     public JugarPartidaView(GestorDeView gestorDeView, Partida partida, GestorDePartida gestorDePartida, GestorDePerfil gestorDePerfil) {
         super("Jugar Partida");
         this.partida = partida;
@@ -59,6 +107,14 @@ public class JugarPartidaView extends JFrame {
         cargarEstadoInicial();
     }
 
+    /**
+     * Configura los componentes gráficos principales de la interfaz:
+     * - Panel de información con jugador actual y puntuación
+     * - Tablero de juego interactivo
+     * - Atril con fichas disponibles
+     * - Botones de control del turno
+     * - Sistema de capas para animación de fondo
+     */
     private void init() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
 
@@ -185,6 +241,12 @@ public class JugarPartidaView extends JFrame {
         System.out.println("MILESTONE 3");
     }
 
+    /**
+     * Solicita una pista estratégica al gestor de partida:
+     * - Reduce el contador de pistas disponibles
+     * - Muestra sugerencia adaptada a la dificultad
+     * - Actualiza la interfaz con nueva información
+     */
     private void pedirPista() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         if (jugadorActual != null) {
@@ -209,6 +271,16 @@ public class JugarPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Construye el mensaje de pista estratégica según la dificultad del juego:
+     * - Dificultad 1: Muestra posición sugerida
+     * - Dificultad 2: Muestra palabra sugerida
+     * - Dificultad 3: Muestra letras desordenadas
+     *
+     * @param mov Movimiento sugerido por el algoritmo
+     * @param dificultad Nivel de dificultad actual de la partida
+     * @return Mensaje formateado con la información de la pista
+     */
     private String construirMensajePista(Movimiento mov, int dificultad) {
         StringBuilder sb = new StringBuilder();
         switch (dificultad) {
@@ -229,17 +301,13 @@ public class JugarPartidaView extends JFrame {
         mov.getPalabra().forEach(letra -> sb.append(letra).append(" "));
         return sb.toString();
     }
+
     /**
-    private void actualizarContadorPistas(Turno turno) {
-        if (jugadorActual.equals(partida.getCreador())) {
-            turno.setPistasRestantesJ1(turno.getPistasJ1());
-        } else {
-            turno.setPistasRestantesJ2(turno.getPistasJ2() - 1);
-        }
-
-    }
+     * Estiliza un botón con colores y fuentes predeterminados.
+     *
+     * @param btn Botón a personalizar
+     * @param color Color de fondo del botón
      */
-
     private void styleButton(JButton btn, Color color) {
         btn.setForeground(Color.WHITE);
         btn.setFont(BUTTON_FONT);
@@ -248,6 +316,13 @@ public class JugarPartidaView extends JFrame {
         btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
     }
 
+    /**
+     * Maneja la lógica para pasar el turno al siguiente jugador:
+     * - Incrementa el contador de pases consecutivos
+     * - Finaliza la partida si hay dos pases seguidos
+     * - Actualiza el jugador actual y recarga los componentes visuales
+     * - Ejecuta el turno de la IA si corresponde
+     */
     private void pasarTurno() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         if (partidaFinalizada) return;
@@ -270,6 +345,15 @@ public class JugarPartidaView extends JFrame {
         if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
     }
 
+    /**
+     * Finaliza la partida y muestra los resultados:
+     * - Calcula puntuaciones finales
+     * - Determina ganador según modo de juego
+     * - Actualiza estadísticas de perfiles
+     * - Vuelve al menú principal
+     *
+     * @param motivo Descripción textual del motivo de finalización
+     */
     private void finalizarPartida(String motivo) {
         partidaFinalizada = true;
         pasarConsecutivos = 0;
@@ -330,6 +414,17 @@ public class JugarPartidaView extends JFrame {
         gestorDeView.volverMenuGestionPartida(this);
     }
 
+    /**
+     * Actualiza las estadísticas de los perfiles participantes al finalizar la partida:
+     * - Incrementa partidas jugadas/ganadas/perdidas
+     * - Actualiza puntuaciones en el ranking
+     * - Maneja casos especiales para partidas contra IA
+     *
+     * @param ganador Usuario del jugador ganador
+     * @param perdedor Usuario del jugador perdedor (vacío en modo IA)
+     * @param puntosJ1 Puntuación final del jugador creador
+     * @param puntosJ2 Puntuación final del oponente/IA
+     */
     private void actualizarEstadisticasPerfiles(String ganador, String perdedor, int puntosJ1, int puntosJ2) {
         if (partida.getModoPartida() == Partida.Modo.PvP) {
             gestorDePerfil.incrementarPartidasJugadas(partida.getCreador().getUsername());
@@ -346,6 +441,12 @@ public class JugarPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Actualiza los componentes de información en tiempo real:
+     * - Jugador actual
+     * - Puntuación
+     * - Contador de pistas restantes
+     */
     private void actualizarPanelInformacion() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         jugadorActual = turnoActual.getJugador();
@@ -410,6 +511,12 @@ public class JugarPartidaView extends JFrame {
         infoPanel.repaint();
     }
 
+    /**
+     * Obtiene el número de pistas restantes para el jugador actual.
+     *
+     * @param turno Turno actual del juego
+     * @return Cantidad de pistas disponibles (0 si es turno de IA)
+     */
     private int obtenerPistasRestantes(Turno turno) {
         if (jugadorActual == null) {
             return 0;
@@ -451,6 +558,10 @@ public class JugarPartidaView extends JFrame {
         panel.add(btn);
     }
 
+    /**
+     * Carga y actualiza la representación visual del tablero de juego.
+     * Incluye celdas con modificadores de puntuación y fichas colocadas.
+     */
     private void cargarTablero() {
         panelTablero.removeAll();
         try {
@@ -477,6 +588,16 @@ public class JugarPartidaView extends JFrame {
         panelTablero.repaint();
     }
 
+    /**
+     * Crea una celda del tablero con su modificador gráfico correspondiente:
+     * - Configura colores según tipo de casilla
+     * - Añade listeners para interacción con fichas
+     * - Muestra fichas temporales o permanentes
+     *
+     * @param x Coordenada X en el tablero
+     * @param y Coordenada Y en el tablero
+     * @return Panel configurado que representa una celda del tablero
+     */
     private JPanel crearCeldaTablero(int x, int y) {
         JPanel celda = new JPanel(new BorderLayout());
         celda.setPreferredSize(new Dimension(40, 40));
@@ -530,6 +651,12 @@ public class JugarPartidaView extends JFrame {
         return celda;
     }
 
+    /**
+     * Determina el color de fondo para una casilla según su modificador.
+     *
+     * @param mod Tipo de modificador de la casilla
+     * @return Color correspondiente al modificador (blanco si no tiene)
+     */
     private Color obtenerColorModificador(Tablero.TipoModificador mod) {
         if (mod == null) return new Color(245, 245, 220);
         switch (mod) {
@@ -541,6 +668,12 @@ public class JugarPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Actualiza la visualización del atril del jugador, mostrando:
+     * - Fichas disponibles en gris claro
+     * - Fichas en uso en tono oscuro
+     * - Ficha seleccionada resaltada en amarillo
+     */
     private void cargarAtril() {
         panelAtril.removeAll();
         for (Map.Entry<Ficha, Integer> entry : atrilActual.entrySet()) {
@@ -569,6 +702,13 @@ public class JugarPartidaView extends JFrame {
         panelAtril.repaint();
     }
 
+    /**
+     * Selecciona una ficha del atril para colocación:
+     * - Resalta visualmente la ficha seleccionada
+     * - Deselecciona otras fichas
+     *
+     * @param ficha Ficha seleccionada por el usuario
+     */
     private void seleccionarFicha(Ficha ficha) {
         fichaSeleccionada = ficha;
         Arrays.stream(panelAtril.getComponents())
@@ -580,7 +720,15 @@ public class JugarPartidaView extends JFrame {
                 .ifPresent(c -> ((JButton) c).setBackground(Color.YELLOW));
     }
 
-    private void colocarFichaTemporal(int x, int y) throws CasillaOcupadaException, CoordenadaFueraDeRangoException {
+    /**
+     * Maneja la colocación temporal de una ficha en el tablero.
+     * Actualiza las estructuras de estado y la interfaz gráfica.
+     *
+     * @param x Coordenada X en el tablero
+     * @param y Coordenada Y en el tablero
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
+     */
+    private void colocarFichaTemporal(int x, int y) throws CoordenadaFueraDeRangoException {
         if (partida.getTablero().getFicha(x, y) == null && fichaSeleccionada != null) {
             // Verificar disponibilidad
             int disponibles = atrilActual.get(fichaSeleccionada) - fichasEnUso.getOrDefault(fichaSeleccionada, 0);
@@ -603,6 +751,15 @@ public class JugarPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Valida y confirma la colocación de fichas en el tablero:
+     * 1. Verifica alineación horizontal/vertical
+     * 2. Valida primera palabra en centro
+     * 3. Comprueba conexión con palabras existentes
+     * 4. Valida palabras con el diccionario
+     * 5. Actualiza estado del juego y puntuaciones
+     * 6. Gestiona turnos siguientes o finalización
+     */
     private void confirmarColocacion() {
         if (colocacionesTemporales.isEmpty()) return;
 
@@ -763,6 +920,11 @@ public class JugarPartidaView extends JFrame {
         cargarTablero();
     }
 
+    /**
+     * Muestra un diálogo para seleccionar letra cuando se usa un comodín.
+     *
+     * @return Letra elegida por el usuario, o null si cancela
+     */
     private String solicitarLetraComodin() {
         Set<String> letrasValidas = partida.getMapaLetras().keySet();
         String[] opciones = letrasValidas.toArray(new String[0]);
@@ -778,6 +940,14 @@ public class JugarPartidaView extends JFrame {
         );
     }
 
+    /**
+     * Verifica si una posición del tablero es adyacente a fichas existentes.
+     *
+     * @param x Coordenada X a verificar
+     * @param y Coordenada Y a verificar
+     * @return true si la posición tiene fichas vecinas, false en caso contrario
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
+     */
     private boolean isAdyacenteAExistente(int x, int y) throws CoordenadaFueraDeRangoException {
         int[][] direcciones = {{-1,0}, {1,0}, {0,-1}, {0,1}};
         for (int[] dir : direcciones) {
@@ -792,6 +962,13 @@ public class JugarPartidaView extends JFrame {
         return false;
     }
 
+    /**
+     * Construye una palabra vertical a partir de una posición dada en el tablero.
+     *
+     * @param p Punto de inicio para construir la palabra
+     * @return Palabra formada en dirección vertical
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
+     */
     private String construirPalabraVertical(Point p) throws CoordenadaFueraDeRangoException {
         StringBuilder sb = new StringBuilder();
         // Arriba (incluyendo la posición actual)
@@ -809,6 +986,13 @@ public class JugarPartidaView extends JFrame {
         return sb.toString();
     }
 
+    /**
+     * Construye una palabra horizontal a partir de una posición dada en el tablero.
+     *
+     * @param p Punto de inicio para construir la palabra
+     * @return Palabra formada en dirección horizontal
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
+     */
     private String construirPalabraHorizontal(Point p) throws CoordenadaFueraDeRangoException {
         StringBuilder sb = new StringBuilder();
         // Izquierda
@@ -826,6 +1010,14 @@ public class JugarPartidaView extends JFrame {
         return sb.toString();
     }
 
+    /**
+     * Obtiene la ficha en una posición específica del tablero, priorizando las colocaciones temporales.
+     *
+     * @param x Coordenada X en el tablero
+     * @param y Coordenada Y en el tablero
+     * @return Ficha en la posición especificada, o null si está vacía
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
+     */
     private Ficha getFichaAtPosition(int x, int y) throws CoordenadaFueraDeRangoException {
         Point p = new Point(x, y);
         // Priorizar comodines ya sustituidos
@@ -834,6 +1026,14 @@ public class JugarPartidaView extends JFrame {
                 partida.getTablero().getFicha(x, y);
     }
 
+    /**
+     * Encuentra el punto de inicio real de una palabra basado en fichas adyacentes.
+     *
+     * @param points Lista de posiciones de fichas colocadas
+     * @param isHorizontal Indica si la búsqueda es en dirección horizontal
+     * @return Punto de inicio de la palabra
+     * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
+     */
     private Point findWordStart(List<Point> points, boolean isHorizontal) throws CoordenadaFueraDeRangoException {
         int coord = isHorizontal ? points.get(0).y : points.get(0).x;
         int fixed = isHorizontal ? points.get(0).x : points.get(0).y;
@@ -850,12 +1050,24 @@ public class JugarPartidaView extends JFrame {
         return isHorizontal ? new Point(fixed, coord) : new Point(coord, fixed);
     }
 
+    /**
+     * Actualiza todos los componentes visuales después de un cambio de estado:
+     * - Tablero de juego
+     * - Atril de fichas
+     * - Información del jugador
+     */
     private void actualizarEstadoJuego() {
         cargarTablero();
         cargarAtril();
         actualizarPanelInformacion();
     }
 
+    /**
+     * Ejecuta el turno de la IA cuando corresponde:
+     * - Utiliza el algoritmo según dificultad
+     * - Realiza movimiento óptimo o cambia fichas
+     * - Actualiza la interfaz automáticamente
+     */
     private void ejecutarTurnoIA() {
         Turno turnoIA = partida.getRondas().get(partida.getRondas().size() - 1);
         // Ejecutar lógica de la IA
@@ -876,7 +1088,9 @@ public class JugarPartidaView extends JFrame {
         }
     }
 
-
+    /**
+     * Restaura las fichas temporales al atril y limpia las estructuras de estado.
+     */
     private void revertirColocacionesTemporales() {
         // Devolver todas las fichas temporales al atril
         colocacionesTemporales.forEach((pos, ficha) -> {
@@ -889,6 +1103,12 @@ public class JugarPartidaView extends JFrame {
         cargarTablero();
     }
 
+    /**
+     * Muestra la interfaz para cambiar fichas del atril:
+     * - Checkboxes para selección de fichas a cambiar
+     * - Botones de confirmación/cancelación
+     * - Lógica de reposición desde la bolsa
+     */
     private void cambiarFichas() {
         revertirColocacionesTemporales();
         // Hide regular buttons and show tile selection UI
@@ -931,6 +1151,13 @@ public class JugarPartidaView extends JFrame {
         checkboxPanel.repaint();
     }
 
+    /**
+     * Confirma el cambio de fichas seleccionadas:
+     * - Procesa las fichas marcadas para cambio
+     * - Comunica con el gestor de partida para realizar el cambio
+     * - Actualiza el atril con nuevas fichas
+     * - Ejecuta turno de IA si corresponde
+     */
     private void confirmarCambioFichas() {
         revertirColocacionesTemporales();
         List<String> fichasCambio = new ArrayList<>();
@@ -967,6 +1194,12 @@ public class JugarPartidaView extends JFrame {
         cargarAtril();
     }
 
+    /**
+     * Cancela el proceso de cambio de fichas:
+     * - Restaura la interfaz a su estado normal
+     * - Limpia las selecciones temporales
+     * - Oculta el panel de cambio de fichas
+     */
     private void cancelarCambioFichas() {
         revertirColocacionesTemporales();
         botonesPanel.setVisible(true);
@@ -974,10 +1207,16 @@ public class JugarPartidaView extends JFrame {
         checkBoxes.clear();
     }
 
+    /**
+     * Vuelve al menú de gestión de partidas cerrando la vista actual.
+     */
     private void salirPartida() {
         gestorDeView.volverMenuGestionPartida(this);
     }
 
+    /**
+     * Configura el estado inicial de la partida, incluyendo el primer turno de IA si corresponde.
+     */
     private void cargarEstadoInicial() {
         if (partida.getModoPartida() == Partida.Modo.PvIA && jugadorActual == null) {
             ejecutarTurnoIA();
