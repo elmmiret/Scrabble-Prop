@@ -129,7 +129,15 @@ public class Turno {
         this.tableroTurno = new Tablero(partida.getIdioma());
     }
 
-
+    /**
+     * Construye un Turno con parámetros específicos y sin clonar el tablero.
+     *
+     * @param partida          Partida asociada al turno.
+     * @param jugador          Jugador actual.
+     * @param puntosJ1         Puntuación inicial del jugador creador.
+     * @param puntosJ2         Puntuación inicial del oponente/IA.
+     * @param noClonarTablero  Si es true, inicializa un tablero nuevo en lugar de clonar.
+     */
     public Turno(Partida partida, Perfil jugador, int puntosJ1, int puntosJ2, boolean noClonarTablero) {
         this.partida = partida;
         this.jugador = jugador;
@@ -234,85 +242,200 @@ public class Turno {
         return total;
     }
 
+    /**
+     * Obtiene la palabra colocada en el turno.
+     *
+     * @return  Palabra colocada, o null si no se ha colocado ninguna.
+     */
     public String getPalabra() {
         return palabra;
     }
 
+    /**
+     * Obtiene la coordenada X inicial de la palabra colocada.
+     *
+     * @return Valor entero representando la posición horizontal inicial en el tablero.
+     */
     public Integer getX() {
         return x_ini;
     }
 
+    /**
+     * Obtiene la coordenada Y inicial de la palabra colocada.
+     *
+     * @return Valor entero representando la posición vertical inicial en el tablero.
+     */
     public Integer getY() {
         return y_ini;
     }
 
-    public Boolean getHorizontal() {
-        return horizontal;
-    }
-
-    public Map<Ficha, Integer> getFichasCambiadas() {
-        return fichasCambiadas;
-    }
-
-    public void setPalabra(String palabra) {
-        this.palabra = palabra;
-    }
-
-    public void setX(int x_ini) {
-        this.x_ini = x_ini;
-    }
-
-    public void setY (int y_ini) {
-        this.y_ini = y_ini;
-    }
-
-    public void setHorizontal (boolean horizontal) {
-        this.horizontal = horizontal;
-    }
-
-    public void setPistasRestantesJ1(int pistasRestantesJ1) {
-        this.pistasRestantesJ1 = pistasRestantesJ1;
-    }
-
-    public void setPistasRestantesJ2(int pistasRestantesJ2) {
-        this.pistasRestantesJ2 = pistasRestantesJ2;
-    }
-
-    public void setPuntosJ1(int puntos) {
-        this.puntosJ1 = puntos;
-    }
-
-    public void setPuntosJ2(int puntos) {
-        this.puntosJ2 = puntos;
-    }
-
-    // Setters para atriles (si es necesario)
-    public void setAtrilJ1(Map<Ficha, Integer> atril) {
-        this.atrilJ1 = atril;
-    }
-
-    public void setAtrilJ2(Map<Ficha, Integer> atril) {
-        this.atrilJ2 = atril;
-    }
+    /**
+     * Obtiene el número de pistas disponibles para un jugador específico.
+     *
+     * @param jugador Perfil del jugador (creador u oponente).
+     * @return Número de pistas restantes para el jugador especificado.
+     */
     public int getPistas(Perfil jugador) {
         return jugador == partida.getCreador() ? pistasRestantesJ1 : pistasRestantesJ2;
     }
 
+    /**
+     * Obtiene las pistas restantes del jugador creador.
+     *
+     * @return Número de pistas disponibles para el jugador 1.
+     */
     public int getPistasJ1() {
         return pistasRestantesJ1;
     }
 
+    /**
+     * Obtiene las pistas restantes del jugador oponente/IA.
+     *
+     * @return Número de pistas disponibles para el jugador 2.
+     */
     public int getPistasJ2() {
         return pistasRestantesJ2;
     }
 
     /**
-     * Establece el tipo de jugada realizada en el turno.
+     * Indica la orientación de la palabra colocada.
      *
-     * @param tipo El tipo de jugada a establecer.
+     * @return {@code true} si la palabra es horizontal, {@code false} si es vertical.
+     */
+    public Boolean getHorizontal() {
+        return horizontal;
+    }
+
+    /**
+     * Obtiene las fichas cambiadas durante el turno.
+     *
+     * @return Mapa con las fichas y sus cantidades cambiadas, o {@code null} si no hubo cambio.
+     */
+    public Map<Ficha, Integer> getFichasCambiadas() {
+        return fichasCambiadas;
+    }
+
+    /**
+     * Obtiene el estado del tablero asociado específicamente a este turno.
+     * Este es un clon del tablero principal al inicio del turno, permitiendo
+     * comparaciones o reversiones.
+     *
+     * @return Instancia de {@link Tablero} correspondiente al estado inicial del turno.
+     *         Puede ser {@code null} si el turno no ha modificado el tablero.
+     */
+    public Tablero getTableroTurno() {
+        return tableroTurno;
+    }
+
+    /**
+     * Establece la palabra a colocar en el tablero.
+     *
+     * @param palabra Palabra en formato String (ej. "SCRAbbLE").
+     */
+    public void setPalabra(String palabra) {
+        this.palabra = palabra;
+    }
+
+    /**
+     * Define la coordenada X inicial para la colocación de la palabra.
+     *
+     * @param x_ini Posición horizontal en el tablero (0-14).
+     */
+    public void setX(int x_ini) {
+        this.x_ini = x_ini;
+    }
+
+    /**
+     * Define la coordenada Y inicial para la colocación de la palabra.
+     *
+     * @param y_ini Posición vertical en el tablero (0-14).
+     */
+    public void setY (int y_ini) {
+        this.y_ini = y_ini;
+    }
+
+    /**
+     * Establece la orientación de la palabra a colocar.
+     *
+     * @param horizontal {@code true} para orientación horizontal, {@code false} para vertical.
+     */
+    public void setHorizontal (boolean horizontal) {
+        this.horizontal = horizontal;
+    }
+
+    /**
+     * Actualiza el contador de pistas restantes del jugador creador.
+     *
+     * @param pistasRestantesJ1 Nuevo número de pistas disponibles para el jugador 1.
+     */
+    public void setPistasRestantesJ1(int pistasRestantesJ1) {
+        this.pistasRestantesJ1 = pistasRestantesJ1;
+    }
+
+    /**
+     * Actualiza el contador de pistas restantes del jugador oponente/IA.
+     *
+     * @param pistasRestantesJ2 Nuevo número de pistas disponibles para el jugador 2.
+     */
+    public void setPistasRestantesJ2(int pistasRestantesJ2) {
+        this.pistasRestantesJ2 = pistasRestantesJ2;
+    }
+
+    /**
+     * Modifica la puntuación acumulada del jugador creador.
+     *
+     * @param puntos Nuevo valor de puntos a asignar.
+     */
+    public void setPuntosJ1(int puntos) {
+        this.puntosJ1 = puntos;
+    }
+
+    /**
+     * Modifica la puntuación acumulada del jugador oponente/IA.
+     *
+     * @param puntos Nuevo valor de puntos a asignar.
+     */
+    public void setPuntosJ2(int puntos) {
+        this.puntosJ2 = puntos;
+    }
+
+    /**
+     * Reemplaza completamente el atril del jugador creador.
+     *
+     * @param atril Nuevo conjunto de fichas en formato Mapa&lt;Ficha, Cantidad&gt;.
+     */
+    public void setAtrilJ1(Map<Ficha, Integer> atril) {
+        this.atrilJ1 = atril;
+    }
+
+    /**
+     * Reemplaza completamente el atril del jugador oponente/IA.
+     *
+     * @param atril Nuevo conjunto de fichas en formato Mapa&lt;Ficha, Cantidad&gt;.
+     */
+    public void setAtrilJ2(Map<Ficha, Integer> atril) {
+        this.atrilJ2 = atril;
+    }
+
+    /**
+     * Registra el tipo de acción realizada en el turno.
+     *
+     * @param tipo Valor de la enumeración {@link TipoJugada} que representa la acción.
      */
     public void setTipoJugada(TipoJugada tipo) {
         this.tipoJugada = tipo;
+    }
+
+    /**
+     * Establece manualmente el estado del tablero para este turno.
+     * Útil para escenarios avanzados como carga de partidas guardadas
+     * o reinicios de jugada.
+     *
+     * @param tablero Nueva instancia de {@link Tablero} que representa el estado deseado.
+     *               Si es {@code null}, se borrará la referencia al tablero del turno.
+     */
+    public void setTableroTurno(Tablero tablero) {
+        tableroTurno = tablero;
     }
 
     /**
@@ -409,14 +532,7 @@ public class Turno {
         partida.nuevoTurno(nextJugador, puntosJ1, puntosJ2, pistasRestantesJ1, pistasRestantesJ2, atrilJ1, atrilJ2);
     }
 
-    public Tablero getTableroTurno() {
-        return tableroTurno;
-    }
 
-
-    public void setTableroTurno(Tablero tablero) {
-        tableroTurno = tablero;
-    }
     /**
      * Retira una ficha específica del atril.
      *
@@ -464,6 +580,19 @@ public class Turno {
         return puntosPorSumar;
     }
 
+    /**
+     * Calcula los puntos adicionales generados por fichas adyacentes en dirección vertical a una palabra colocada.
+     * <p>
+     * Recorre las casillas contiguas arriba y abajo de la palabra vertical, sumando los puntos de las fichas existentes
+     * hasta encontrar una casilla vacía o el borde del tablero.
+     * </p>
+     *
+     * @param x_ini    Coordenada X (fila) de la primera letra de la palabra.
+     * @param y_ini    Coordenada Y (columna) de la primera letra de la palabra.
+     * @param palabra  Palabra colocada en vertical.
+     * @return         Puntos extra acumulados por fichas adyacentes en vertical.
+     * @throws CoordenadaFueraDeRangoException Si se intenta acceder a una posición fuera del rango del tablero.
+     */
     private int calculoPuntosExtraVertical(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
         // buscar fichas antes de la palabra (hacia arriba)
@@ -481,6 +610,17 @@ public class Turno {
         return puntosPorSumar;
     }
 
+    /**
+     * Genera una sugerencia de movimiento usando el algoritmo de IA y consume una pista del jugador.
+     * <p>
+     * Prepara el algoritmo con el estado actual del tablero y el atril del jugador, genera movimientos válidos,
+     * y devuelve el primer movimiento recomendado. Reduce el contador de pistas disponibles del jugador.
+     * </p>
+     *
+     * @param jugador  Perfil del jugador que solicita la pista (determina qué atril y contador de pistas usar).
+     * @return         Mejor movimiento sugerido según el algoritmo, o {@code null} si no hay movimientos válidos.
+     * @implNote El movimiento devuelto es el primero de la lista generada por el algoritmo, asumiendo que está ordenado por puntuación.
+     */
     public Movimiento pedirPista(Perfil jugador) {
        if (jugador.equals(partida.getCreador())) {
            partida.getAlgorithm().preparar(getTablero(), atrilJ1);
@@ -863,6 +1003,26 @@ public class Turno {
         }
     }
 
+    /**
+     * Selecciona el mejor movimiento disponible según la dificultad de la IA.
+     * <p>
+     * La lógica varía por nivel:
+     * <ul>
+     *   <li><b>Fácil (1)</b>: Elige el movimiento con la <i>menor puntuación posible</i>, ignorando modificadores estratégicos.</li>
+     *   <li><b>Medio (2)</b>: Selección <i>aleatoria</i> entre todos los movimientos válidos.</li>
+     *   <li><b>Difícil (3)</b>: Optimiza para la <i>máxima puntuación</i>, considerando todos los modificadores de letra/palabra.</li>
+     * </ul>
+     *
+     * @param movimientos  Lista de movimientos generados por el algoritmo IA (no null, no vacía).
+     * @param dificultad   Nivel de inteligencia (1-3). Valores fuera de rango se tratan como dificultad media.
+     * @return Movimiento seleccionado, o {@code null} si la lista está vacía.
+     *
+     * @implNote <ul>
+     *   <li>Calcula puntuaciones simulando la colocación de fichas en el tablero.</li>
+     *   <li>Los modificadores (doble/triple letra/palabra) se aplican durante el cálculo.</li>
+     *   <li>Coordenadas inválidas se manejan internamente (no lanza excepciones).</li>
+     * </ul>
+     */
     private Movimiento getMejorMovimiento(List<Movimiento> movimientos, int dificultad) {
         Map<String, Ficha> fichasAlfabeto = partida.getMapaLetras();
         Tablero tablero = partida.getTablero();
