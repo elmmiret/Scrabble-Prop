@@ -149,6 +149,18 @@ public class Tablero {
     }
 
     // MÉTODOS
+    /**
+     * Obtiene la ficha en la posición (x, y).
+     *
+     * @param x Fila (0-14).
+     * @param y Columna (0-14).
+     * @return Ficha en la posición o {@code null} si está vacía.
+     * @throws CoordenadaFueraDeRangoException Si x o y están fuera del rango 0-14.
+     */
+    public Ficha getFicha( int x, int y) throws CoordenadaFueraDeRangoException {
+        if (x < 0 || x >= FILAS || y < 0 || y >= COLUMNAS) throw new CoordenadaFueraDeRangoException(x, y);
+        return tablero.get(x).get(y).getKey().getKey();
+    }
 
     /**
      * Obtiene la ficha en la posición (x, y).
