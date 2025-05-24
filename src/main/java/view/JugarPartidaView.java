@@ -187,8 +187,7 @@ public class JugarPartidaView extends JFrame {
 
     private void pedirPista() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
-        if (jugadorActual!= null)
-        {
+        if (jugadorActual != null) {
             // Verificar pistas disponibles
             int pistasDisponibles = turnoActual.getPistas(jugadorActual);
             if (pistasDisponibles <= 0) {
@@ -196,23 +195,18 @@ public class JugarPartidaView extends JFrame {
                 return;
             }
 
-        int pistasDisponibles = turnoActual.getPistas(jugadorActual);
-        if (pistasDisponibles <= 0) {
-            JOptionPane.showMessageDialog(this, "No tienes pistas disponibles");
-            return;
+            Movimiento mov = gestorDePartida.pedirPista(partida, jugadorActual);
+
+            if (mov == null) {
+                JOptionPane.showMessageDialog(this, "No hay movimientos posibles");
+                return;
+            }
+
+            String mensaje = construirMensajePista(mov, partida.getDificultad());
+            JOptionPane.showMessageDialog(this, mensaje, "Pista", JOptionPane.INFORMATION_MESSAGE);
+
+            actualizarPanelInformacion();
         }
-
-        Movimiento mov = gestorDePartida.pedirPista(partida, jugadorActual);
-
-        if (mov == null) {
-            JOptionPane.showMessageDialog(this, "No hay movimientos posibles");
-            return;
-        }
-
-        String mensaje = construirMensajePista(mov, partida.getDificultad());
-        JOptionPane.showMessageDialog(this, mensaje, "Pista", JOptionPane.INFORMATION_MESSAGE);
-
-        actualizarPanelInformacion();
     }
 
     private String construirMensajePista(Movimiento mov, int dificultad) {
