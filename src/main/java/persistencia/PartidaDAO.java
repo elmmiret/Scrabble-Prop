@@ -196,7 +196,7 @@ public class PartidaDAO {
      * @throws IOException Si ocurren errores de escritura del archivo
      */
     public  void guardar(Map<Integer, Partida> partidas) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/main/java/gestordepartida/partidasbd.txt"))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(RUTA_ARCHIVO))) {
             for (Partida partida : partidas.values()) {
                 // guardamos los datos básicos de la partida
                 writer.println("=== PARTIDA ===");
