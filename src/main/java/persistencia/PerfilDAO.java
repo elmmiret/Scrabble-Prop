@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class PerfilDAO {
 
-    private static final String RUTA_ARCHIVO = "src/main/java/gestordeperfil/perfilesbd.txt";
+    private static final String RUTA_ARCHIVO = "src/main/java/persistencia/perfilesbd.txt";
 
     /**
      * Carga todos los perfiles desde el archivo de persistencia.

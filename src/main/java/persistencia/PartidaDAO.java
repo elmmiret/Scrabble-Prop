@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 public class PartidaDAO {
     private  GestorDePerfil gestorDePerfil;
 
+    private static final String RUTA_ARCHIVO = "src/main/java/persistencia/partidasbd.txt";
+
     /**
      * Construye un DAO para partidas vinculado al gestor de perfiles
      * @param gestorDePerfil Gestor que provee acceso a los perfiles de jugadores
@@ -43,7 +45,7 @@ public class PartidaDAO {
      * @throws CasillaOcupadaException Si hay conflictos en la colocación de fichas
      */
     public  Map<Integer, Partida> cargar() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/gestordepartida/partidasbd.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(RUTA_ARCHIVO))) {
             Map<Integer, Partida> partidas = new HashMap<>();
             String linea;
             Partida partidaActual = null;

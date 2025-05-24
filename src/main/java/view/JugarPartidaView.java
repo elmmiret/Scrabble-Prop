@@ -36,7 +36,6 @@ public class JugarPartidaView extends JFrame {
     JPanel infoPanel;
     JPanel mainPanel;
     private Map<Point, Ficha> colocacionesTemporales = new HashMap<>();
-    private Map<Ficha, Integer> fichasTemporales = new HashMap<>(); // Track tiles in use
     private JPanel cambiarFichasPanel;
     private JButton btnConfirmarCambio;
     private JButton btnCancelarCambio;
@@ -849,20 +848,6 @@ public class JugarPartidaView extends JFrame {
         }
 
         return isHorizontal ? new Point(fixed, coord) : new Point(coord, fixed);
-    }
-
-    private void revertTemporaryPlacements() {
-        colocacionesTemporales.forEach((pos, ficha) -> {
-            atrilActual.put(ficha, atrilActual.getOrDefault(ficha, 0) + 1);
-        });
-        colocacionesTemporales.clear();
-        fichasTemporales.clear();
-        refreshUI();
-    }
-
-    private void refreshUI() {
-        cargarTablero();
-        cargarAtril();
     }
 
     private void actualizarEstadoJuego() {
