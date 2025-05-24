@@ -571,8 +571,13 @@ public class Turno {
                             if (comodines == 0) return false;
                             else {
                                 --comodines;
-                                // la solucion facil es cambiar esa ficha.get(i)  a "#"
-                                fichas.set(pos_division, "#");
+                                // NUEVA: cambiar un comodin del tablero a esa letra
+                                // la letra la cambiamos y el numero no, pq sigue siendo cero
+                                for (Ficha ficha : atrilCheck.keySet()) {
+                                    if (ficha.getLetra().equals("#")) {
+                                        ficha.setLetra(fichas.get(pos_division));
+                                    }
+                                }
                             }
                         }
                     }
@@ -676,8 +681,13 @@ public class Turno {
                             if (comodines == 0) return false;
                             else {
                                 --comodines;
-                                // la solucion facil es cambiar esa ficha.get(i)  a "#"
-                                fichas.set(pos_division, "#");
+                                // NUEVA: cambiar un comodin del tablero a esa letra
+                                // la letra la cambiamos y el numero no, pq sigue siendo cero
+                                for (Ficha ficha : atrilCheck.keySet()) {
+                                    if (ficha.getLetra().equals("#")) {
+                                        ficha.setLetra(fichas.get(pos_division));
+                                    }
+                                }
                             }
                         }
                     }
