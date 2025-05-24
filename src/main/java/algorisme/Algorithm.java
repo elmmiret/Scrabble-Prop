@@ -312,6 +312,9 @@ public class Algorithm {
         try {
             for(int fila = 0; fila < Tablero.FILAS; fila++) {
                 for(int col = 0; col < Tablero.COLUMNAS; col++) {
+                    if (tablero.estaVacio()){
+                        anchors[7][7] = true;
+                    }
                     if(tablero.getFicha(fila, col) == null) {
                         // Verificar si está adyacente a una ficha existente
                         boolean esAncla = false;
