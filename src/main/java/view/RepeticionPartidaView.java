@@ -9,7 +9,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.Map;
-
+/**
+ * Vista para la repetición de una partida guardada, permitiendo navegar entre los turnos históricos.
+ * Muestra el tablero, el atril del jugador contrario y la información de puntos y jugador actual.
+ * Incluye controles para avanzar, retroceder, saltar a un turno específico y salir.
+ *
+ * @author Albert Aulet Niubó
+ */
 public class RepeticionPartidaView extends JFrame {
     private final Partida partida;
     private final GestorDePartida gestorDePartida;
@@ -29,6 +35,13 @@ public class RepeticionPartidaView extends JFrame {
     private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 20);
     private final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 16);
 
+    /**
+     * Constructor que inicializa la vista de repetición de partida.
+     *
+     * @param partida           Partida a visualizar.
+     * @param gestorDePartida   Gestor que proporciona lógica relacionada con la partida.
+     * @param gestorPerfil      Gestor de perfiles (no utilizado directamente en esta versión).
+     */
     public RepeticionPartidaView(Partida partida, GestorDePartida gestorDePartida, GestorDePerfil gestorPerfil) {
         super("Repetición - " + partida.getNombre());
         this.partida = partida;
@@ -79,15 +92,15 @@ public class RepeticionPartidaView extends JFrame {
         controlsPanel.setOpaque(false);
         controlsPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        addStyledButton(controlsPanel, "← Anterior", COLOR_AZUL, e -> showPreviousTurn());
-        addStyledButton(controlsPanel, "Siguiente →", COLOR_AZUL, e -> showNextTurn());
+        addStyledButton(controlsPanel, "← Anterior", COLOR_AZUL, e -> mostrarTurnoPrevio());
+        addStyledButton(controlsPanel, "Siguiente →", COLOR_AZUL, e -> mostrarTurnoSiguiente());
 
         JPanel jumpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         txtTurno = new JTextField("1", 3);
         txtTurno.setFont(LABEL_FONT);
         JButton btnIr = new JButton("Ir");
         styleButton(btnIr, COLOR_VERDE);
-        btnIr.addActionListener(e -> jumpToTurn(txtTurno.getText()));
+        btnIr.addActionListener(e -> saltarATurno(txtTurno.getText()));
 
         jumpPanel.add(new JLabel("Turno:"));
         jumpPanel.add(txtTurno);
@@ -130,11 +143,17 @@ public class RepeticionPartidaView extends JFrame {
         btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
     }
 
+    /**
+     * Carga y muestra la información de un turno específico.
+     * Actualiza el tablero, el atril, el jugador actual y los puntos.
+     *
+     * @param turnIndex Índice del turno a cargar (basado en 0).
+     */
     private void cargarTurno(int turnIndex) {
         Turno turno = partida.getRondas().get(turnIndex);
         txtTurno.setText(String.valueOf(turnIndex + 1));
 
-        // Actualizar información
+        // Actualizamos información
         lblJugador.setText("Turno de: " + (turno.getJugador() != null ?
                 turno.getJugador().getUsername() : "IA"));
 
@@ -145,6 +164,11 @@ public class RepeticionPartidaView extends JFrame {
         cargarAtrilHistorico(turno);
     }
 
+    /**
+     * Renderiza el tablero histórico con las fichas y modificadores visuales.
+     *
+     * @param tablero Tablero correspondiente al turno actual.
+     */
     private void cargarTableroHistorico(Tablero tablero) {
         panelTablero.removeAll();
         for (int x = 0; x < Tablero.FILAS; x++) {
@@ -172,6 +196,12 @@ public class RepeticionPartidaView extends JFrame {
         panelTablero.repaint();
     }
 
+    /**
+     * Devuelve el color asociado a un modificador del tablero.
+     *
+     * @param mod Tipo de modificador (doble/triple tanto de letra/palabra).
+     * @return Color correspondiente al modificador. Blanco si no hay modificador.
+     */
     private Color obtenerColorModificador(Tablero.TipoModificador mod) {
         if (mod == null) return new Color(245, 245, 220);
         switch (mod) {
@@ -183,6 +213,11 @@ public class RepeticionPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Carga el atril del jugador contrario durante el turno histórico.
+     *
+     * @param turno Turno actual del que se obtienen los datos del atril.
+     */
     private void cargarAtrilHistorico(Turno turno) {
         panelAtril.removeAll();
         Map<Ficha, Integer>[] atriles = gestorDePartida.getAtrilesTurno(turno);
@@ -212,21 +247,36 @@ public class RepeticionPartidaView extends JFrame {
         panelAtril.repaint();
     }
 
-    private void showPreviousTurn() {
+    /**
+     * Navega al turno anterior si es posible.
+     * Actualiza la interfaz automáticamente.
+     */
+    private void mostrarTurnoPrevio() {
         if (currentTurnIndex > 0) {
             currentTurnIndex--;
             cargarTurno(currentTurnIndex);
         }
     }
 
-    private void showNextTurn() {
+    /**
+     * Navega al siguiente turno si es posible.
+     * Actualiza la interfaz automáticamente.
+     */
+    private void mostrarTurnoSiguiente() {
         if (currentTurnIndex < partida.getRondas().size() - 2) {
             currentTurnIndex++;
             cargarTurno(currentTurnIndex);
         }
     }
 
-    private void jumpToTurn(String input) {
+    /**
+     * Salta a un turno específico basado en la entrada del usuario.
+     * Valida que el número esté dentro del rango permitido.
+     *
+     * @param input Texto ingresado por el usuario (debe ser un número entero).
+     * @throws NumberFormatException Si la entrada no es un número válido.
+     */
+    private void saltarATurno(String input) {
         try {
             int target = Integer.parseInt(input) - 1;
             if (target >= 0 && target < partida.getRondas().size()-1) {

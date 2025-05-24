@@ -102,9 +102,12 @@ public class JugarPartidaView extends JFrame {
 
         System.out.println("MILESTONE 1");
         lblPuntos.setFont(TITLE_FONT);
+        JLabel lblPistas = new JLabel("Pistas restantes: " + obtenerPistasRestantes(turnoActual));
+        lblPistas.setFont(LABEL_FONT);
         lblPuntos.setForeground(Color.BLACK);
         infoPanel.add(lblJugador);
         infoPanel.add(lblPuntos);
+        infoPanel.add(lblPistas);
         mainPanel.add(infoPanel, BorderLayout.NORTH);
 
         // Panel del tablero
@@ -151,7 +154,7 @@ public class JugarPartidaView extends JFrame {
         cambiarFichasPanel = new JPanel(new BorderLayout(10, 5));
         cambiarFichasPanel.setPreferredSize(new Dimension(200, 100)); // Altura máxima
         cambiarFichasPanel.setOpaque(false);
-        cambiarFichasPanel.setVisible(false); // Hidden by default
+        cambiarFichasPanel.setVisible(false);
 
         System.out.println("MILESTONE 1.3");
 
@@ -193,21 +196,23 @@ public class JugarPartidaView extends JFrame {
                 return;
             }
 
-            // Obtener movimiento sugerido
-            Movimiento mov = gestorDePartida.pedirPista(partida, jugadorActual);
-
-            if (mov == null) {
-                JOptionPane.showMessageDialog(this, "No hay movimientos posibles");
-                return;
-            }
-
-            // Mostrar pista según dificultad
-            String mensaje = construirMensajePista(mov, partida.getDificultad());
-            JOptionPane.showMessageDialog(this, mensaje, "Pista", JOptionPane.INFORMATION_MESSAGE);
-
-            // Actualizar contador de pistas
-            actualizarContadorPistas(turnoActual);
+        int pistasDisponibles = turnoActual.getPistas(jugadorActual);
+        if (pistasDisponibles <= 0) {
+            JOptionPane.showMessageDialog(this, "No tienes pistas disponibles");
+            return;
         }
+
+        Movimiento mov = gestorDePartida.pedirPista(partida, jugadorActual);
+
+        if (mov == null) {
+            JOptionPane.showMessageDialog(this, "No hay movimientos posibles");
+            return;
+        }
+
+        String mensaje = construirMensajePista(mov, partida.getDificultad());
+        JOptionPane.showMessageDialog(this, mensaje, "Pista", JOptionPane.INFORMATION_MESSAGE);
+
+        actualizarPanelInformacion();
     }
 
     private String construirMensajePista(Movimiento mov, int dificultad) {
@@ -216,29 +221,30 @@ public class JugarPartidaView extends JFrame {
             case 1:
                 char letra = (char) ('A' + mov.getFila());
                 int columna = mov.getColumna() + 1;
-                sb.append("Posición sugerida: ").append(letra).append(columna).append("\n");
+                sb.append("Palabra y posición sugerida: ").append(letra).append(columna).append("\n");
                 break;
             case 2:
-                sb.append("Letras para usar: ");
+                sb.append("Posible palabra: ");
                 break;
             case 3:
                 Collections.shuffle(mov.getPalabra());
-                sb.append("Letras disponibles: ");
+                sb.append("Letras de posible palabra: ");
                 break;
         }
 
         mov.getPalabra().forEach(letra -> sb.append(letra).append(" "));
         return sb.toString();
     }
-
+    /**
     private void actualizarContadorPistas(Turno turno) {
         if (jugadorActual.equals(partida.getCreador())) {
-            turno.setPistasRestantesJ1(turno.getPistasJ1() - 1);
+            turno.setPistasRestantesJ1(turno.getPistasJ1());
         } else {
             turno.setPistasRestantesJ2(turno.getPistasJ2() - 1);
         }
-        actualizarPanelInformacion();
+
     }
+     */
 
     private void styleButton(JButton btn, Color color) {
         btn.setForeground(Color.WHITE);
@@ -350,7 +356,6 @@ public class JugarPartidaView extends JFrame {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
         jugadorActual = turnoActual.getJugador();
 
-        // Eliminar componentes antiguos
         infoPanel.removeAll();
 
         // Nuevo layout con 3 filas
@@ -400,12 +405,9 @@ public class JugarPartidaView extends JFrame {
     }
 
     private int obtenerPistasRestantes(Turno turno) {
-        if (jugadorActual == null) return 0; // IA no tiene pistas
-
-        return jugadorActual.equals(partida.getCreador()) ?
-                turno.getPistasJ1() :
-                turno.getPistasJ2();
+        return jugadorActual.equals(partida.getCreador()) ? turno.getPistasJ1() : turno.getPistasJ2();
     }
+
     private void addJugarButton(JPanel panel, String text, Color color, ActionListener action) {
         JButton btn = new JButton(text) {
             @Override
