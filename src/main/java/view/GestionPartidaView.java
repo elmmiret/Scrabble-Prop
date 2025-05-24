@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 import gestordepartida.GestorDePartida;
 import gestordepartida.Partida;
+import gestordepartida.Turno;
 import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 
@@ -235,6 +236,11 @@ public class GestionPartidaView extends JFrame {
             int id = Integer.parseInt(idStr);
 
             Partida partida = gestorDePartida.obtenerPartida(id);
+            if (partida.getRondas().get(partida.getRondas().size() - 2).getTipoJugada().equals(Turno.TipoJugada.finalizar))
+            {
+                JOptionPane.showMessageDialog(this, "No se ha podido cargar la partida: ya se ha finalizado.");
+                return;
+            }
             if (partida == null || !gestorDePartida.existePartidaJugador(jugador, id)) {
                 JOptionPane.showMessageDialog(this, "Partida no encontrada.");
                 return;

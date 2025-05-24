@@ -2,6 +2,7 @@ package view;
 
 import algorisme.Movimiento;
 import gestordepartida.*;
+import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 import exceptions.CasillaOcupadaException;
 import exceptions.CoordenadaFueraDeRangoException;
@@ -42,20 +43,23 @@ public class JugarPartidaView extends JFrame {
     JPanel botonesPanel;
     private Map<Ficha, Integer> fichasEnUso = new HashMap<>(); // Fichas colocadas temporalmente
     GestorDeView gestorDeView;
+    private int pasarConsecutivos = 0;
+    private boolean partidaFinalizada = false;
+    GestorDePerfil gestorDePerfil;
 
-    public JugarPartidaView(GestorDeView gestorDeView, Partida partida, GestorDePartida gestorDePartida) {
+    public JugarPartidaView(GestorDeView gestorDeView, Partida partida, GestorDePartida gestorDePartida, GestorDePerfil gestorDePerfil) {
         super("Jugar Partida");
         this.partida = partida;
         this.gestorDePartida = gestorDePartida;
         this.jugadorActual = partida.getRondas().get(partida.getRondas().size()-1).getJugador();
         this.atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
         this.gestorDeView = gestorDeView;
+        this.gestorDePerfil = gestorDePerfil;
         init();
         cargarEstadoInicial();
     }
 
     private void init() {
-
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,13 +77,30 @@ public class JugarPartidaView extends JFrame {
         // Panel de información
         infoPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         infoPanel.setOpaque(false);
-        lblJugador = new JLabel("Turno de: " + turnoActual.getJugador().getUsername());
+        if (partida.getModoPartida()==Partida.Modo.PvP)
+        {
+            lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+        }
+        else //IA
+        {
+            if (jugadorActual == null) lblJugador = new JLabel("Turno de: IA");
+            else lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+        }
         lblJugador.setFont(TITLE_FONT);
         lblJugador.setForeground(Color.BLACK);
-        lblPuntos = new JLabel();
-        lblPuntos.setText("Puntos: " + (jugadorActual.equals(partida.getCreador())
-                ? turnoActual.getPuntuacionJ1()
-                : turnoActual.getPuntuacionJ2()));
+        if (partida.getModoPartida()==Partida.Modo.PvP)
+        {
+            lblPuntos = new JLabel("Puntos: " + (jugadorActual.equals(partida.getCreador())
+                    ? turnoActual.getPuntuacionJ1()
+                    : turnoActual.getPuntuacionJ2()));
+        }
+        else //IA
+        {
+            if (jugadorActual == null) lblPuntos = new JLabel("Puntos: " + turnoActual.getPuntuacionJ2());
+            else lblPuntos = new JLabel("Puntos: " + turnoActual.getPuntuacionJ1());
+        }
+
+        System.out.println("MILESTONE 1");
         lblPuntos.setFont(TITLE_FONT);
         JLabel lblPistas = new JLabel("Pistas restantes: " + obtenerPistasRestantes(turnoActual));
         lblPistas.setFont(LABEL_FONT);
@@ -96,6 +117,9 @@ public class JugarPartidaView extends JFrame {
                 Tablero.FILAS * 45
         ));
         cargarTablero();
+
+        System.out.println("MILESTONE 1.1");
+
         mainPanel.add(new JScrollPane(panelTablero), BorderLayout.CENTER);
 
         // Panel lateral
@@ -108,15 +132,23 @@ public class JugarPartidaView extends JFrame {
         cargarAtril();
         lateralPanel.add(panelAtril, BorderLayout.NORTH);
 
+        System.out.println("MILESTONE 1.2");
+
         // Botones
         botonesPanel = new JPanel(new GridLayout(3, 1, 10, 15));
         botonesPanel.setOpaque(false);
         botonesPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        System.out.println("MILESTONE 1.2.1");
         addJugarButton(botonesPanel, "Confirmar", COLOR_VERDE, e -> confirmarColocacion());
+        System.out.println("MILESTONE 1.2.2");
         addJugarButton(botonesPanel, "Cambiar Fichas", COLOR_AZUL, e -> cambiarFichas());
+        System.out.println("MILESTONE 1.2.3");
         addJugarButton(botonesPanel, "Pedir Pista", COLOR_AZUL, e -> pedirPista());
+        System.out.println("MILESTONE 1.2.4");
         addJugarButton(botonesPanel, "Pasar turno", COLOR_AZUL, e -> pasarTurno());
+        System.out.println("MILESTONE 1.2.5");
         addJugarButton(botonesPanel, "Salir", COLOR_ROJO, e -> salirPartida());
+        System.out.println("MILESTONE 1.2.6");
 
         // Inside the init() method, after creating the botonesPanel
         cambiarFichasPanel = new JPanel(new BorderLayout(10, 5));
@@ -124,9 +156,14 @@ public class JugarPartidaView extends JFrame {
         cambiarFichasPanel.setOpaque(false);
         cambiarFichasPanel.setVisible(false);
 
+        System.out.println("MILESTONE 1.3");
+
+        // Add checkboxes for tiles (dynamically populated later)
         JPanel checkboxPanel = new JPanel(new GridLayout(0, 1, 2, 2)); // Reducir espaciado entre filas
         checkboxPanel.setOpaque(false);
         cambiarFichasPanel.add(new JScrollPane(checkboxPanel), BorderLayout.CENTER);
+
+        System.out.println("MILESTONE 2");
 
         JPanel btnPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         btnPanel.setPreferredSize(new Dimension(0, 35)); // Altura fija compacta
@@ -145,10 +182,19 @@ public class JugarPartidaView extends JFrame {
         mainPanel.add(lateralPanel, BorderLayout.EAST);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
+        System.out.println("MILESTONE 3");
     }
 
     private void pedirPista() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+        if (jugadorActual!= null)
+        {
+            // Verificar pistas disponibles
+            int pistasDisponibles = turnoActual.getPistas(jugadorActual);
+            if (pistasDisponibles <= 0) {
+                JOptionPane.showMessageDialog(this, "No tienes pistas disponibles");
+                return;
+            }
 
         int pistasDisponibles = turnoActual.getPistas(jugadorActual);
         if (pistasDisponibles <= 0) {
@@ -209,8 +255,17 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void pasarTurno() {
-        revertirColocacionesTemporales(); // Limpiar antes de avanzar
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+        if (partidaFinalizada) return;
+
+        pasarConsecutivos++;
+        if (pasarConsecutivos >= 2) {
+            partida.getRondas().get(partida.getRondas().size() - 2).setTipoJugada(Turno.TipoJugada.finalizar);
+            finalizarPartida("¡Dos pases consecutivos! Fin de la partida.");
+            return;
+        }
+
+        revertirColocacionesTemporales(); // Limpiar antes de avanzar
         turnoActual.pasarTurno();
         turnoActual = partida.getRondas().get(partida.getRondas().size() - 1); // Get the new turn
         jugadorActual = turnoActual.getJugador(); // <-- Add this line to update the current player
@@ -218,12 +273,88 @@ public class JugarPartidaView extends JFrame {
         cargarTablero();
         cargarAtril();
         actualizarPanelInformacion();
+        if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
     }
 
+    private void finalizarPartida(String motivo) {
+        partidaFinalizada = true;
+        pasarConsecutivos = 0;
 
+        // Obtener puntuaciones finales
+        Turno ultimoTurno = partida.getRondas().getLast();
+        int puntosJ1 = ultimoTurno.getPuntuacionJ1();
+        int puntosJ2 = ultimoTurno.getPuntuacionJ2();
+
+        // Determinar ganador
+        String ganador = "";
+        String perdedor = "";
+        if (partida.getModoPartida() == Partida.Modo.PvP)
+        {
+            if (puntosJ1 > puntosJ2) {
+                ganador = partida.getCreador().getUsername();
+                perdedor = partida.getOponente().getUsername();
+            }
+            else if (puntosJ2 > puntosJ1) {
+                ganador = partida.getOponente().getUsername();
+                perdedor = partida.getCreador().getUsername();
+            }
+            else {
+                ganador = "Empate";
+                perdedor = "";
+            }
+        }
+        else if (partida.getModoPartida() == Partida.Modo.PvIA)
+        {
+            if (puntosJ1 > puntosJ2)
+            {
+                ganador = partida.getCreador().getUsername();
+                perdedor = "";
+            }
+            else
+            {
+                ganador = "";
+                perdedor = "";
+            }
+        }
+
+        // Mostrar diálogo con resultados
+        String mensaje = String.format(
+                "%s\nPuntos %s: %d\nPuntos %s: %d\nGanador: %s",
+                motivo,
+                partida.getCreador().getUsername(), puntosJ1,
+                (partida.getModoPartida() == Partida.Modo.PvP)
+                        ? partida.getOponente().getUsername() : "IA", puntosJ2,
+                ganador
+        );
+
+        JOptionPane.showMessageDialog(this, mensaje, "Fin de la partida", JOptionPane.INFORMATION_MESSAGE);
+
+        // Actualizar estadísticas de perfiles
+        actualizarEstadisticasPerfiles(ganador, perdedor, puntosJ1, puntosJ2);
+
+        // Cerrar vista y volver al menú
+        gestorDeView.volverMenuGestionPartida(this);
+    }
+
+    private void actualizarEstadisticasPerfiles(String ganador, String perdedor, int puntosJ1, int puntosJ2) {
+        if (partida.getModoPartida() == Partida.Modo.PvP) {
+            gestorDePerfil.incrementarPartidasJugadas(partida.getCreador().getUsername());
+            gestorDePerfil.incrementarPartidasJugadas(partida.getOponente().getUsername());
+            gestorDePerfil.incrementarPuntosJugador(ganador, ganador.equals(partida.getCreador().getUsername()) ? puntosJ1 : puntosJ2);
+            gestorDePerfil.incrementarPuntosJugador(perdedor, perdedor.equals(partida.getCreador().getUsername()) ? puntosJ1 : puntosJ2);
+
+            if (!ganador.equals("Empate")) {
+                gestorDePerfil.incrementarPartidasGanadas(ganador);
+                gestorDePerfil.incrementarPartidasPerdidas(perdedor);
+            }
+        } else {
+            // Lógica para modo IA
+        }
+    }
 
     private void actualizarPanelInformacion() {
         Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+        jugadorActual = turnoActual.getJugador();
 
         infoPanel.removeAll();
 
@@ -231,14 +362,30 @@ public class JugarPartidaView extends JFrame {
         infoPanel.setLayout(new GridLayout(3, 1, 10, 5));
 
         // Jugador y puntos
-        lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+        if (partida.getModoPartida()==Partida.Modo.PvP)
+        {
+            lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+        }
+        else //IA
+        {
+            if (jugadorActual == null) lblJugador = new JLabel("Turno de: IA");
+            else lblJugador = new JLabel("Turno de: " + jugadorActual.getUsername());
+        }
         lblJugador.setFont(TITLE_FONT);
         lblJugador.setForeground(Color.BLACK);
-        lblPuntos = new JLabel("Puntos: " + (
-                jugadorActual.equals(partida.getCreador()) ?
-                        turnoActual.getPuntuacionJ1() :
-                        turnoActual.getPuntuacionJ2()
-        ));
+
+        if (partida.getModoPartida()==Partida.Modo.PvP)
+        {
+            lblPuntos = new JLabel("Puntos: " + (jugadorActual.equals(partida.getCreador())
+                    ? turnoActual.getPuntuacionJ1()
+                    : turnoActual.getPuntuacionJ2()));
+        }
+        else //IA
+        {
+            if (jugadorActual == null) lblPuntos = new JLabel("Puntos: " + turnoActual.getPuntuacionJ2());
+            else lblPuntos = new JLabel("Puntos: " + turnoActual.getPuntuacionJ1());
+        }
+
         lblPuntos.setFont(TITLE_FONT);
         lblPuntos.setForeground(Color.BLACK);
 
@@ -273,6 +420,18 @@ public class JugarPartidaView extends JFrame {
                 g2.dispose();
             }
         };
+
+        if (text.equals("Pedir Pista")) {
+            boolean esTurnoHumano = jugadorActual != null;
+            int pistasDisponibles = esTurnoHumano ?
+                    obtenerPistasRestantes(partida.getRondas().getLast()) :
+                    0;
+
+            btn.setEnabled(esTurnoHumano && pistasDisponibles > 0);
+            btn.setToolTipText(!esTurnoHumano ?
+                    "No disponible para IA" :
+                    (pistasDisponibles > 0 ? "" : "Sin pistas disponibles"));
+        }
         btn.setForeground(Color.WHITE);
         btn.setFont(BUTTON_FONT);
         btn.setContentAreaFilled(false);
@@ -504,6 +663,31 @@ public class JugarPartidaView extends JFrame {
                 }
             }
 
+            // 5.1. Manejar comodines: Solicitar letras al usuario
+            List<Integer> posicionesComodin = new ArrayList<>();
+            for (int i = 0; i < fullWord.length(); i++) {
+                if (fullWord.charAt(i) == '#') {
+                    posicionesComodin.add(i);
+                }
+            }
+
+            if (!posicionesComodin.isEmpty()) {
+                for (int pos : posicionesComodin) {
+                    String letraElegida = solicitarLetraComodin();
+                    if (letraElegida == null) {
+                        revertirColocacionesTemporales();
+                        return; // Usuario canceló
+                    }
+                    fullWord.setCharAt(pos, letraElegida.charAt(0));
+
+                    // Actualizar la ficha temporal para reflejar el cambio visual
+                    Point p = todasLasLetras.get(pos);
+                    Ficha fichaReal = new Ficha(letraElegida, partida.getPuntuacionFicha(letraElegida));
+                    colocacionesTemporales.put(p, fichaReal);
+                }
+                cargarTablero(); // Actualizar vista con letras elegidas
+            }
+
             // 6. Validar todas las palabras nuevas (horizontal + verticales)
             Set<String> palabrasValidadas = new HashSet<>();
             for (Point p : todasLasLetras) {
@@ -528,6 +712,7 @@ public class JugarPartidaView extends JFrame {
             for (String palabra : palabrasValidadas) {
                 if (!partida.getDawg().existePalabra(palabra)) {
                     JOptionPane.showMessageDialog(this, "Palabra inválida: " + palabra);
+                    revertirColocacionesTemporales();
                     return;
                 }
             }
@@ -542,6 +727,14 @@ public class JugarPartidaView extends JFrame {
             );
 
             if (isValid) {
+                pasarConsecutivos = 0;
+                if (atrilActual.isEmpty()) {
+                    Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
+                    turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
+                    turnoActual.pasarTurno();
+                    finalizarPartida("¡Atril vacío! Fin de la partida.");
+                    return;
+                }
                 Turno nuevoTurno = partida.getRondas().get(partida.getRondas().size() - 1);
                 jugadorActual = nuevoTurno.getJugador(); // Actualizar jugador
                 atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
@@ -549,6 +742,7 @@ public class JugarPartidaView extends JFrame {
                 colocacionesTemporales.clear();
                 fichasEnUso.clear();
                 actualizarEstadoJuego();
+                if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
             } else {
                 revertirColocacionesTemporales();
             }
@@ -561,6 +755,21 @@ public class JugarPartidaView extends JFrame {
         fichasEnUso.clear();
         cargarAtril();
         cargarTablero();
+    }
+
+    private String solicitarLetraComodin() {
+        Set<String> letrasValidas = partida.getMapaLetras().keySet();
+        String[] opciones = letrasValidas.toArray(new String[0]);
+
+        return (String) JOptionPane.showInputDialog(
+                this,
+                "Selecciona la letra para el comodín:",
+                "Usar comodín",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                "A"
+        );
     }
 
     private boolean isAdyacenteAExistente(int x, int y) throws CoordenadaFueraDeRangoException {
@@ -612,9 +821,11 @@ public class JugarPartidaView extends JFrame {
     }
 
     private Ficha getFichaAtPosition(int x, int y) throws CoordenadaFueraDeRangoException {
-        // Prioritize newly placed tiles, then check the board
-        Ficha tempFicha = colocacionesTemporales.get(new Point(x, y));
-        return (tempFicha != null) ? tempFicha : partida.getTablero().getFicha(x, y);
+        Point p = new Point(x, y);
+        // Priorizar comodines ya sustituidos
+        return colocacionesTemporales.containsKey(p) ?
+                colocacionesTemporales.get(p) :
+                partida.getTablero().getFicha(x, y);
     }
 
     private Point findWordStart(List<Point> points, boolean isHorizontal) throws CoordenadaFueraDeRangoException {
@@ -650,24 +861,29 @@ public class JugarPartidaView extends JFrame {
     private void actualizarEstadoJuego() {
         cargarTablero();
         cargarAtril();
-
         actualizarPanelInformacion();
     }
 
     private void ejecutarTurnoIA() {
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() throws Exception {
-                Turno turnoIA = partida.getRondas().get(partida.getRondas().size()-1);
-                return null;
+        Turno turnoIA = partida.getRondas().get(partida.getRondas().size() - 1);
+        // Ejecutar lógica de la IA
+        try {
+            int dificultad = partida.getDificultad();
+            turnoIA.jugarIA(dificultad);
+            pasarConsecutivos = 0;
+            if (atrilActual.isEmpty()) {
+                finalizarPartida("¡Atril vacío! Fin de la partida.");
+                return;
             }
-
-            @Override
-            protected void done() {
-                actualizarEstadoJuego();
-            }
-        }.execute();
+            Turno nuevoTurno = partida.getRondas().get(partida.getRondas().size() - 1);
+            jugadorActual = nuevoTurno.getJugador(); // Actualizar jugador
+            atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);;
+            actualizarEstadoJuego();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     private void revertirColocacionesTemporales() {
         // Devolver todas las fichas temporales al atril
@@ -736,6 +952,7 @@ public class JugarPartidaView extends JFrame {
         boolean exito = gestorDePartida.cambiarFichas(turnoActual, atrilActual, fichasCambio);
 
         if (exito) {
+            pasarConsecutivos = 0;
             // Limpiar definitivamente después del cambio
             colocacionesTemporales.clear();
             fichasEnUso.clear();
@@ -746,6 +963,7 @@ public class JugarPartidaView extends JFrame {
             cargarAtril();
 
             actualizarPanelInformacion();
+            if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
 
         } else {
             JOptionPane.showMessageDialog(this, "Error al cambiar fichas");
@@ -769,7 +987,7 @@ public class JugarPartidaView extends JFrame {
     }
 
     private void cargarEstadoInicial() {
-        if (partida.getModoPartida() == Partida.Modo.PvIA && !jugadorActual.equals(partida.getCreador())) {
+        if (partida.getModoPartida() == Partida.Modo.PvIA && jugadorActual == null) {
             ejecutarTurnoIA();
         }
     }
