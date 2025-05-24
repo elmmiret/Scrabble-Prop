@@ -34,9 +34,16 @@ public class Ficha {
     // MÉTODOS
 
     /**
+     * Cambia la letra representada por la ficha a 'nuevaLetra'.
+     *
+     * @param nuevaLetra Cadena de carácteres que representa la nueva letra
+     */
+    public void setLetra(String nuevaLetra) {letra = nuevaLetra;}
+
+    /**
      * Obtiene la letra representada por la ficha.
      *
-     * @return Cadena de un solo carácter en mayúscula
+     * @return Cadena de carácteres en mayúscula
      */
     public String getLetra() {
         return letra;
