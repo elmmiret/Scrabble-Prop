@@ -1,5 +1,5 @@
 .gradle
 .idea
 build
-src/main/java/gestordepartida/partidasbd.txt
-src/main/java/gestordeperfil/perfilesbd.txt
+src/main/java/persistencia/partidasbd.txt
+src/main/java/persistencia/perfilesbd.txt
