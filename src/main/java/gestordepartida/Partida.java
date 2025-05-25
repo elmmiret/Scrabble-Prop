@@ -177,10 +177,6 @@ public class Partida {
         return nombre;
     }
 
-    public void setAlgorithm(Algorithm algorithm) {
-        this.algorithm = algorithm;
-    }
-
     /**
      * Obtiene la fecha y hora de creación.
      * @return Objeto LocalDateTime con la marca temporal
@@ -281,6 +277,18 @@ public class Partida {
     }
 
     /**
+     * Obtiene la puntuación asociada a una letra específica.
+     *
+     * @param letra Carácter a consultar (mayúscula)
+     * @return Valor numérico de la puntuación
+     * @throws NullPointerException Si la letra no existe en el idioma
+     */
+    public int getPuntuacionFicha(String letra)
+    {
+        return mapaLetras.get(letra).getPuntuacion();
+    }
+
+    /**
      * Crea un nuevo turno y actualiza el estado del juego.
      *
      * @param jugador Perfil del jugador activo
@@ -360,19 +368,25 @@ public class Partida {
         bolsa.addAll(listaTemporal);
     }
 
+    /**
+     * Establece manualmente la bolsa de fichas del juego usando una cola específica.
+     *
+     * @param bolsa Cola de {@link Ficha} que se utilizará como nueva bolsa de juego
+     * @throws NullPointerException Si la cola proporcionada es null
+     */
     public void setBolsa(Queue<Ficha> bolsa) {
         this.bolsa = bolsa;
     }
 
     /**
-     * Obtiene la puntuación asociada a una letra específica.
+     * Establece el algoritmo de juego que se utilizará en la partida.
      *
-     * @param letra Carácter a consultar (mayúscula)
-     * @return Valor numérico de la puntuación
-     * @throws NullPointerException Si la letra no existe en el idioma
+     * @param algorithm Instancia de {@link Algorithm} a utilizar
+     * @throws NullPointerException Si el algoritmo proporcionado es null
      */
-    public int getPuntuacionFicha(String letra)
-    {
-        return mapaLetras.get(letra).getPuntuacion();
+    public void setAlgorithm(Algorithm algorithm) {
+        this.algorithm = algorithm;
     }
+
+
 }

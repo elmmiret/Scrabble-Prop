@@ -32,6 +32,7 @@ public class GestorDePartida {
     /** Gestor de perfiles para operaciones relacionadas con jugadores */
     private GestorDePerfil gestorDePerfil;
 
+    /** Controlador de persistencia para operaciones relacionadas con el almacenamiento de partidas */
     private final ControladorPersistencia persistencia;
 
     /**

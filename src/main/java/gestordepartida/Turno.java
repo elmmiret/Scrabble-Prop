@@ -130,7 +130,7 @@ public class Turno {
     }
 
     /**
-     * Construye un Turno con parámetros específicos y sin clonar el tablero.
+     * Construye un nuevo Turno inicializando atriles vacíos y con la opción de clonar el tablero.
      *
      * @param partida          Partida asociada al turno.
      * @param jugador          Jugador actual.
@@ -219,9 +219,9 @@ public class Turno {
     }
 
     /**
-     * Obtiene el tipo de jugada realizada en el turno.
+     * Obtiene el tablero actual de la partida.
      *
-     * @return El tipo de jugada (cambiar, pasar, colocar).
+     * @return El tablero actual de la partida.
      */
     public Tablero getTablero() {
         return partida.getTablero();
@@ -337,7 +337,7 @@ public class Turno {
     }
 
     /**
-     * Define la coordenada X inicial para la colocación de la palabra.
+     * Define la coordenada X inicial de la palabra colocada en el tablero.
      *
      * @param x_ini Posición horizontal en el tablero (0-14).
      */
@@ -346,7 +346,7 @@ public class Turno {
     }
 
     /**
-     * Define la coordenada Y inicial para la colocación de la palabra.
+     * Define la coordenada Y inicial de la palabra colocada en el tablero.
      *
      * @param y_ini Posición vertical en el tablero (0-14).
      */
