@@ -16,9 +16,13 @@ import java.util.List;
  * @author Arnau Miret
  */
 public class Movimiento {
+    /** Fila inicial del movimiento en el tablero. */
     private final int fila;
+    /** Columna inicial del movimiento en el tablero.*/
     private final int columna;
+    /** Secuencia de caracteres que forman la palabra a colocar.*/
     private final List<String> palabra;
+    /** Orientación del movimiento en el tablero.*/
     private final boolean esVertical;
 
     /**

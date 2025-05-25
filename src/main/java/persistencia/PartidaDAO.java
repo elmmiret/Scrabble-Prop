@@ -23,6 +23,20 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Clase DAO (Data Access Object) para gestionar la persistencia de partidas de Scrabble.
+ * Maneja la carga y guardado de partidas desde/hacia archivos de texto, manteniendo
+ * la integridad del estado del juego entre sesiones.
+ *
+ * <p>Formato del archivo de persistencia:</p>
+ * <ul>
+ *   <li>Almacena datos estructurados con marcadores de sección</li>
+ *   <li>Preserva estado completo del tablero, bolsa de fichas y secuencia de turnos</li>
+ *   <li>Mantiene referencias a los perfiles de jugadores mediante sus username</li>
+ * </ul>
+ *
+ * @author Albert Aulet Niubó
+ */
 public class PartidaDAO {
     private  GestorDePerfil gestorDePerfil;
 

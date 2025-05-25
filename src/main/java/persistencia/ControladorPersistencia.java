@@ -15,7 +15,9 @@ import java.util.Map;
  * @author Albert Aulet Niubó
  */
 public class ControladorPersistencia {
+    /** DAO para operaciones de persistencia de partidas ({@link Partida}), vinculado al {@link GestorDePerfil} */
     private final PartidaDAO partidaDAO;
+    /** DAO para operaciones CRUD de perfiles de usuario ({@link Perfil}) */
     private final PerfilDAO perfilDAO;
 
     /**
