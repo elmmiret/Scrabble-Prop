@@ -37,7 +37,7 @@ public class PerfilDAO {
      * @throws IOException Si ocurren errores de lectura del archivo
      * @throws NumberFormatException Si hay valores numéricos corruptos en los datos
      */
-    public Map<String, Perfil> cargar() {
+    public Map<String, Perfil> cargar() throws  FileNotFoundException, IOException, NumberFormatException {
         Map<String, Perfil> jugadores = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(RUTA_ARCHIVO))) {
             String line;
@@ -75,8 +75,6 @@ public class PerfilDAO {
      * Persiste todos los perfiles en el archivo de almacenamiento.
      *
      * @param perfiles Mapa de perfiles a guardar (username => Perfil)
-     * @throws IOException Si ocurren errores de escritura del archivo
-     * @throws SecurityException Si no hay permisos de escritura en el archivo
      */
     public void guardar(Map<String, Perfil> perfiles) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(RUTA_ARCHIVO))) {

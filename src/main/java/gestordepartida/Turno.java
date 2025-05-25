@@ -431,8 +431,8 @@ public class Turno {
      * Útil para escenarios avanzados como carga de partidas guardadas
      * o reinicios de jugada.
      *
-     * @param tablero Nueva instancia de {@link Tablero} que representa el estado deseado.
-     *               Si es {@code null}, se borrará la referencia al tablero del turno.
+     * @param tablero Nueva instancia de Tablero que representa el estado deseado.
+     *               Si es null, se borrará la referencia al tablero del turno.
      */
     public void setTableroTurno(Tablero tablero) {
         tableroTurno = tablero;
@@ -618,8 +618,7 @@ public class Turno {
      * </p>
      *
      * @param jugador  Perfil del jugador que solicita la pista (determina qué atril y contador de pistas usar).
-     * @return         Mejor movimiento sugerido según el algoritmo, o {@code null} si no hay movimientos válidos.
-     * @implNote El movimiento devuelto es el primero de la lista generada por el algoritmo, asumiendo que está ordenado por puntuación.
+     * @return         Mejor movimiento sugerido según el algoritmo, o null si no hay movimientos válidos.
      */
     public Movimiento pedirPista(Perfil jugador) {
        if (jugador.equals(partida.getCreador())) {
@@ -699,7 +698,6 @@ public class Turno {
                 for(int fil = x_ini; fil < x_ini + size; fil++) {
                     if (partida.getTablero().getFicha(fil,y_ini) != null ) { // Hay alguna ficha ya
                         if (!partida.getTablero().getFicha(fil,y_ini).getLetra().equals(division.get(pos_division))) { // si no es la que quiero poner, return false pq no funciona
-                            // hace falta esto? creo que ya se hace en comprobar palabra
                             return false;
                         }
                     }
@@ -1015,13 +1013,8 @@ public class Turno {
      *
      * @param movimientos  Lista de movimientos generados por el algoritmo IA (no null, no vacía).
      * @param dificultad   Nivel de inteligencia (1-3). Valores fuera de rango se tratan como dificultad media.
-     * @return Movimiento seleccionado, o {@code null} si la lista está vacía.
+     * @return Movimiento seleccionado, o null si la lista está vacía.
      *
-     * @implNote <ul>
-     *   <li>Calcula puntuaciones simulando la colocación de fichas en el tablero.</li>
-     *   <li>Los modificadores (doble/triple letra/palabra) se aplican durante el cálculo.</li>
-     *   <li>Coordenadas inválidas se manejan internamente (no lanza excepciones).</li>
-     * </ul>
      */
     private Movimiento getMejorMovimiento(List<Movimiento> movimientos, int dificultad) {
         Map<String, Ficha> fichasAlfabeto = partida.getMapaLetras();

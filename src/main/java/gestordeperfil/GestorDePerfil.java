@@ -51,14 +51,13 @@ public class GestorDePerfil {
      * Carga automáticamente los perfiles desde el archivo de persistencia
      * Registra un hook de cierre para guardar los perfiles automáticamente al finalizar la aplicación
      *
-     *
+     * @throws IOException
      */
-    public GestorDePerfil(Ranking rkg) {
+    public GestorDePerfil(Ranking rkg) throws IOException {
         persistencia = new ControladorPersistencia(this);
         jugadores = new HashMap<>();
         ranking = rkg;
         cargarPerfiles();
-        // Register shutdown hook to save profiles on exit
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             guardarPerfiles();
             System.out.println("Perfiles guardados exitosamente.");
@@ -69,11 +68,9 @@ public class GestorDePerfil {
      * Carga los perfiles desde el archivo de persistencia
      * Los perfiles cargados se añaden al mapa interno y se registran en el sistema de rankings.
      *
-     * @throws FileNotFoundException Si el archivo no existe (se inicia con lista vacía)
-     * @throws IOException Si ocurre un error de lectura del archivo
-     * @throws NumberFormatException Si los valores numéricos en el archivo no son válidos
+     * @throws IOException
      */
-    public void cargarPerfiles() {
+    public void cargarPerfiles() throws IOException {
         jugadores = persistencia.cargarPerfiles();
 
         ranking.getPerfilesRanking().clear();
@@ -85,8 +82,6 @@ public class GestorDePerfil {
     /**
      * Guarda todos los perfiles en el archivo de persistencia
      * Este método se ejecuta automáticamente al cerrar la aplicación mediante un shutdown hook.
-     *
-     * @throws IOException Si ocurre un error de escritura en el archivo
      */
     public void guardarPerfiles() {
         persistencia.guardarPerfiles(jugadores);

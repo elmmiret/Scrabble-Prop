@@ -39,8 +39,12 @@ public class GestorDePartida {
      * Construye un gestor de partidas vinculado a un gestor de perfiles.
      *
      * @param gdp Gestor de perfiles para autenticación y recuperación de datos de jugadores
+ *   *
+     * @throws CoordenadaFueraDeRangoException
+     * @throws IOException
+     * @throws CasillaOcupadaException
      */
-    public GestorDePartida(GestorDePerfil gdp) {
+    public GestorDePartida(GestorDePerfil gdp) throws CoordenadaFueraDeRangoException, IOException, CasillaOcupadaException {
         partidas = new HashMap<>();
         gestorDePerfil = gdp;
         persistencia = new ControladorPersistencia(gestorDePerfil);
@@ -55,8 +59,13 @@ public class GestorDePartida {
 
     /**
      * Carga las partidas desde el sistema de persistencia
+     *
+     * @throws IOException
+     * @throws CasillaOcupadaException
+     * @throws CoordenadaFueraDeRangoException
+     * @throws NumberFormatException
      */
-    public void cargarPartidas() {
+    public void cargarPartidas() throws IOException, CasillaOcupadaException, CoordenadaFueraDeRangoException, NumberFormatException{
         partidas = persistencia.cargarPartidas();
     }
 

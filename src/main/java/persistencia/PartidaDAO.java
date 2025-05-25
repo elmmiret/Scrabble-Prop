@@ -58,7 +58,7 @@ public class PartidaDAO {
      * @throws CoordenadaFueraDeRangoException Si se detectan coordenadas inválidas
      * @throws CasillaOcupadaException Si hay conflictos en la colocación de fichas
      */
-    public  Map<Integer, Partida> cargar() {
+    public  Map<Integer, Partida> cargar() throws  IOException, NumberFormatException, CoordenadaFueraDeRangoException, CasillaOcupadaException {
         try (BufferedReader reader = new BufferedReader(new FileReader(RUTA_ARCHIVO))) {
             Map<Integer, Partida> partidas = new HashMap<>();
             String linea;
@@ -207,7 +207,6 @@ public class PartidaDAO {
     /**
      * Persiste el estado actual de todas las partidas en el archivo
      * @param partidas Mapa de partidas a guardar (ID => Partida)
-     * @throws IOException Si ocurren errores de escritura del archivo
      */
     public  void guardar(Map<Integer, Partida> partidas) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(RUTA_ARCHIVO))) {

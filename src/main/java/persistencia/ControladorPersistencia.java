@@ -1,10 +1,13 @@
 package persistencia;
 
+import exceptions.CasillaOcupadaException;
+import exceptions.CoordenadaFueraDeRangoException;
 import gestordepartida.Partida;
 import gestordeperfil.GestorDePerfil;
 import gestordeperfil.Perfil;
 import ranking.Ranking;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -41,8 +44,12 @@ public class ControladorPersistencia {
      * Carga las partidas desde el sistema de persistencia.
      *
      * @return Mapa de partidas cargadas
+     * @throws IOException
+     * @throws CasillaOcupadaException
+     * @throws CoordenadaFueraDeRangoException
+     * @throws NumberFormatException
      */
-    public Map<Integer, Partida> cargarPartidas() {
+    public Map<Integer, Partida> cargarPartidas() throws IOException, CasillaOcupadaException, CoordenadaFueraDeRangoException, NumberFormatException {
         return partidaDAO.cargar();
     }
 
@@ -59,8 +66,9 @@ public class ControladorPersistencia {
      * Carga los perfiles desde el sistema de persistencia.
      *
      * @return Mapa de perfiles cargados
+     * @throws IOException
      */
-    public Map<String, Perfil> cargarPerfiles() {
+    public Map<String, Perfil> cargarPerfiles() throws IOException {
         return perfilDAO.cargar();
     }
 

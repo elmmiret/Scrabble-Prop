@@ -11,6 +11,7 @@ import exceptions.*;
 import view.GestorDeView;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -43,8 +44,7 @@ public class Main {
    * @throws CasillaOcupadaException Si se intenta ocupar una casilla ya ocupada en el tablero.
    * @throws CoordenadaFueraDeRangoException Si se proporcionan coordenadas inválidas durante una partida.
    */
-  public static void main(String[] args) throws CasillaOcupadaException, CoordenadaFueraDeRangoException
-  {
+  public static void main(String[] args) throws CasillaOcupadaException, CoordenadaFueraDeRangoException, IOException {
     // INIT
     Scanner scanner = new Scanner(System.in);
     Ranking ranking = new Ranking();

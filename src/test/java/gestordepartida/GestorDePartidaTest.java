@@ -1,9 +1,13 @@
 package gestordepartida;
 
+import exceptions.CasillaOcupadaException;
+import exceptions.CoordenadaFueraDeRangoException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import gestordeperfil.*;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +16,6 @@ import java.util.Map;
 import ranking.Ranking;
 
 /**
-<<<<<<< Updated upstream:src/test/java/gestordepartida/GestorDePartidaTest.java
- * Clase de pruebas unitarias para la clase {@link GestorDePartida}.
- * Verifica la creación, gestión y eliminación de partidas, así como operaciones
- * relacionadas con jugadores, intercambio de fichas y validación de frases de recuperación.
- *
-=======
  * Clase de pruebas unitarias para el GestorDePartida que verifica la funcionalidad relacionada
  * con la gestión de partidas en el sistema. Incluye pruebas para:
  * <ul>
@@ -29,7 +27,6 @@ import ranking.Ranking;
  *
  * <p>Utiliza datos de prueba y configuraciones iniciales para garantizar el aislamiento
  * de cada prueba unitaria.</p>
->>>>>>> Stashed changes:src/test/java/ctrldomini/GestorDePartidaTest.java
  * @author Albert Aulet Niubó
  */
 public class GestorDePartidaTest {
@@ -47,9 +44,13 @@ public class GestorDePartidaTest {
      *   <li>Crea jugadores de prueba ("Jugador1" y "Jugador2")</li>
      *   <li>Obtiene los perfiles de los jugadores creados</li>
      * </ul>
+     *
+     * @throws CoordenadaFueraDeRangoException
+     * @throws IOException
+     * @throws CasillaOcupadaException
      */
     @Before
-    public void setUp() {
+    public void setUp() throws CoordenadaFueraDeRangoException, IOException, CasillaOcupadaException {
         gestorPerfiles = new GestorDePerfil(new Ranking());
         gestor = new GestorDePartida(gestorPerfiles);
 
