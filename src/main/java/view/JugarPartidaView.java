@@ -96,6 +96,8 @@ public class JugarPartidaView extends JFrame {
     private boolean partidaFinalizada = false;
     /** Gestor de perfiles para actualizar estadísticas */
     private GestorDePerfil gestorDePerfil;
+    /** Mapa para almacenar los comodines usados en el tablero para poder revertir su colocación correctamente*/
+    private Map<Point, Ficha> comodinesOriginales = new HashMap<>();
 
     /**
      * Constructora que inicializa la vista de juego con una partida existente.
@@ -881,18 +883,27 @@ public class JugarPartidaView extends JFrame {
      */
     private void colocarFichaTemporal(int x, int y) throws CoordenadaFueraDeRangoException {
         if (partida.getTablero().getFicha(x, y) == null && fichaSeleccionada != null) {
-            // Verificar disponibilidad
             int disponibles = atrilActual.get(fichaSeleccionada) - fichasEnUso.getOrDefault(fichaSeleccionada, 0);
             if (disponibles > 0) {
-                fichasEnUso.put(fichaSeleccionada, fichasEnUso.getOrDefault(fichaSeleccionada, 0) + 1);
-                colocacionesTemporales.put(new Point(x, y), fichaSeleccionada);
-                cargarAtril(); // Actualizar interfaz
+                // Guardar el comodín original si es necesario
+                Ficha fichaParaUsar = fichaSeleccionada;
+                if (fichaSeleccionada.getLetra().equals("#")) {
+                    // Crear una copia del comodín para usar
+                    fichaParaUsar = new Ficha("#", fichaSeleccionada.getPuntuacion());
+                    comodinesOriginales.put(new Point(x, y), fichaSeleccionada);
+                } else {
+                    comodinesOriginales.remove(new Point(x, y));
+                }
 
-                // Actualizar celda del tablero
+                fichasEnUso.put(fichaSeleccionada, fichasEnUso.getOrDefault(fichaSeleccionada, 0) + 1);
+                colocacionesTemporales.put(new Point(x, y), fichaParaUsar);
+                cargarAtril();
+
+                // Actualizar celda
                 int index = x * Tablero.COLUMNAS + y;
                 JPanel celda = (JPanel) panelTablero.getComponent(index);
                 celda.removeAll();
-                JLabel lbl = new JLabel("<html>" + formatearFicha(fichaSeleccionada) + "</html>", SwingConstants.CENTER);
+                JLabel lbl = new JLabel("<html>" + formatearFicha(fichaParaUsar) + "</html>", SwingConstants.CENTER);
                 lbl.setFont(LABEL_FONT);
                 celda.add(lbl);
                 celda.revalidate();
@@ -1073,6 +1084,9 @@ public class JugarPartidaView extends JFrame {
             );
 
             if (isValid) {
+                comodinesOriginales.clear();
+                colocacionesTemporales.clear();
+                fichasEnUso.clear();
                 pasarConsecutivos = 0;
                 if (atrilActual.isEmpty()) {
                     Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
@@ -1085,8 +1099,6 @@ public class JugarPartidaView extends JFrame {
                 jugadorActual = nuevoTurno.getJugador(); // Actualizar jugador
                 atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
 
-                colocacionesTemporales.clear();
-                fichasEnUso.clear();
                 actualizarEstadoJuego();
                 if(partida.getModoPartida() == Partida.Modo.PvIA) ejecutarTurnoIA();
             } else {
@@ -1276,12 +1288,29 @@ public class JugarPartidaView extends JFrame {
      */
     private void revertirColocacionesTemporales() {
         // Devolver todas las fichas temporales al atril
-        colocacionesTemporales.forEach((pos, ficha) -> {
-            fichasEnUso.put(ficha, fichasEnUso.getOrDefault(ficha, 0) - 1);
-            if (fichasEnUso.get(ficha) <= 0) fichasEnUso.remove(ficha);
-        });
+        for (Map.Entry<Point, Ficha> entry : colocacionesTemporales.entrySet()) {
+            Point pos = entry.getKey();
+            Ficha ficha = entry.getValue();
+
+            // Si es un comodín transformado, usar el original
+            if (comodinesOriginales.containsKey(pos)) {
+                Ficha comodinOriginal = comodinesOriginales.get(pos);
+                fichasEnUso.put(comodinOriginal, fichasEnUso.getOrDefault(comodinOriginal, 0) - 1);
+                if (fichasEnUso.get(comodinOriginal) <= 0) {
+                    fichasEnUso.remove(comodinOriginal);
+                }
+            }
+            // Ficha normal
+            else {
+                fichasEnUso.put(ficha, fichasEnUso.getOrDefault(ficha, 0) - 1);
+                if (fichasEnUso.get(ficha) <= 0) {
+                    fichasEnUso.remove(ficha);
+                }
+            }
+        }
 
         colocacionesTemporales.clear();
+        comodinesOriginales.clear();
         cargarAtril();
         cargarTablero();
     }
@@ -1390,6 +1419,7 @@ public class JugarPartidaView extends JFrame {
         botonesPanel.setVisible(true);
         cambiarFichasPanel.setVisible(false);
         checkBoxes.clear();
+        comodinesOriginales.clear();
     }
 
     /**
