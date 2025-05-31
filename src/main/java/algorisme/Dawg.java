@@ -53,16 +53,18 @@ public class Dawg {
      * @param idiomaPartida Idioma para cargar el diccionario correspondiente
      */
     public Dawg(Partida.Idioma idiomaPartida) {
-        Digrafos = new HashSet<>(Arrays.asList("RR", "NY", "LL", "L·L", "CH"));
+        Digrafos = new HashSet<>();
         root = new NodoDawg();
         registro = new HashMap<>();
         idioma = idiomaPartida;
 
         switch (idiomaPartida) {
             case CAT:
+                Digrafos = new HashSet<>(Arrays.asList("NY", "L·L"));
                 insertarDiccionarioCatalan();
                 break;
             case CAST:
+                Digrafos = new HashSet<>(Arrays.asList("RR", "LL", "CH"));
                 insertarDiccionarioCastellano();
                 break;
             case ENG:

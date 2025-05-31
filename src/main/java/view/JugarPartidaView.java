@@ -275,7 +275,6 @@ public class JugarPartidaView extends JFrame {
      * Construye el mensaje de pista estratégica según la dificultad del juego:
      * - Dificultad 1: Muestra posición sugerida
      * - Dificultad 2: Muestra palabra sugerida
-     * - Dificultad 3: Muestra letras desordenadas
      *
      * @param mov Movimiento sugerido por el algoritmo
      * @param dificultad Nivel de dificultad actual de la partida
@@ -291,10 +290,6 @@ public class JugarPartidaView extends JFrame {
                 break;
             case 2:
                 sb.append("Posible palabra: ");
-                break;
-            case 3:
-                Collections.shuffle(mov.getPalabra());
-                sb.append("Letras de posible palabra: ");
                 break;
         }
 

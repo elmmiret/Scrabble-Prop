@@ -120,7 +120,7 @@ public class DriverPartida {
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvP, oponente, 0);
             jugar(partida);
         } else {
-            int dificultad = leerEntero("Dificultad IA (1-3): ");
+            int dificultad = leerEntero("Dificultad IA (1-2): ");
             partida = gestor.crearPartida(id, nombre, idiom, jugador, Partida.Modo.PvIA, null, dificultad);
             System.out.println("Partida creada correctamente!");
             jugarIA(partida);
@@ -633,8 +633,8 @@ public class DriverPartida {
                 System.out.println("No hay ningún movimiento posible con tus fichas y el tablero actual. Cambia de fichas o pasa el turno!");
             } else {
                 List<String> palabraPista = mov.getPalabra();
-                Collections.shuffle(palabraPista);
-                System.out.print("Puedes hacer una palabra que tenga las siguientes letras:  | ");
+                //Collections.shuffle(palabraPista);
+                System.out.print("Puedes hacer la siguiente palabra:  | ");
                 for (String s : palabraPista) {
                     System.out.print(s + " | ");
                 }
@@ -670,18 +670,12 @@ public class DriverPartida {
                         }
                         break;
                     case 2:
-                        System.out.print("Puedes colocar una palabra que tiene las siguientes letras: | ");
+                        System.out.print("Puedes colocar la siguiente palabra: | ");
                         for (String s : palabraPista) {
                             System.out.print(s + " | ");
                         }
                         break;
-                    case 3:
-                        Collections.shuffle(palabraPista);
-                        System.out.print("Puedes hacer una palabra que tenga las siguientes letras:  | ");
-                        for (String s : palabraPista) {
-                            System.out.print(s + " | ");
-                        }
-                        break;
+
 
                 }
             }

@@ -243,7 +243,7 @@ public class GestionPartidaView extends JFrame {
                 gestorDeView.mostrarPartida(partida);
                 JOptionPane.showMessageDialog(this, "Partida PvP creada exitosamente!");
             } else {
-                String[] dificultadOptions = {"1", "2", "3"};
+                String[] dificultadOptions = {"1", "2"};
                 String dificultadStr = (String) JOptionPane.showInputDialog(
                         this,
                         "Selecciona dificultad:",

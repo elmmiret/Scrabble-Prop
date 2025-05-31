@@ -70,6 +70,10 @@ public class Algorithm {
      * @throws IllegalStateException Si el algoritmo no ha sido preparado previamente
      */
     public List<Movimiento> generarMovimientos() {
+        if (Thread.interrupted()) {
+            System.out.println("Generación de movimientos interrumpida");
+            return Collections.emptyList();
+        }
         System.out.println("estoy generando movimientos");
         List<Movimiento> movimientos = new ArrayList<>();
         System.out.println("Atril IA: " + atril);
@@ -159,6 +163,7 @@ public class Algorithm {
      */
     private void generarPrefijos(int fila, int colAncla, int limite, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
         // Primero intentar extender con letras del tablero si hay alguna a la izquierda/arriba
+        if (Thread.interrupted()) return;
         if(colAncla > 0) {
             try {
                 Ficha fichaIzquierda = tablero.getFicha(fila, colAncla - 1);
@@ -217,6 +222,7 @@ public class Algorithm {
      * @param esVertical Indica si la orientación es vertical
      */
     private void extenderDerecha(int fila, int col, List<String> palabraParcial, NodoDawg nodo, List<Movimiento> movimientos, boolean esVertical) {
+        if (Thread.interrupted()) return;
         try {
             // Verificar su es un movimiento válido (también verificando los bordes)
             if(nodo.getEsFinal() && (!dawg.casillaCorrecta(fila, col) || tablero.getFicha(fila, col) == null)) {
@@ -230,6 +236,7 @@ public class Algorithm {
                 if(ficha == null) {
                     // Casilla vacía -- usar letra del atril con cross-check
                     for(Map.Entry<String, NodoDawg> entrada : nodo.getHijos().entrySet()) {
+                        if (Thread.interrupted()) return;
                         String letra = entrada.getKey();
                         NodoDawg hijo = entrada.getValue();
 
