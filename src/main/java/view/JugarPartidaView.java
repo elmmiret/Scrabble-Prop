@@ -1312,7 +1312,8 @@ public class JugarPartidaView extends JFrame {
         }
 
         for (Ficha ficha : fichasEnAtril) {
-            JCheckBox check = new JCheckBox("<html>" + formatearFicha(ficha) + "</html>");
+            JCheckBox check = new JCheckBox(ficha.getLetra());  // Solo la letra, sin formato
+            check.putClientProperty("ficha", ficha);  // Almacenar objeto Ficha
             check.setFont(LABEL_FONT);
             check.setOpaque(false);
             checkboxPanel.add(check);
@@ -1346,7 +1347,8 @@ public class JugarPartidaView extends JFrame {
         List<String> fichasCambio = new ArrayList<>();
         for (JCheckBox check : checkBoxes) {
             if (check.isSelected()) {
-                fichasCambio.add(check.getText());
+                Ficha f = (Ficha) check.getClientProperty("ficha");
+                fichasCambio.add(f.getLetra());  // Obtener letra del objeto
             }
         }
 
