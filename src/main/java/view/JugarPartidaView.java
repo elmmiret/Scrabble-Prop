@@ -611,13 +611,21 @@ public class JugarPartidaView extends JFrame {
 
             Ficha ficha = partida.getTablero().getFicha(x, y);
             if (ficha != null) {
-                JLabel lbl = new JLabel(ficha.getLetra(), SwingConstants.CENTER);
+                JLabel lbl = new JLabel("<html>" + formatearFicha(ficha) + "</html>", SwingConstants.CENTER);
                 lbl.setFont(LABEL_FONT);
-                lbl.setForeground(Color.BLACK);
                 celda.add(lbl);
             }
+
         } catch (CoordenadaFueraDeRangoException e) {
             celda.setBackground(Color.WHITE);
+        }
+
+        Point p = new Point(x, y);
+        if (colocacionesTemporales.containsKey(p)) {
+            Ficha f = colocacionesTemporales.get(p);
+            JLabel lbl = new JLabel("<html>" + formatearFicha(f) + "</html>", SwingConstants.CENTER);
+            lbl.setFont(LABEL_FONT);
+            celda.add(lbl);
         }
 
         celda.addMouseListener(new MouseAdapter() {
@@ -685,7 +693,7 @@ public class JugarPartidaView extends JFrame {
             int enUso = fichasEnUso.getOrDefault(f, 0);
 
             for (int i = 0; i < totalEnAtril; i++) {
-                JButton btnFicha = new JButton(f.getLetra());
+                JButton btnFicha = new JButton("<html>" + formatearFicha(f) + "</html>");
                 btnFicha.setFont(LABEL_FONT);
                 btnFicha.setPreferredSize(new Dimension(50, 50));
 
@@ -703,6 +711,18 @@ public class JugarPartidaView extends JFrame {
         }
         panelAtril.revalidate();
         panelAtril.repaint();
+    }
+
+    /**
+     * Formatea las fichas de manera que se muestre su puntuación en la esquina
+     * superior izquierda
+     *
+     * @param ficha Ficha a formatear
+     * @return String en el formato deseado
+     */
+
+    private String formatearFicha(Ficha ficha) {
+        return ficha.getLetra() + " <small><sup>" + ficha.getPuntuacion() + "</sup></small>";
     }
 
     /**
@@ -744,7 +764,7 @@ public class JugarPartidaView extends JFrame {
                 int index = x * Tablero.COLUMNAS + y;
                 JPanel celda = (JPanel) panelTablero.getComponent(index);
                 celda.removeAll();
-                JLabel lbl = new JLabel(fichaSeleccionada.getLetra(), SwingConstants.CENTER);
+                JLabel lbl = new JLabel("<html>" + formatearFicha(fichaSeleccionada) + "</html>", SwingConstants.CENTER);
                 lbl.setFont(LABEL_FONT);
                 celda.add(lbl);
                 celda.revalidate();
@@ -1164,7 +1184,7 @@ public class JugarPartidaView extends JFrame {
         }
 
         for (Ficha ficha : fichasEnAtril) {
-            JCheckBox check = new JCheckBox(ficha.getLetra());
+            JCheckBox check = new JCheckBox("<html>" + formatearFicha(ficha) + "</html>");
             check.setFont(LABEL_FONT);
             check.setOpaque(false);
             checkboxPanel.add(check);
