@@ -34,12 +34,22 @@ public class JugarPartidaView extends JFrame {
     private final Color COLOR_ROJO = new Color(220, 50, 40);
     /** Color verde utilizado para acciones de confirmación */
     private final Color COLOR_VERDE = new Color(50, 200, 100);
+    /** Color azul cielo utilizado para el multiplicador de doble tanto de letra*/
+    private static final Color COLOR_DOBLE_LETRA = new Color(173, 216, 230);
+    /** Color azul eléctrico utilizado para el multiplicador de triple tanto de letra*/
+    private static final Color COLOR_TRIPLE_LETRA = new Color(65, 105, 225);
+    /** Color naranja utilizado para el multiplicador de doble tanto de palabra*/
+    private static final Color COLOR_DOBLE_PALABRA = new Color(255, 165, 0);
+    /** Color rojo utilizado para el multiplicador de triple tanto de palabra*/
+    private static final Color COLOR_TRIPLE_PALABRA = new Color(220, 20, 60);
+    /** Color dorado utilizado para el centro del mapa*/
+    private static final Color COLOR_CENTRO = new Color(234, 200, 106); // Dorado
     /** Fuente utilizada en botones principales */
     private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
     /** Fuente utilizada en títulos y encabezados */
     private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 20);
     /** Fuente utilizada en etiquetas y texto general */
-    private final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 16);
+    private final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 14);
     /** Gestor de dominio relacionado con operaciones de partida */
     private GestorDePartida gestorDePartida;
     /** Instancia de la partida en curso */
@@ -103,8 +113,11 @@ public class JugarPartidaView extends JFrame {
         this.atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
         this.gestorDeView = gestorDeView;
         this.gestorDePerfil = gestorDePerfil;
+        System.out.println("MILESTONE 1");
         init();
+        System.out.println("MILESTONE 2");
         cargarEstadoInicial();
+        System.out.println("MILESTONE 3");
     }
 
     /**
@@ -182,11 +195,22 @@ public class JugarPartidaView extends JFrame {
         JPanel lateralPanel = new JPanel(new BorderLayout(10, 20));
         lateralPanel.setOpaque(false);
 
-        // Atril
+        JPanel atrilLeyendaPanel = new JPanel();
+        atrilLeyendaPanel.setLayout(new BoxLayout(atrilLeyendaPanel, BoxLayout.Y_AXIS));
+        atrilLeyendaPanel.setOpaque(false);
+
+// Atril
         panelAtril = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         panelAtril.setOpaque(false);
         cargarAtril();
-        lateralPanel.add(panelAtril, BorderLayout.NORTH);
+        atrilLeyendaPanel.add(panelAtril); // Solo agregar aquí
+
+// Leyenda
+        atrilLeyendaPanel.add(crearPanelLeyenda());
+
+// Agregar el contenedor completo al lateralPanel
+        lateralPanel.add(atrilLeyendaPanel, BorderLayout.NORTH);
+
 
         System.out.println("MILESTONE 1.2");
 
@@ -239,6 +263,98 @@ public class JugarPartidaView extends JFrame {
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
         System.out.println("MILESTONE 3");
+    }
+
+
+    /**
+     * Función para crear el panel de Java Swing para almacenar la
+     * leyenda de los multiplicadores
+     *
+     * @return El panel que contiene la leyenda de los multiplicadores
+     */
+
+    private JPanel crearPanelLeyenda() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(0, 1, 5, 5)); // Una columna, múltiples filas
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        panel.setOpaque(false);
+
+        // Obtener textos según idioma
+        String[] textos = obtenerTextosLeyenda();
+
+        // Añadir elementos a la leyenda
+        panel.add(crearItemLeyenda(COLOR_DOBLE_LETRA, textos[0]));
+        panel.add(crearItemLeyenda(COLOR_TRIPLE_LETRA, textos[1]));
+        panel.add(crearItemLeyenda(COLOR_DOBLE_PALABRA, textos[2]));
+        panel.add(crearItemLeyenda(COLOR_TRIPLE_PALABRA, textos[3]));
+        panel.add(crearItemLeyenda(COLOR_CENTRO, textos[4]));
+
+        return panel;
+    }
+
+    /**
+     * Función para crear la casilla y la descripción de la leyenda de multiplicadores
+     * @param color Color del multiplicador
+     * @param texto Descripción del multiplicador
+     * @return JPanel con los elementos de la leyenda
+     */
+    private JPanel crearItemLeyenda(Color color, String texto) {
+        JPanel panelItem = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        panelItem.setOpaque(false);
+
+        // Cuadrado de color
+        JPanel colorPanel = new JPanel();
+        colorPanel.setBackground(color);
+        colorPanel.setPreferredSize(new Dimension(20, 20));
+        colorPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        // Texto descriptivo
+        JLabel label = new JLabel(texto);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        panelItem.add(colorPanel);
+        panelItem.add(label);
+
+        return panelItem;
+    }
+
+    /**
+     * Función para obtener los textos que representan a cada
+     * color de la leyenda de multiplicadores
+     *
+     * @return El texto que contiene la leyenda del multiplicador
+     */
+
+    private String[] obtenerTextosLeyenda() {
+        Partida.Idioma idioma = partida.getIdioma();
+        switch (idioma) {
+            case CAT:
+                return new String[] {
+                        "Doble tant de lletra",
+                        "Triple tant de lletra",
+                        "Doble tant de paraula",
+                        "Triple tant de paraula",
+                        "Centre"
+                };
+            case CAST:
+                return new String[] {
+                        "Doble tanto de letra",
+                        "Triple tanto de letra",
+                        "Doble tanto de palabra",
+                        "Triple tanto de palabra",
+                        "Centro"
+                };
+            case ENG:
+                return new String[] {
+                        "Double letter score",
+                        "Triple letter score",
+                        "Double word score",
+                        "Triple word score",
+                        "Center"
+                };
+            default:
+                return new String[5];
+        }
     }
 
     /**
@@ -525,6 +641,14 @@ public class JugarPartidaView extends JFrame {
         }
     }
 
+    /**
+     * Crea un botón personalizado con efectos visuales para jugar la partida
+     *
+     * @param panel   Panel contenedor del botón
+     * @param text    Texto del botón
+     * @param color   Color base del botón
+     * @param action  Acción a ejecutar al hacer clic
+     */
     private void addJugarButton(JPanel panel, String text, Color color, ActionListener action) {
         JButton btn = new JButton(text) {
             @Override
@@ -603,18 +727,32 @@ public class JugarPartidaView extends JFrame {
         celda.setPreferredSize(new Dimension(40, 40));
         try {
             Tablero.TipoModificador mod = partida.getTablero().getTipoModificador(x, y);
-            Color colorFondo = obtenerColorModificador(mod);
-            celda.setBackground(colorFondo);
+            if (x == Tablero.FILAS/2 && y == Tablero.COLUMNAS/2) {
+                celda.setBackground(COLOR_CENTRO);
+            }
+            else
+            {
+                Color colorFondo = obtenerColorModificador(mod);
+                celda.setBackground(colorFondo);
+            }
 
             Ficha ficha = partida.getTablero().getFicha(x, y);
             if (ficha != null) {
-                JLabel lbl = new JLabel(ficha.getLetra(), SwingConstants.CENTER);
+                JLabel lbl = new JLabel("<html>" + formatearFicha(ficha) + "</html>", SwingConstants.CENTER);
                 lbl.setFont(LABEL_FONT);
-                lbl.setForeground(Color.BLACK);
                 celda.add(lbl);
             }
+
         } catch (CoordenadaFueraDeRangoException e) {
             celda.setBackground(Color.WHITE);
+        }
+
+        Point p = new Point(x, y);
+        if (colocacionesTemporales.containsKey(p)) {
+            Ficha f = colocacionesTemporales.get(p);
+            JLabel lbl = new JLabel("<html>" + formatearFicha(f) + "</html>", SwingConstants.CENTER);
+            lbl.setFont(LABEL_FONT);
+            celda.add(lbl);
         }
 
         celda.addMouseListener(new MouseAdapter() {
@@ -658,13 +796,14 @@ public class JugarPartidaView extends JFrame {
      * @return Color correspondiente al modificador (blanco si no tiene)
      */
     private Color obtenerColorModificador(Tablero.TipoModificador mod) {
-        if (mod == null) return new Color(245, 245, 220);
+        if (mod == null) return new Color(245, 245, 220); // Beige claro para casillas normales
+
         switch (mod) {
-            case dobleTantoDeLetra: return new Color(173, 216, 230);
-            case tripleTantoDeLetra: return new Color(65, 105, 225);
-            case dobleTantoDePalabra: return new Color(255, 165, 0);
-            case tripleTantoDePalabra: return new Color(220, 20, 60);
-            default: return Color.WHITE;
+            case dobleTantoDeLetra: return COLOR_DOBLE_LETRA;
+            case tripleTantoDeLetra: return COLOR_TRIPLE_LETRA;
+            case dobleTantoDePalabra: return COLOR_DOBLE_PALABRA;
+            case tripleTantoDePalabra: return COLOR_TRIPLE_PALABRA;
+            default: return new Color(245, 245, 220);
         }
     }
 
@@ -682,7 +821,7 @@ public class JugarPartidaView extends JFrame {
             int enUso = fichasEnUso.getOrDefault(f, 0);
 
             for (int i = 0; i < totalEnAtril; i++) {
-                JButton btnFicha = new JButton(f.getLetra());
+                JButton btnFicha = new JButton("<html>" + formatearFicha(f) + "</html>");
                 btnFicha.setFont(LABEL_FONT);
                 btnFicha.setPreferredSize(new Dimension(50, 50));
 
@@ -700,6 +839,18 @@ public class JugarPartidaView extends JFrame {
         }
         panelAtril.revalidate();
         panelAtril.repaint();
+    }
+
+    /**
+     * Formatea las fichas de manera que se muestre su puntuación en la esquina
+     * superior derecha
+     *
+     * @param ficha Ficha a formatear
+     * @return String en el formato deseado
+     */
+
+    private String formatearFicha(Ficha ficha) {
+        return ficha.getLetra() + " <small><sup>" + ficha.getPuntuacion() + "</sup></small>";
     }
 
     /**
@@ -741,7 +892,7 @@ public class JugarPartidaView extends JFrame {
                 int index = x * Tablero.COLUMNAS + y;
                 JPanel celda = (JPanel) panelTablero.getComponent(index);
                 celda.removeAll();
-                JLabel lbl = new JLabel(fichaSeleccionada.getLetra(), SwingConstants.CENTER);
+                JLabel lbl = new JLabel("<html>" + formatearFicha(fichaSeleccionada) + "</html>", SwingConstants.CENTER);
                 lbl.setFont(LABEL_FONT);
                 celda.add(lbl);
                 celda.revalidate();
@@ -764,11 +915,43 @@ public class JugarPartidaView extends JFrame {
         if (colocacionesTemporales.isEmpty()) return;
 
         try {
-            // 1. Validar orientación y continuidad
             List<Point> puntos = new ArrayList<>(colocacionesTemporales.keySet());
-            boolean horizontal = puntos.stream().allMatch(p -> p.x == puntos.get(0).x);
-            boolean vertical = puntos.stream().allMatch(p -> p.y == puntos.get(0).y);
+            boolean horizontal;
+            boolean vertical = false;
 
+            if (puntos.size() == 1) {
+                // Caso especial: solo una ficha colocada
+                Point p = puntos.get(0);
+                int x = p.x;
+                int y = p.y;
+
+                // Verificar fichas adyacentes en el tablero (no temporales)
+                boolean tieneIzquierda = (y > 0 && partida.getTablero().getFicha(x, y-1) != null);
+                boolean tieneDerecha = (y < Tablero.COLUMNAS-1 && partida.getTablero().getFicha(x, y+1) != null);
+                boolean tieneArriba = (x > 0 && partida.getTablero().getFicha(x-1, y) != null);
+                boolean tieneAbajo = (x < Tablero.FILAS-1 && partida.getTablero().getFicha(x+1, y) != null);
+
+                // Determinar orientación basada en adyacentes
+                if ((tieneIzquierda || tieneDerecha) && !(tieneArriba || tieneAbajo)) {
+                    horizontal = true;
+                }
+                else if ((tieneArriba || tieneAbajo) && !(tieneIzquierda || tieneDerecha)) {
+                    horizontal = false;
+                    vertical = true;
+                }
+                else {
+                    // Caso ambiguo (adyacentes en ambas direcciones o ninguno)
+                    horizontal = tieneIzquierda || tieneDerecha;
+                    vertical = tieneArriba || tieneAbajo;
+                }
+            }
+            else {
+                // Lógica original para múltiples fichas
+                horizontal = puntos.stream().allMatch(point -> point.x == puntos.get(0).x);
+                vertical = puntos.stream().allMatch(point -> point.y == puntos.get(0).y);
+            }
+
+            // Validar orientación
             if (!horizontal && !vertical) {
                 JOptionPane.showMessageDialog(this, "Las fichas deben formar una línea recta");
                 return;
@@ -794,7 +977,7 @@ public class JugarPartidaView extends JFrame {
             List<Point> todasLasLetras = new ArrayList<>();
 
             if (horizontal) {
-                for (int y = start.y; ; y++) {
+                for (int y = start.y; y < Tablero.COLUMNAS; y++) {
                     Point p = new Point(start.x, y);
                     Ficha f = getFichaAtPosition(p.x, p.y);
                     if (f == null) break;
@@ -802,7 +985,7 @@ public class JugarPartidaView extends JFrame {
                     todasLasLetras.add(p);
                 }
             } else {
-                for (int x = start.x; ; x++) {
+                for (int x = start.x; x < Tablero.FILAS; x++) {
                     Point p = new Point(x, start.y);
                     Ficha f = getFichaAtPosition(p.x, p.y);
                     if (f == null) break;
@@ -1129,7 +1312,7 @@ public class JugarPartidaView extends JFrame {
         }
 
         for (Ficha ficha : fichasEnAtril) {
-            JCheckBox check = new JCheckBox(ficha.getLetra());
+            JCheckBox check = new JCheckBox("<html>" + formatearFicha(ficha) + "</html>");
             check.setFont(LABEL_FONT);
             check.setOpaque(false);
             checkboxPanel.add(check);
