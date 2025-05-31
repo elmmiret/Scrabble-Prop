@@ -103,8 +103,11 @@ public class JugarPartidaView extends JFrame {
         this.atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
         this.gestorDeView = gestorDeView;
         this.gestorDePerfil = gestorDePerfil;
+        System.out.println("MILESTONE 1");
         init();
+        System.out.println("MILESTONE 2");
         cargarEstadoInicial();
+        System.out.println("MILESTONE 3");
     }
 
     /**
@@ -764,11 +767,43 @@ public class JugarPartidaView extends JFrame {
         if (colocacionesTemporales.isEmpty()) return;
 
         try {
-            // 1. Validar orientación y continuidad
             List<Point> puntos = new ArrayList<>(colocacionesTemporales.keySet());
-            boolean horizontal = puntos.stream().allMatch(p -> p.x == puntos.get(0).x);
-            boolean vertical = puntos.stream().allMatch(p -> p.y == puntos.get(0).y);
+            boolean horizontal;
+            boolean vertical = false;
 
+            if (puntos.size() == 1) {
+                // Caso especial: solo una ficha colocada
+                Point p = puntos.get(0);
+                int x = p.x;
+                int y = p.y;
+
+                // Verificar fichas adyacentes en el tablero (no temporales)
+                boolean tieneIzquierda = (y > 0 && partida.getTablero().getFicha(x, y-1) != null);
+                boolean tieneDerecha = (y < Tablero.COLUMNAS-1 && partida.getTablero().getFicha(x, y+1) != null);
+                boolean tieneArriba = (x > 0 && partida.getTablero().getFicha(x-1, y) != null);
+                boolean tieneAbajo = (x < Tablero.FILAS-1 && partida.getTablero().getFicha(x+1, y) != null);
+
+                // Determinar orientación basada en adyacentes
+                if ((tieneIzquierda || tieneDerecha) && !(tieneArriba || tieneAbajo)) {
+                    horizontal = true;
+                }
+                else if ((tieneArriba || tieneAbajo) && !(tieneIzquierda || tieneDerecha)) {
+                    horizontal = false;
+                    vertical = true;
+                }
+                else {
+                    // Caso ambiguo (adyacentes en ambas direcciones o ninguno)
+                    horizontal = tieneIzquierda || tieneDerecha;
+                    vertical = tieneArriba || tieneAbajo;
+                }
+            }
+            else {
+                // Lógica original para múltiples fichas
+                horizontal = puntos.stream().allMatch(point -> point.x == puntos.get(0).x);
+                vertical = puntos.stream().allMatch(point -> point.y == puntos.get(0).y);
+            }
+
+            // Validar orientación
             if (!horizontal && !vertical) {
                 JOptionPane.showMessageDialog(this, "Las fichas deben formar una línea recta");
                 return;
@@ -794,7 +829,7 @@ public class JugarPartidaView extends JFrame {
             List<Point> todasLasLetras = new ArrayList<>();
 
             if (horizontal) {
-                for (int y = start.y; ; y++) {
+                for (int y = start.y; y < Tablero.COLUMNAS; y++) {
                     Point p = new Point(start.x, y);
                     Ficha f = getFichaAtPosition(p.x, p.y);
                     if (f == null) break;
@@ -802,7 +837,7 @@ public class JugarPartidaView extends JFrame {
                     todasLasLetras.add(p);
                 }
             } else {
-                for (int x = start.x; ; x++) {
+                for (int x = start.x; x < Tablero.FILAS; x++) {
                     Point p = new Point(x, start.y);
                     Ficha f = getFichaAtPosition(p.x, p.y);
                     if (f == null) break;
