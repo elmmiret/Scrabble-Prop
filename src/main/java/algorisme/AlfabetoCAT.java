@@ -36,7 +36,6 @@ public class AlfabetoCAT {
      *
      * @param ruta Ruta del archivo a cargar
      * @return Mapa de fichas con sus frecuencias
-     * @throws IOException Si ocurre un error durante la lectura del archivo
      * @throws NumberFormatException Si hay errores en el formato numérico del archivo
      */
     private Map<Ficha,Integer> cargarArchivo(String ruta) {

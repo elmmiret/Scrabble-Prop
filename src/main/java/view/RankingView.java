@@ -241,7 +241,7 @@ public class RankingView extends JFrame {
      * Obtiene el conjunto ordenado de perfiles según el criterio especificado (puntos, victorias, derrotas o partidas jugadas)
      *
      * @param tipo  Criterio de ordenamiento del ranking
-     * @return TreeSet<Perfil> con los datos ordenados
+     * @return TreeSet de perfiles con los datos ordenados
      */
     private TreeSet<Perfil> getRankingSet(String tipo) {
         switch (tipo) {

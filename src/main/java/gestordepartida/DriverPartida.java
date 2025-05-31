@@ -719,7 +719,6 @@ public class DriverPartida {
     /**
      * Elimina permanentemente una partida del sistema.
      *
-     * @return void Muestra mensajes de éxito/error por consola
      */
     private void eliminarPartida() {
         Perfil jugador = autenticarUsuario();

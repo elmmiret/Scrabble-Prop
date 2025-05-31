@@ -169,7 +169,7 @@ public class GestorDePartida {
      * @param jugadorPrincipal Perfil del jugador creador
      * @param modo Modalidad de juego (PvP/PvIA)
      * @param oponente Perfil del oponente (requerido en PvP)
-     * @param dificultad Nivel de dificultad IA (0-10)
+     * @param dificultad Nivel de dificultad IA
      * @return Instancia de la partida recién creada
      */
     public Partida crearPartida(int id, String nombre, Partida.Idioma idioma, Perfil jugadorPrincipal, Partida.Modo modo, Perfil oponente, int dificultad) {
