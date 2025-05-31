@@ -1054,13 +1054,10 @@ public class Turno {
 
                 for(Movimiento mov : movimientos) {
                     List<String> letras = mov.getPalabra();
-                    System.out.println(letras);
-
                     int idx = 0;
                     int puntuacionPalabra = 0;
                     boolean dobleTantoPalabra = false;
                     boolean tripleTantoPalabra = false;
-                    // si el movimiento es vertical
                     if(mov.isVertical()) {
                         int y = mov.getColumna();
 
@@ -1103,7 +1100,7 @@ public class Turno {
                                 }
                             }
                             catch (CoordenadaFueraDeRangoException e){
-                                // No debería passar
+                                break;
                             }
                         }
 
@@ -1155,13 +1152,12 @@ public class Turno {
                                 }
 
                                 else {
-                                    System.out.println("LETRA QUE ESTOY MIRANDO: " + letras.get(idx));
                                     puntuacionPalabra += fichasAlfabeto.get(letras.get(idx)).getPuntuacion();
                                     idx++;
                                 }
                             }
                             catch (CoordenadaFueraDeRangoException e){
-                                // No debería passar
+                                break;
                             }
                         }
 
@@ -1174,16 +1170,12 @@ public class Turno {
                             mejorMovimientoFacil = mov;
                         }
                     }
-                    if (idx == letras.size() && puntuacionPalabra < mejorPuntuacionFacil) {
-                        mejorPuntuacionFacil = puntuacionPalabra;
-                        mejorMovimientoFacil = mov;
-                    }
                 }
 
                 best = mejorMovimientoFacil;
                 break;
 
-            // Medio
+            // DIFICIL
             case 2:
                 Random rand = new Random();
                 int size = movimientos.size();
@@ -1191,10 +1183,6 @@ public class Turno {
 
                 best = movimientos.get(idx_random);
                 break;
-
-
-
-
         }
         return best;
     }
