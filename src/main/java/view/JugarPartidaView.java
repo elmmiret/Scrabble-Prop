@@ -146,7 +146,7 @@ public class JugarPartidaView extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Panel de información
-        infoPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        infoPanel = new JPanel(new GridLayout(3, 1, 10, 10));
         infoPanel.setOpaque(false);
         if (partida.getModoPartida()==Partida.Modo.PvP)
         {
