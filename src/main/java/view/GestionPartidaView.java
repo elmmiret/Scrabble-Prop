@@ -292,7 +292,7 @@ public class GestionPartidaView extends JFrame {
                 return;
             }
 
-            if (partida.getRondas().get(partida.getRondas().size() - 2).getTipoJugada().equals(Turno.TipoJugada.finalizar))
+            if (partida.getRondas().size() > 1 && partida.getRondas().get(partida.getRondas().size() - 2).getTipoJugada().equals(Turno.TipoJugada.finalizar))
             {
                 JOptionPane.showMessageDialog(this, "No se ha podido cargar la partida: ya se ha finalizado.");
                 return;
