@@ -341,7 +341,7 @@ public class DriverPartida {
                 while (!accionValida) {
                     switch(num) {
                         case 1:
-                            accionValida = colocarPalabra(partida, jugador);
+                            accionValida = colocarPalabra(partida);
                             pasarPartidaSeguidos = 0;
                             break;
                         case 2:
@@ -450,7 +450,6 @@ public class DriverPartida {
             if (jugador != partida.getCreador()) { // es la IA
                 System.out.println("\n=== TURNO DE LA IA ===");
                 try {
-//                    gestor.obtenerRepresentacionTablero(partida.getTablero());
                     gestor.obtenerRepresentacionTablero(turnoActual.getTablero());
 
                 } catch (CoordenadaFueraDeRangoException e) {
@@ -482,7 +481,7 @@ public class DriverPartida {
                     while (!accionValida) {
                         switch (num) {
                             case 1:
-                                accionValida = colocarPalabra(partida, jugador);
+                                accionValida = colocarPalabra(partida);
                                 pasarPartidaSeguidos = 0;
                                 break;
                             case 2:
@@ -572,10 +571,9 @@ public class DriverPartida {
      * Gestiona la colocación de una palabra en el tablero durante un turno.
      *
      * @param partida Partida en curso
-     * @param jugador Perfil del jugador activo
      * @return true si la colocación fue exitosa, false en caso contrario
      */
-    private boolean colocarPalabra(Partida partida, Perfil jugador) {
+    private boolean colocarPalabra(Partida partida) {
         String palabra = leerCadena("Palabra: ").toUpperCase();
         String x_string = leerCadena("Fila (A, B...): ").toUpperCase();
         int x = x_string.charAt(0) - 'A';
