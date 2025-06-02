@@ -98,6 +98,8 @@ public class JugarPartidaView extends JFrame {
     private GestorDePerfil gestorDePerfil;
     /** Mapa para almacenar los comodines usados en el tablero para poder revertir su colocación correctamente*/
     private Map<Point, Ficha> comodinesOriginales = new HashMap<>();
+    /** Etiqueta para mostrar la cantidad de fichas restante en la bolsa */
+    private JLabel lblBolsa;
 
     /**
      * Constructora que inicializa la vista de juego con una partida existente.
@@ -179,6 +181,10 @@ public class JugarPartidaView extends JFrame {
         infoPanel.add(lblJugador);
         infoPanel.add(lblPuntos);
         infoPanel.add(lblPistas);
+        lblBolsa = new JLabel("Fichas restantes en la bolsa: " + turnoActual.getPartida().getBolsa().size());
+        infoPanel.add(lblBolsa);
+
+
         mainPanel.add(infoPanel, BorderLayout.NORTH);
 
         // Panel del tablero
@@ -610,6 +616,8 @@ public class JugarPartidaView extends JFrame {
         infoPanel.add(lblJugador);
         infoPanel.add(lblPuntos);
         infoPanel.add(lblPistas);
+        lblBolsa = new JLabel("Fichas restantes en la bolsa: " + turnoActual.getPartida().getBolsa().size());
+        infoPanel.add(lblBolsa);
 
         infoPanel.revalidate();
         infoPanel.repaint();

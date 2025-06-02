@@ -135,6 +135,7 @@ public class GestorDePartida {
      */
     public boolean cambiarFichas(Turno turno, Map<Ficha, Integer> atril, List<String> letras) {
         Map<Ficha, Integer> cambio = new HashMap<>();
+        if (turno.getPartida().getBolsa().isEmpty()) return false;
         for (String letra : letras) {
             Ficha fichaReal = null;
             for (Ficha fAtril : atril.keySet()) {
