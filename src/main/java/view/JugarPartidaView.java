@@ -1025,7 +1025,7 @@ public class JugarPartidaView extends JFrame {
                         revertirColocacionesTemporales();
                         return; // Usuario canceló
                     }
-                    fullWord.setCharAt(pos, letraElegida.charAt(0));
+                    fullWord.replace(pos, pos + 1, letraElegida);
 
                     // Actualizar la ficha temporal para reflejar el cambio visual
                     Point p = todasLasLetras.get(pos);
