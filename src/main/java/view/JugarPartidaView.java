@@ -978,6 +978,8 @@ public class JugarPartidaView extends JFrame {
                     Point p = new Point(start.x, y);
                     Ficha f = getFichaAtPosition(p.x, p.y);
                     if (f == null) break;
+
+                    // Añadir la representación completa del dígrafo
                     fullWord.append(f.getLetra());
                     todasLasLetras.add(p);
                 }
@@ -986,6 +988,8 @@ public class JugarPartidaView extends JFrame {
                     Point p = new Point(x, start.y);
                     Ficha f = getFichaAtPosition(p.x, p.y);
                     if (f == null) break;
+
+                    // Añadir la representación completa del dígrafo
                     fullWord.append(f.getLetra());
                     todasLasLetras.add(p);
                 }
@@ -1021,7 +1025,7 @@ public class JugarPartidaView extends JFrame {
                         revertirColocacionesTemporales();
                         return; // Usuario canceló
                     }
-                    fullWord.setCharAt(pos, letraElegida.charAt(0));
+                    fullWord.replace(pos, pos + 1, letraElegida);
 
                     // Actualizar la ficha temporal para reflejar el cambio visual
                     Point p = todasLasLetras.get(pos);
@@ -1053,6 +1057,11 @@ public class JugarPartidaView extends JFrame {
 
             // Validar todas las palabras con el DAWG
             for (String palabra : palabrasValidadas) {
+                // Solo saltar si es EXACTAMENTE un dígrafo, no cuando es parte de una palabra
+                if (esDigrafo(palabra) && palabra.length() == 2) {
+                    continue;
+                }
+
                 if (!partida.getDawg().existePalabra(palabra)) {
                     JOptionPane.showMessageDialog(this, "Palabra inválida: " + palabra);
                     revertirColocacionesTemporales();
@@ -1099,6 +1108,22 @@ public class JugarPartidaView extends JFrame {
         fichasEnUso.clear();
         cargarAtril();
         cargarTablero();
+    }
+
+    /**
+     * Comprueba si una palabra contiene dígrafo
+     *
+     * @param palabra La palabra a comprobar
+     * @return True en caso de que la palabra contenga dígrafo, false en caso contrario
+     */
+    private boolean esDigrafo(String palabra) {
+        Partida.Idioma idioma = partida.getIdioma();
+        if (idioma == Partida.Idioma.CAST) {
+            return palabra.contains("CH") || palabra.contains("LL") || palabra.contains("RR");
+        } else if (idioma == Partida.Idioma.CAT) {
+            return palabra.contains("L·L") || palabra.contains("NY");
+        }
+        return false;
     }
 
     /**
@@ -1156,7 +1181,7 @@ public class JugarPartidaView extends JFrame {
         for (int x = p.x; x >= 0; x--) {
             Ficha f = getFichaAtPosition(x, p.y);
             if (f == null) break;
-            sb.insert(0, f.getLetra());
+            sb.insert(0, f.getLetra()); // Insertar al inicio para mantener orden
         }
         // Abajo (excluyendo la posición actual para evitar duplicados)
         for (int x = p.x + 1; x < Tablero.FILAS; x++) {
@@ -1200,14 +1225,18 @@ public class JugarPartidaView extends JFrame {
      * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
      */
     private Ficha getFichaAtPosition(int x, int y) throws CoordenadaFueraDeRangoException {
-        // Verificar límites primero
         if (x < 0 || x >= Tablero.FILAS || y < 0 || y >= Tablero.COLUMNAS) {
             return null;
         }
         Point p = new Point(x, y);
-        return colocacionesTemporales.containsKey(p)
+        Ficha ficha = colocacionesTemporales.containsKey(p)
                 ? colocacionesTemporales.get(p)
                 : partida.getTablero().getFicha(x, y);
+
+        if (comodinesOriginales.containsKey(p)) {
+            return ficha;
+        }
+        return ficha;
     }
 
     /**
