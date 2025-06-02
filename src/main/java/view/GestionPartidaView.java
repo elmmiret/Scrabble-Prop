@@ -286,15 +286,18 @@ public class GestionPartidaView extends JFrame {
             int id = Integer.parseInt(idStr);
 
             Partida partida = gestorDePartida.obtenerPartida(id);
+
+            if (partida == null || !gestorDePartida.existePartidaJugador(jugador, id)) {
+                JOptionPane.showMessageDialog(this, "Partida no encontrada.");
+                return;
+            }
+
             if (partida.getRondas().get(partida.getRondas().size() - 2).getTipoJugada().equals(Turno.TipoJugada.finalizar))
             {
                 JOptionPane.showMessageDialog(this, "No se ha podido cargar la partida: ya se ha finalizado.");
                 return;
             }
-            if (partida == null || !gestorDePartida.existePartidaJugador(jugador, id)) {
-                JOptionPane.showMessageDialog(this, "Partida no encontrada.");
-                return;
-            }
+
 
             System.out.println("Voy a mostrar la partida");
             gestorDeView.mostrarPartida(partida);
