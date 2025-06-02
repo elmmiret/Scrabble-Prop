@@ -1200,11 +1200,14 @@ public class JugarPartidaView extends JFrame {
      * @throws CoordenadaFueraDeRangoException Si las coordenadas son inválidas
      */
     private Ficha getFichaAtPosition(int x, int y) throws CoordenadaFueraDeRangoException {
+        // Verificar límites primero
+        if (x < 0 || x >= Tablero.FILAS || y < 0 || y >= Tablero.COLUMNAS) {
+            return null;
+        }
         Point p = new Point(x, y);
-        // Priorizar comodines ya sustituidos
-        return colocacionesTemporales.containsKey(p) ?
-                colocacionesTemporales.get(p) :
-                partida.getTablero().getFicha(x, y);
+        return colocacionesTemporales.containsKey(p)
+                ? colocacionesTemporales.get(p)
+                : partida.getTablero().getFicha(x, y);
     }
 
     /**
