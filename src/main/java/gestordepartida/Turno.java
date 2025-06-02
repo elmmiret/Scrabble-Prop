@@ -482,7 +482,6 @@ public class Turno {
 
         // Robar nuevas fichas
         robarFichas(atril);
-
         // Devolver las cambiadas a la bolsa y barajar
         partida.getBolsa().addAll(colaTemporal);
         List<Ficha> listaBolsa = new ArrayList<>(partida.getBolsa());
@@ -565,14 +564,13 @@ public class Turno {
      */
     private int calculoPuntosExtraHorizontal(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
-        // explorar horizontal hacia la izquierda
-        for (int x = x_ini - 1; x >= 0; --x) {
-            Ficha f = partida.getTablero().getFicha( x, y_ini);
+        for (int x = x_ini - 1; x >= 0; x--) {
+            Ficha f = partida.getTablero().getFicha(x, y_ini);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
         }
-        // explorar horizontal hacia la derecha después de la palabra
-        for (int x = x_ini + palabra.length(); x < Tablero.COLUMNAS; x++) {
+        int finX = x_ini + palabra.length();
+        for (int x = finX; x < Tablero.COLUMNAS; x++) {
             Ficha f = partida.getTablero().getFicha(x, y_ini);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
@@ -595,14 +593,13 @@ public class Turno {
      */
     private int calculoPuntosExtraVertical(int x_ini, int y_ini, String palabra) throws CoordenadaFueraDeRangoException {
         int puntosPorSumar = 0;
-        // buscar fichas antes de la palabra (hacia arriba)
         for (int y = y_ini - 1; y >= 0; y--) {
             Ficha f = partida.getTablero().getFicha(x_ini, y);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
         }
-        // buscar fichas después de la palabra (hacia abajo)
-        for (int y = y_ini + palabra.length(); y < Tablero.FILAS; y++) {
+        int finY = y_ini + palabra.length();
+        for (int y = finY; y < Tablero.FILAS; y++) {
             Ficha f = partida.getTablero().getFicha(x_ini, y);
             if (f == null) break;
             puntosPorSumar += f.getPuntuacion();
@@ -765,22 +762,25 @@ public class Turno {
                     // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
                     // no se multiplican por el modificador de palabra
                     // explorar horizontalmente (izquierda)
-                    if (partida.getTablero().getFicha(x_ini + i, y_ini - 1) != null || partida.getTablero().getFicha(x_ini + i, y_ini + 1) != null) {
-                        int x = x_ini + i - 1;
-                        while (x >= 0) {
-                            Ficha fIzq = partida.getTablero().getFicha(x, y_ini);
-                            if (fIzq == null) break;
-                            puntosHorizontalExtra += fIzq.getPuntuacion();
-                            x--;
-                        }
+                    if (x_ini + i < Tablero.FILAS && y_ini -1 >= 0 && y_ini + 1 < Tablero.COLUMNAS)
+                    {
+                        if (partida.getTablero().getFicha(x_ini + i, y_ini - 1) != null || partida.getTablero().getFicha(x_ini + i, y_ini + 1) != null) {
+                            int x = x_ini + i - 1;
+                            while (x >= 0 && x < Tablero.FILAS) {
+                                Ficha fIzq = partida.getTablero().getFicha(x, y_ini);
+                                if (fIzq == null) break;
+                                puntosHorizontalExtra += fIzq.getPuntuacion();
+                                x--;
+                            }
 
-                        // explorar horizontalmente (derecha)
-                        x = x_ini + i + 1;
-                        while (x < Tablero.COLUMNAS) {
-                            Ficha fDer = partida.getTablero().getFicha(x, y_ini);
-                            if (fDer == null) break;
-                            puntosHorizontalExtra += fDer.getPuntuacion();
-                            x++;
+                            // explorar horizontalmente (derecha)
+                            x = x_ini + i + 1;
+                            while (x >= 0 && x < Tablero.COLUMNAS) {
+                                Ficha fDer = partida.getTablero().getFicha(x, y_ini);
+                                if (fDer == null) break;
+                                puntosHorizontalExtra += fDer.getPuntuacion();
+                                x++;
+                            }
                         }
                     }
                 }
@@ -876,22 +876,24 @@ public class Turno {
                     // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
                     // no se multiplican por el modificador de palabra
                     // Explorar verticalmente (arriba)
-                    if (partida.getTablero().getFicha(x_ini - 1, y_ini + i) != null || partida.getTablero().getFicha(x_ini + 1, y_ini + i) != null) {
-                        int y = y_ini + i - 1;
-                        while (y >= 0) {
-                            Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
-                            if (fArriba == null) break;
-                            puntosVerticalExtra += fArriba.getPuntuacion();
-                            y--;
-                        }
+                    if (x_ini - 1 >= 0 && y_ini + i < Tablero.COLUMNAS && x_ini + 1 < Tablero.COLUMNAS) {
+                        if (partida.getTablero().getFicha(x_ini - 1, y_ini + i) != null || partida.getTablero().getFicha(x_ini + 1, y_ini + i) != null) {
+                            int y = y_ini + i - 1;
+                            while (y >= 0 && y < Tablero.COLUMNAS) {
+                                Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
+                                if (fArriba == null) break;
+                                puntosVerticalExtra += fArriba.getPuntuacion();
+                                y--;
+                            }
 
-                        // Explorar verticalmente (abajo)
-                        y = y_ini + i + 1;
-                        while (y < Tablero.FILAS) {
-                            Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
-                            if (fAbajo == null) break;
-                            puntosVerticalExtra += fAbajo.getPuntuacion();
-                            y++;
+                            // Explorar verticalmente (abajo)
+                            y = y_ini + i + 1;
+                            while (y >= 0 && y < Tablero.FILAS) {
+                                Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
+                                if (fAbajo == null) break;
+                                puntosVerticalExtra += fAbajo.getPuntuacion();
+                                y++;
+                            }
                         }
                     }
                     System.out.println("HOLA5");
