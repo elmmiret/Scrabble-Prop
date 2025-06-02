@@ -235,7 +235,11 @@ public class GestionPartidaView extends JFrame {
 
             if ("PvP".equals(modo)) {
                 Perfil oponente = autenticarUsuario();
-                if (oponente == null || oponente.equals(jugador)) {
+                if (oponente == null) {
+                    JOptionPane.showMessageDialog(this, "Este jugador no existe");
+                    return;
+                }
+                else if (oponente.equals(jugador)) {
                     JOptionPane.showMessageDialog(this, "¡No puedes jugar contra ti mismo!");
                     return;
                 }
