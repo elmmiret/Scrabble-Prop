@@ -366,44 +366,7 @@ public class GestionPartidaView extends JFrame {
             content.add(emptyLabel, gbc);
         } else {
             for (Partida p : partidas) {
-                JPanel entryPanel = new JPanel(new BorderLayout(10, 0));
-                entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                entryPanel.setBackground(new Color(240, 240, 240));
-
-                JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-                leftPanel.setBackground(new Color(240, 240, 240));
-
-                JLabel idLabel = new JLabel("ID: " + p.getId());
-                idLabel.setFont(BUTTON_FONT);
-                idLabel.setForeground(COLOR_AZUL);
-
-                JLabel nameLabel = new JLabel(p.getNombre());
-                nameLabel.setFont(BUTTON_FONT);
-                nameLabel.setForeground(Color.BLACK);
-
-                leftPanel.add(idLabel);
-                leftPanel.add(nameLabel);
-
-                JPanel rightPanel = new JPanel(new GridLayout(2, 1));
-                rightPanel.setBackground(new Color(240, 240, 240));
-
-                JLabel modeLabel = new JLabel("Modo: " + p.getModoPartida());
-                modeLabel.setFont(BUTTON_FONT);
-                modeLabel.setForeground(Color.BLACK);
-
-                JLabel detailLabel = new JLabel(
-                        p.getModoPartida() == Partida.Modo.PvP ?
-                                "Oponente: " + (p.getOponente().getUsername().equals(jugador.getUsername()) ? p.getCreador().getUsername() : p.getOponente().getUsername()) :
-                                "Dificultad IA: " + p.getDificultad()
-                );
-                detailLabel.setFont(BUTTON_FONT);
-                detailLabel.setForeground(Color.BLACK);
-
-                rightPanel.add(modeLabel);
-                rightPanel.add(detailLabel);
-
-                entryPanel.add(leftPanel, BorderLayout.WEST);
-                entryPanel.add(rightPanel, BorderLayout.EAST);
+                JPanel entryPanel = crearPanelPartida(p, jugador);
 
                 content.add(entryPanel, gbc);
                 content.add(new JSeparator(), gbc);
@@ -457,7 +420,7 @@ public class GestionPartidaView extends JFrame {
             content.add(emptyLabel, gbc);
         } else {
             for (Partida p : partidas) {
-                JPanel entryPanel = crearPanelPartida(p);
+                JPanel entryPanel = crearPanelPartida(p, jugador);
 
                 if (paraRepeticion) {
                     entryPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -492,7 +455,7 @@ public class GestionPartidaView extends JFrame {
      * @param p Partida a representar en el panel
      * @return Panel con detalles de la partida
      */
-    private JPanel crearPanelPartida(Partida p) {
+    private JPanel crearPanelPartida(Partida p, Perfil jugador) {
         JPanel entryPanel = new JPanel(new BorderLayout(10, 0));
         entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         entryPanel.setBackground(new Color(240, 240, 240));
@@ -520,7 +483,7 @@ public class GestionPartidaView extends JFrame {
 
         JLabel detailLabel = new JLabel(
                 p.getModoPartida() == Partida.Modo.PvP ?
-                        "Oponente: " + p.getOponente().getUsername() :
+                        "Oponente: " + (p.getOponente().getUsername().equals(jugador.getUsername()) ? p.getCreador().getUsername() : p.getOponente().getUsername()) :
                         "Dificultad IA: " + p.getDificultad()
         );
         detailLabel.setFont(BUTTON_FONT);
