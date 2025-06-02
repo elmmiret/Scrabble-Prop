@@ -184,13 +184,14 @@ public class PartidaDAO {
                         String[] datosPistas = linea.split("\\|");
                         turnoActual.setPistasRestantesJ1(Integer.parseInt(datosPistas[1]));
                         turnoActual.setPistasRestantesJ2(Integer.parseInt(datosPistas[2]));
-                    } else if (linea.startsWith("ATRIL_J1|")) {
-                        String data = linea.split("\\|")[1];
-                        turnoActual.setAtrilJ1(cargarAtril(data, partidaActual.getMapaLetras()));
-
+                    }  else if (linea.startsWith("ATRIL_J1|")) {
+                    String[] partes = linea.split("\\|", 2);
+                    String data = partes.length > 1 ? partes[1] : "";
+                    turnoActual.setAtrilJ1(cargarAtril(data, partidaActual.getMapaLetras()));
 
                     } else if (linea.startsWith("ATRIL_J2|")) {
-                        String data = linea.split("\\|")[1];
+                        String[] partes = linea.split("\\|", 2);
+                        String data = partes.length > 1 ? partes[1] : "";
                         turnoActual.setAtrilJ2(cargarAtril(data, partidaActual.getMapaLetras()));
                     }
                 }
