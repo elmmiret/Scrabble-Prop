@@ -876,22 +876,24 @@ public class Turno {
                     // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
                     // no se multiplican por el modificador de palabra
                     // Explorar verticalmente (arriba)
-                    if (partida.getTablero().getFicha(x_ini - 1, y_ini + i) != null || partida.getTablero().getFicha(x_ini + 1, y_ini + i) != null) {
-                        int y = y_ini + i - 1;
-                        while (y >= 0) {
-                            Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
-                            if (fArriba == null) break;
-                            puntosVerticalExtra += fArriba.getPuntuacion();
-                            y--;
-                        }
+                    if (x_ini - 1 >= 0 && y_ini + i < Tablero.COLUMNAS && x_ini + 1 < Tablero.COLUMNAS) {
+                        if (partida.getTablero().getFicha(x_ini - 1, y_ini + i) != null || partida.getTablero().getFicha(x_ini + 1, y_ini + i) != null) {
+                            int y = y_ini + i - 1;
+                            while (y >= 0 && y < Tablero.COLUMNAS) {
+                                Ficha fArriba = partida.getTablero().getFicha(x_ini, y);
+                                if (fArriba == null) break;
+                                puntosVerticalExtra += fArriba.getPuntuacion();
+                                y--;
+                            }
 
-                        // Explorar verticalmente (abajo)
-                        y = y_ini + i + 1;
-                        while (y < Tablero.FILAS) {
-                            Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
-                            if (fAbajo == null) break;
-                            puntosVerticalExtra += fAbajo.getPuntuacion();
-                            y++;
+                            // Explorar verticalmente (abajo)
+                            y = y_ini + i + 1;
+                            while (y >= 0 && y < Tablero.FILAS) {
+                                Ficha fAbajo = partida.getTablero().getFicha(x_ini, y);
+                                if (fAbajo == null) break;
+                                puntosVerticalExtra += fAbajo.getPuntuacion();
+                                y++;
+                            }
                         }
                     }
                     System.out.println("HOLA5");
