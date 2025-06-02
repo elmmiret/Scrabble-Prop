@@ -400,16 +400,7 @@ public class JugarPartidaView extends JFrame {
      */
     private String construirMensajePista(Movimiento mov, int dificultad) {
         StringBuilder sb = new StringBuilder();
-        switch (dificultad) {
-            case 1:
-                char letra = (char) ('A' + mov.getFila());
-                int columna = mov.getColumna() + 1;
-                sb.append("Palabra y posición sugerida: ").append(letra).append(columna).append("\n");
-                break;
-            case 2:
-                sb.append("Posible palabra: ");
-                break;
-        }
+        sb.append("Posible palabra: ");
 
         mov.getPalabra().forEach(letra -> sb.append(letra).append(" "));
         return sb.toString();
