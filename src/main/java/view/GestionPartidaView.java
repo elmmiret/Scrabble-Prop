@@ -457,6 +457,7 @@ public class GestionPartidaView extends JFrame {
      * Genera un panel UI con la información de una partida específica.
      *
      * @param p Partida a representar en el panel
+     * @param jugador Perfil del jugador actual, usado para determinar qué información mostrar
      * @return Panel con detalles de la partida
      */
     private JPanel crearPanelPartida(Partida p, Perfil jugador) {
