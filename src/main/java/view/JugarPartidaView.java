@@ -117,11 +117,8 @@ public class JugarPartidaView extends JFrame {
         this.atrilActual = gestorDePartida.obtenerAtrilJugador(partida, jugadorActual);
         this.gestorDeView = gestorDeView;
         this.gestorDePerfil = gestorDePerfil;
-        System.out.println("MILESTONE 1");
         init();
-        System.out.println("MILESTONE 2");
         cargarEstadoInicial();
-        System.out.println("MILESTONE 3");
     }
 
     /**
@@ -173,7 +170,6 @@ public class JugarPartidaView extends JFrame {
             else lblPuntos = new JLabel("Puntos: " + turnoActual.getPuntuacionJ1());
         }
 
-        System.out.println("MILESTONE 1");
         lblPuntos.setFont(TITLE_FONT);
         JLabel lblPistas = new JLabel("Pistas restantes: " + obtenerPistasRestantes(turnoActual));
         lblPistas.setFont(LABEL_FONT);
@@ -194,8 +190,6 @@ public class JugarPartidaView extends JFrame {
                 Tablero.FILAS * 45
         ));
         cargarTablero();
-
-        System.out.println("MILESTONE 1.1");
 
         mainPanel.add(new JScrollPane(panelTablero), BorderLayout.CENTER);
 
@@ -220,23 +214,15 @@ public class JugarPartidaView extends JFrame {
         lateralPanel.add(atrilLeyendaPanel, BorderLayout.NORTH);
 
 
-        System.out.println("MILESTONE 1.2");
-
         // Botones
         botonesPanel = new JPanel(new GridLayout(3, 1, 10, 15));
         botonesPanel.setOpaque(false);
         botonesPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-        System.out.println("MILESTONE 1.2.1");
         addJugarButton(botonesPanel, "Confirmar", COLOR_VERDE, e -> confirmarColocacion());
-        System.out.println("MILESTONE 1.2.2");
         addJugarButton(botonesPanel, "Cambiar Fichas", COLOR_AZUL, e -> cambiarFichas());
-        System.out.println("MILESTONE 1.2.3");
         addJugarButton(botonesPanel, "Pedir Pista", COLOR_AZUL, e -> pedirPista());
-        System.out.println("MILESTONE 1.2.4");
         addJugarButton(botonesPanel, "Pasar turno", COLOR_AZUL, e -> pasarTurno());
-        System.out.println("MILESTONE 1.2.5");
         addJugarButton(botonesPanel, "Salir", COLOR_ROJO, e -> salirPartida());
-        System.out.println("MILESTONE 1.2.6");
 
         // Inside the init() method, after creating the botonesPanel
         cambiarFichasPanel = new JPanel(new BorderLayout(10, 5));
@@ -244,14 +230,10 @@ public class JugarPartidaView extends JFrame {
         cambiarFichasPanel.setOpaque(false);
         cambiarFichasPanel.setVisible(false);
 
-        System.out.println("MILESTONE 1.3");
-
         // Add checkboxes for tiles (dynamically populated later)
         JPanel checkboxPanel = new JPanel(new GridLayout(0, 1, 2, 2)); // Reducir espaciado entre filas
         checkboxPanel.setOpaque(false);
         cambiarFichasPanel.add(new JScrollPane(checkboxPanel), BorderLayout.CENTER);
-
-        System.out.println("MILESTONE 2");
 
         JPanel btnPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         btnPanel.setPreferredSize(new Dimension(0, 35)); // Altura fija compacta
@@ -270,7 +252,6 @@ public class JugarPartidaView extends JFrame {
         mainPanel.add(lateralPanel, BorderLayout.EAST);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
-        System.out.println("MILESTONE 3");
     }
 
 

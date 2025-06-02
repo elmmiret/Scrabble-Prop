@@ -244,7 +244,6 @@ public class GestionPartidaView extends JFrame {
                     return;
                 }
                 Partida partida = gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvP, oponente, 0);
-                System.out.println("SE HA CREADO LA PARTIDA ? " + partida != null ? "Si" : "NO");
                 gestorDeView.mostrarPartida(partida);
                 JOptionPane.showMessageDialog(this, "Partida PvP creada exitosamente!");
             } else {
@@ -263,7 +262,6 @@ public class GestionPartidaView extends JFrame {
 
                 int dificultad = Integer.parseInt(dificultadStr);
                 Partida partida = gestorDePartida.crearPartida(id, nombre, idiomaPartida, jugador, Partida.Modo.PvIA, null, dificultad);
-                System.out.println("SE HA CREADO LA PARTIDA ? " + partida != null ? "Si" : "NO");
 
                 gestorDeView.mostrarPartida(partida);
                 JOptionPane.showMessageDialog(this, "Partida PvIA creada exitosamente!");
@@ -303,7 +301,6 @@ public class GestionPartidaView extends JFrame {
             }
 
 
-            System.out.println("Voy a mostrar la partida");
             gestorDeView.mostrarPartida(partida);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
