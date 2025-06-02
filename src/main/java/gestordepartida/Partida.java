@@ -361,8 +361,6 @@ public class Partida {
             for (int i = 0; i < cantidad; i++) listaTemporal.add(ficha);
         }
 
-        System.out.println("Comodín en mapaLetras: " + mapaLetras.containsKey("#")); // Debe imprimir "true"
-        System.out.println("PUNTUACION COMODIN : " + getPuntuacionFicha("#"));
         // mezclo las fichas para randomizar las posiciones
         Collections.shuffle(listaTemporal);
         bolsa.addAll(listaTemporal);

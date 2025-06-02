@@ -641,8 +641,6 @@ public class Turno {
      * @throws CasillaOcupadaException         Si una casilla ya está ocupada.
      */
     public boolean colocarPalabra(String palabra, int x_ini, int y_ini, String orientacion) throws CoordenadaFueraDeRangoException, CasillaOcupadaException {
-        System.out.println("Entro a colocarPalabra " + palabra + " " + x_ini + " " + y_ini + " " + orientacion);
-
         int puntosPorSumar = 0;
         int modificadorPalabra = 1;
         int puntosVerticalExtra = 0;
@@ -656,8 +654,6 @@ public class Turno {
         if (partida.dawg.comprobarPalabra(partida.getTablero(), palabra, x_ini , y_ini , orientacion, esPrimerTurno)) {
 
             List<String> fichas = partida.getDawg().dividirPalabra(palabra);
-            System.out.println("Size de fichas: "+fichas.size());
-            System.out.println(partida.getDawg().dividirPalabra(palabra));
             if (esPrimerTurno)
             {
                 if (orientacion.equals("vertical"))
@@ -684,10 +680,8 @@ public class Turno {
                     ++comodines;
                 }
             }
-            System.out.println("HOLA1");
 
             if ("vertical".equals(orientacion)) {
-                System.out.println("Entro a Vertical");
 
                 List<String> division = partida.getDawg().dividirPalabra(palabra);
                 int size = division.size();
@@ -719,7 +713,6 @@ public class Turno {
                     }
                     ++pos_division;
                 }
-                System.out.println("Tengo las fichas en el atril");
 
                 StringBuilder palabraColocada = new StringBuilder();
                 this.x_ini = x_ini;
@@ -737,7 +730,6 @@ public class Turno {
                         if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                         else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
                         if (fichaEncontrada == null) {
-                            System.out.println("No he podido quitar la ficha " + letraBuscada + " del atril");
                             return false;
                         }
 
@@ -784,7 +776,6 @@ public class Turno {
                         }
                     }
                 }
-                System.out.println("HOLA2");
 
                 this.palabra = palabraColocada.toString();
 
@@ -796,9 +787,6 @@ public class Turno {
                 // refact. al final
             }
             else { // horizontal
-                System.out.println("Entro a horizontal");
-                System.out.println("HOLA3");
-
                 // IMPLEMENTACION QUE FALTABA
                 List<String> division = partida.getDawg().dividirPalabra(palabra);
                 int size = division.size();
@@ -825,6 +813,7 @@ public class Turno {
                                 for (Ficha ficha : atrilCheck.keySet()) {
                                     if (ficha.getLetra().equals("#")) {
                                         ficha.setLetra(fichas.get(pos_division));
+                                        quitarFichaDelAtril(atrilCheck, fichas.get(pos_division));
                                     }
                                 }
                             }
@@ -833,7 +822,6 @@ public class Turno {
                     ++pos_division;
                 }
                 // fin de la nueva implementacion
-                System.out.println("Tengo las fichas en el atril");
 
                 StringBuilder palabraColocada = new StringBuilder();
                 this.x_ini = x_ini;
@@ -849,7 +837,6 @@ public class Turno {
                         if (jugador == partida.getCreador()) fichaEncontrada = quitarFichaDelAtril(atrilJ1, letraBuscada);
                         else fichaEncontrada = quitarFichaDelAtril(atrilJ2, letraBuscada);
                         if (fichaEncontrada == null) {
-                            System.out.println("No he podido quitar la ficha " + letraBuscada + " del atril");
                             return false;
                         }
                         f = fichaEncontrada;
@@ -871,7 +858,6 @@ public class Turno {
                         puntosBasePalabra += f.getPuntuacion();
                     }
 
-                    System.out.println("HOLA4");
 
                     // independientemente de si esta puesta o no, explorar alrededor para sumar esos puntos, pero estos
                     // no se multiplican por el modificador de palabra
@@ -896,8 +882,6 @@ public class Turno {
                             }
                         }
                     }
-                    System.out.println("HOLA5");
-
                 }
 
                 this.palabra = palabraColocada.toString();
@@ -908,11 +892,8 @@ public class Turno {
                 // puntos de juntar con palabras ya hechas
                 puntosBasePalabra += calculoPuntosExtraHorizontal(x_ini, y_ini, palabra);
             }
-            System.out.println("Salgo de H/V");
-
         }
         else {
-            System.out.println("PETO");
             // compruebo la palabra y esta mal
             return false;
         }
@@ -933,7 +914,6 @@ public class Turno {
         setTipoJugada(TipoJugada.colocar);
         if (jugador == partida.getCreador()) robarFichas(atrilJ1);
         else robarFichas(atrilJ2);
-        System.out.println("Voy a avanzar turno");
         avanzarTurno();
         return true;
     }
