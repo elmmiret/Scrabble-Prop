@@ -482,7 +482,6 @@ public class Turno {
 
         // Robar nuevas fichas
         robarFichas(atril);
-
         // Devolver las cambiadas a la bolsa y barajar
         partida.getBolsa().addAll(colaTemporal);
         List<Ficha> listaBolsa = new ArrayList<>(partida.getBolsa());

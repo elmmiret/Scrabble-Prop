@@ -1084,9 +1084,7 @@ public class JugarPartidaView extends JFrame {
                 fichasEnUso.clear();
                 pasarConsecutivos = 0;
                 if (atrilActual.isEmpty()) {
-                    Turno turnoActual = partida.getRondas().get(partida.getRondas().size() - 1);
-                    turnoActual.setTipoJugada(Turno.TipoJugada.finalizar);
-                    turnoActual.pasarTurno();
+                    partida.getRondas().get(partida.getRondas().size() - 2).setTipoJugada(Turno.TipoJugada.finalizar);
                     finalizarPartida("¡Atril vacío! Fin de la partida.");
                     return;
                 }
@@ -1289,6 +1287,7 @@ public class JugarPartidaView extends JFrame {
             turnoIA.jugarIA(dificultad);
             pasarConsecutivos = 0;
             if (atrilActual.isEmpty()) {
+                partida.getRondas().get(partida.getRondas().size() - 2).setTipoJugada(Turno.TipoJugada.finalizar);
                 finalizarPartida("¡Atril vacío! Fin de la partida.");
                 return;
             }
