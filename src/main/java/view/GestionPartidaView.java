@@ -393,7 +393,7 @@ public class GestionPartidaView extends JFrame {
 
                 JLabel detailLabel = new JLabel(
                         p.getModoPartida() == Partida.Modo.PvP ?
-                                "Oponente: " + p.getOponente().getUsername() :
+                                "Oponente: " + (p.getOponente().getUsername().equals(jugador.getUsername()) ? p.getCreador().getUsername() : p.getOponente().getUsername()) :
                                 "Dificultad IA: " + p.getDificultad()
                 );
                 detailLabel.setFont(BUTTON_FONT);
