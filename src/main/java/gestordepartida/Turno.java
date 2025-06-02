@@ -714,6 +714,7 @@ public class Turno {
                                 for (Ficha ficha : atrilCheck.keySet()) {
                                     if (ficha.getLetra().equals("#")) {
                                         ficha.setLetra(fichas.get(pos_division));
+                                        quitarFichaDelAtril(atrilCheck, fichas.get(pos_division));
                                     }
                                 }
                             }
